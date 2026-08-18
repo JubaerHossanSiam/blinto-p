@@ -56,6 +56,7 @@ Career Level → Department Career Ladder → Role Success Plan → Actual Work 
 ### KPI Framework
 
 - [100-Point KPI Framework](kpi-framework.md)
+- [KPI Scoring Methodology](scoring-methodology.md)
 - [KPI 01 — Delivery & Reliability](kpi-01-delivery-reliability.md)
 - [KPI 02 — Work Quality](kpi-02-work-quality.md)
 - [KPI 03 — Ownership](kpi-03-ownership.md)
@@ -83,5 +84,4 @@ Career Level → Department Career Ladder → Role Success Plan → Actual Work 
 
 ## Documentation still to complete
 
-- Task-to-month KPI scoring methodology
 - Final assessment methodology
