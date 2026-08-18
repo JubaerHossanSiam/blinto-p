@@ -23,6 +23,22 @@ Career Level → Department Career Ladder → Role Success Plan → Actual Work 
 - [Project Delivery Career Ladder](career-ladder-project-delivery.md)
 - [People, Operations & Finance Career Ladder](career-ladder-people-operations-finance.md)
 
+### Role Success Plans
+
+- [Ifrat — Project Manager / Website & Growth Lead](role-success-plan-ifrat.md)
+- [Rakibul — Shopify App & Growth Lead](role-success-plan-rakibul.md)
+- [Jannatul Mukta — People & Operations Executive](role-success-plan-mukta.md)
+- [Sayem — Backend Engineer / Technical Lead](role-success-plan-sayem.md)
+- [Siam — Senior Frontend Developer](role-success-plan-siam.md)
+- [Usha — Frontend Developer](role-success-plan-usha.md)
+- [Raihan — Frontend Developer](role-success-plan-raihan.md)
+- [Fatema — Frontend Developer](role-success-plan-fatema.md)
+- [Yasin — Frontend Developer](role-success-plan-yasin.md)
+- [Silvia — UI/UX Designer](role-success-plan-silvia.md)
+- [Imran — Product Designer](role-success-plan-imran.md)
+- [Drishty — Content Strategist](role-success-plan-drishty.md)
+- [Abbrar — SEO Executive](role-success-plan-abbrar.md)
+
 ### KPI Framework
 
 - [100-Point KPI Framework](kpi-framework.md)
@@ -55,6 +71,5 @@ Career Level → Department Career Ladder → Role Success Plan → Actual Work 
 
 The following parts of the framework are intentionally not documented here yet because they still need to be finalized:
 
-- Role Success Plans
 - Task-to-month KPI scoring methodology
 - Final assessment methodology
