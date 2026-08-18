@@ -71,6 +71,7 @@ Career Level → Department Career Ladder → Role Success Plan → Actual Work 
 ### Performance Reviews
 
 - [Monthly KPI Review](monthly-kpi-review.md)
+- [Final Performance Assessment](final-assessment.md)
 
 ### ClickUp Implementation
 
@@ -82,6 +83,6 @@ Career Level → Department Career Ladder → Role Success Plan → Actual Work 
 - **GitHub:** performance methodology, KPI definitions, career framework, career ladders, role expectations, review methodology, and assessment methodology.
 - **ClickUp:** work execution, task-level KPI evidence, and monthly KPI reviews.
 
-## Documentation still to complete
+## Framework status
 
-- Final assessment methodology
+The core Blinto Team Performance methodology is documented. Future changes should refine the framework based on operating experience rather than create parallel performance systems.
