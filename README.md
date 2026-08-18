@@ -40,8 +40,8 @@ Career Level → Department Career Ladder → Role Success Plan → Actual Work 
 - [Rakibul — Shopify App & Growth Lead](role-success-plan-rakibul.md)
 - [Jannatul Mukta — People & Operations Executive](role-success-plan-mukta.md)
 - [Rafsan Zahid — Chief of Staff](role-success-plan-rafsan.md)
-- Munna — Role Success Plan pending finalization in ClickUp
-- Adnan — Role Success Plan pending finalization in ClickUp
+- [Munna — Software Developer](role-success-plan-munna.md)
+- [Adnan — Content Writer / SEO Content Contributor](role-success-plan-adnan.md)
 - [Sayem — Backend Engineer / Technical Lead](role-success-plan-sayem.md)
 - [Siam — Senior Frontend Developer](role-success-plan-siam.md)
 - [Usha — Frontend Developer](role-success-plan-usha.md)
@@ -83,7 +83,5 @@ Career Level → Department Career Ladder → Role Success Plan → Actual Work 
 
 ## Documentation still to complete
 
-- Munna Role Success Plan
-- Adnan Role Success Plan
 - Task-to-month KPI scoring methodology
 - Final assessment methodology
