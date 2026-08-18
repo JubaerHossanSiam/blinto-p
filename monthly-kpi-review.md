@@ -2,16 +2,17 @@
 
 ## Scope
 
-The standard Blinto Team Performance Framework currently applies to **16 active employees**.
+The standard Blinto Team Performance Framework currently applies to **15 active employees**.
 
 The following workspace members are excluded from the standard monthly employee KPI review:
 
 - Shemanto — Consultant
 - Sayeed — Consultant
 - Swapnil — Consultant
+- Adnan — Contractor
 - Mosharrof — Intern
 
-Consultants and interns may use separate engagement or development reviews when required.
+Consultants, contractors, and interns may use separate engagement or development reviews when required.
 
 ## ClickUp structure
 
@@ -28,7 +29,6 @@ Current roster:
 - Jannatul Mukta
 - Rafsan
 - Munna
-- Adnan
 - Abbrar
 - Siam
 - Usha
