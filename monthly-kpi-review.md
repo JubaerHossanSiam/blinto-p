@@ -1,28 +1,44 @@
 # Monthly KPI Review
 
+## Scope
+
+The standard Blinto Team Performance Framework currently applies to **16 active employees**.
+
+The following workspace members are excluded from the standard monthly employee KPI review:
+
+- Shemanto — Consultant
+- Sayeed — Consultant
+- Swapnil — Consultant
+- Mosharrof — Intern
+
+Consultants and interns may use separate engagement or development reviews when required.
+
 ## ClickUp structure
 
 Use one parent task per month:
 
 `Monthly Performance Review — September 2026`
 
-Create one employee subtask for each full-time employee.
+Create one employee subtask for each active employee in scope.
 
-Example:
+Current roster:
 
-- Ifrat — September KPI Review
-- Rakibul — September KPI Review
-- Jannatul Mukta — September KPI Review
-- Abbrar — September KPI Review
-- Siam — September KPI Review
-- Usha — September KPI Review
-- Fatema — September KPI Review
-- Raihan — September KPI Review
-- Yasin — September KPI Review
-- Sayem — September KPI Review
-- Drishty — September KPI Review
-- Silvia — September KPI Review
-- Imran — September KPI Review
+- Ifrat
+- Rakibul
+- Jannatul Mukta
+- Rafsan
+- Munna
+- Adnan
+- Abbrar
+- Siam
+- Usha
+- Fatema
+- Raihan
+- Yasin
+- Sayem
+- Drishty
+- Silvia
+- Imran
 
 The custom ClickUp task type is **KPI Review**.
 
