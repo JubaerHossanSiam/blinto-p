@@ -8,6 +8,17 @@ Blinto measures observable work and outcomes wherever possible. Task-level evide
 
 The framework is designed to be transparent, evidence-based, and focused on continuous improvement.
 
+## Current scope
+
+The standard framework currently applies to **16 active employees**.
+
+Excluded from the standard employee KPI process:
+
+- Shemanto — Consultant
+- Sayeed — Consultant
+- Swapnil — Consultant
+- Mosharrof — Intern
+
 ## How the system connects
 
 Career Level → Department Career Ladder → Role Success Plan → Actual Work → Task KPI Evidence → Monthly KPI Review → Final Assessment → Development / Career Decision
@@ -28,6 +39,9 @@ Career Level → Department Career Ladder → Role Success Plan → Actual Work 
 - [Ifrat — Project Manager / Website & Growth Lead](role-success-plan-ifrat.md)
 - [Rakibul — Shopify App & Growth Lead](role-success-plan-rakibul.md)
 - [Jannatul Mukta — People & Operations Executive](role-success-plan-mukta.md)
+- [Rafsan Zahid — Chief of Staff](role-success-plan-rafsan.md)
+- Munna — Role Success Plan pending finalization in ClickUp
+- Adnan — Role Success Plan pending finalization in ClickUp
 - [Sayem — Backend Engineer / Technical Lead](role-success-plan-sayem.md)
 - [Siam — Senior Frontend Developer](role-success-plan-siam.md)
 - [Usha — Frontend Developer](role-success-plan-usha.md)
@@ -69,7 +83,7 @@ Career Level → Department Career Ladder → Role Success Plan → Actual Work 
 
 ## Documentation still to complete
 
-The following parts of the framework are intentionally not documented here yet because they still need to be finalized:
-
+- Munna Role Success Plan
+- Adnan Role Success Plan
 - Task-to-month KPI scoring methodology
 - Final assessment methodology
