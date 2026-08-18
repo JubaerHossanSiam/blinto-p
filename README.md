@@ -10,13 +10,14 @@ The framework is designed to be transparent, evidence-based, and focused on cont
 
 ## Current scope
 
-The standard framework currently applies to **16 active employees**.
+The standard framework currently applies to **15 active employees**.
 
 Excluded from the standard employee KPI process:
 
 - Shemanto — Consultant
 - Sayeed — Consultant
 - Swapnil — Consultant
+- Adnan — Contractor
 - Mosharrof — Intern
 
 ## How the system connects
@@ -41,7 +42,6 @@ Career Level → Department Career Ladder → Role Success Plan → Actual Work 
 - [Jannatul Mukta — People & Operations Executive](role-success-plan-mukta.md)
 - [Rafsan Zahid — Chief of Staff](role-success-plan-rafsan.md)
 - [Munna — Software Developer](role-success-plan-munna.md)
-- [Adnan — Content Writer / SEO Content Contributor](role-success-plan-adnan.md)
 - [Sayem — Backend Engineer / Technical Lead](role-success-plan-sayem.md)
 - [Siam — Senior Frontend Developer](role-success-plan-siam.md)
 - [Usha — Frontend Developer](role-success-plan-usha.md)
