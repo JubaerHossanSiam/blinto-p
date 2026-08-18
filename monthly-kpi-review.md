@@ -11,8 +11,8 @@ Create one employee subtask for each full-time employee.
 Example:
 
 - Ifrat — September KPI Review
+- Rakibul — September KPI Review
 - Jannatul Mukta — September KPI Review
-- Rabson — September KPI Review
 - Abbrar — September KPI Review
 - Siam — September KPI Review
 - Usha — September KPI Review
