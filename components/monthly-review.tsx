@@ -17,22 +17,29 @@ const kpis = [
   ['Role Excellence', 'Strong = performs core expectations of the current role consistently and independently.', 'Manager monthly assessment'],
 ] as const;
 
-const deliveryTasks = [
+type DeliveryTask = {
+  name: string;
+  status: 'On Time' | 'Minor Delay' | 'Late';
+  rework: 'None' | 'Minor' | 'Major';
+  blockage: 'None' | 'Assignee' | 'Third Parties' | 'Client';
+};
+
+const deliveryTasks: DeliveryTask[] = [
   { name: 'Task 1', status: 'On Time', rework: 'None', blockage: 'None' },
   { name: 'Task 2', status: 'On Time', rework: 'None', blockage: 'Third Parties' },
   { name: 'Task 3', status: 'Minor Delay', rework: 'None', blockage: 'Third Parties' },
   { name: 'Task 4', status: 'Minor Delay', rework: 'Minor', blockage: 'Assignee' },
-] as const;
+];
 
-const completedTasks = 10;
-const reviewedTasks = deliveryTasks.length;
+const completedTasks: number = 10;
+const reviewedTasks: number = deliveryTasks.length;
 const missingTaskReviews = completedTasks - reviewedTasks;
 const coverage = Math.round((reviewedTasks / completedTasks) * 100);
 
-const statusScore: Record<string, number> = { 'On Time': 10, 'Minor Delay': 6, Late: 2 };
-const reworkScore: Record<string, number> = { None: 10, Minor: 6, Major: 2 };
+const statusScore: Record<DeliveryTask['status'], number> = { 'On Time': 10, 'Minor Delay': 6, Late: 2 };
+const reworkScore: Record<DeliveryTask['rework'], number> = { None: 10, Minor: 6, Major: 2 };
 
-function deliveryTaskScore(task: (typeof deliveryTasks)[number]) {
+function deliveryTaskScore(task: DeliveryTask) {
   const externalDelay = task.status !== 'On Time' && (task.blockage === 'Third Parties' || task.blockage === 'Client');
   const adjustedStatus = externalDelay ? 10 : statusScore[task.status];
   return Math.round((adjustedStatus * 0.7 + reworkScore[task.rework] * 0.3) * 10) / 10;
