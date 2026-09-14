@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import { MonthlyReview } from '@/components/monthly-review';
 
 export const metadata: Metadata = {
-  title: 'Ifrat Monthly Performance Review',
-  description: 'Blinto monthly performance review template with evidence, KPI benchmarks, manager feedback, employee reflection, and final scoring.',
+  title: 'Ifrat October Review Workspace',
+  description: 'Working monthly review form for Ifrat. The approved result is presented on the employee Performance Card.',
   robots: { index: false, follow: false },
 };
 
