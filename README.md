@@ -24,6 +24,10 @@ Excluded from the standard employee KPI process:
 
 Career Level → Department Career Ladder → Role Success Plan → Actual Work → Task KPI Evidence → Monthly KPI Review → Final Assessment → Development / Career Decision
 
+## Website scope
+
+The current Blinto Performance website is intentionally standalone. It presents the framework, roles, review process, team roster, and career-leveling model directly from this repository. HRMS authentication and HRMS API integration are deferred for a later phase.
+
 ## Wiki
 
 ### Career Framework

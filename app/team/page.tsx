@@ -1,58 +1,22 @@
-'use client';
-
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
 
-import { currentUser, HrmsApiError, listUsers } from '@/lib/hrms-client';
 import { people } from '@/lib/people';
 
 export default function TeamPage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [allowed, setAllowed] = useState(false);
-
-  useEffect(() => {
-    currentUser()
-      .then(async (user) => {
-        if (!user) {
-          router.replace('/login');
-          return;
-        }
-
-        try {
-          await listUsers();
-          setAllowed(true);
-        } catch (error) {
-          if (!(error instanceof HrmsApiError) || (error.status !== 401 && error.status !== 403)) throw error;
-        }
-      })
-      .finally(() => setLoading(false));
-  }, [router]);
-
-  if (loading) return <div className="shell skeleton">Checking HR access…</div>;
-
-  if (!allowed) {
-    return (
-      <section className="dashboard-shell">
-        <div className="shell empty-state">
-          <h2>HR / leadership access only</h2>
-          <p>Your HRMS account is signed in, but it does not have permission to view the organization user directory.</p>
-          <Link className="button button-secondary" href="/me">Back to My Performance</Link>
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section className="dashboard-shell">
       <div className="shell">
         <div className="dashboard-head">
           <div>
-            <p className="eyebrow">HR / Leadership</p>
-            <h1>Team Performance</h1>
-            <p>15 employees in the standard Blinto performance and 2027 leveling process.</p>
+            <p className="eyebrow">Blinto Team</p>
+            <h1>Performance Framework Roster</h1>
+            <p>15 employees currently included in the standard Blinto performance and 2027 leveling process.</p>
           </div>
+        </div>
+
+        <div className="info-box" style={{ marginBottom: 22 }}>
+          <strong>Standalone V1</strong>
+          This page is maintained from the framework repository. Authentication, employee accounts, and HRMS integration are intentionally out of scope for now.
         </div>
 
         <table className="team-table">

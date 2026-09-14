@@ -5,6 +5,7 @@ const nav = [
   ['Career Levels', '/career-levels'],
   ['Roles', '/roles'],
   ['Review Process', '/review-process'],
+  ['Team', '/team'],
 ] as const;
 
 export function SiteHeader() {
@@ -23,7 +24,7 @@ export function SiteHeader() {
             <Link href={href} key={href}>{label}</Link>
           ))}
         </nav>
-        <Link className="button button-small" href="/me">My Performance</Link>
+        <Link className="button button-small" href="/roles">Role Success Plans</Link>
       </div>
     </header>
   );

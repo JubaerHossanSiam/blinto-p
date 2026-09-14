@@ -34,7 +34,7 @@ export default function HomePage() {
               and the 2027 career-level assessment.
             </p>
             <div className="hero-actions">
-              <Link className="button" href="/me">Open My Performance</Link>
+              <Link className="button" href="/roles">View Role Success Plans</Link>
               <Link className="button button-secondary" href="/framework">Explore the framework</Link>
             </div>
           </div>
