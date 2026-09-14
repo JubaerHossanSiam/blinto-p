@@ -56,17 +56,23 @@ The custom ClickUp task type is **KPI Review**.
 
 ## Monthly evidence inputs
 
-Each employee review should use three evidence sources:
+Each employee review should use three evidence sources.
 
 ### 1. ClickUp work evidence
 
 Used primarily for KPI 1–8, including delivery, quality, ownership, communication, problem solving, collaboration, proactiveness, and business/client impact.
 
-### 2. HRMS attendance evidence
+### 2. HRMS / People Ops reliability evidence
 
-Used for the 20% Attendance Reliability component inside KPI 1 — Delivery & Reliability.
+Used for the objective people-reliability components inside KPI 1 — Delivery & Reliability.
 
-The monthly HRMS summary should include:
+KPI 1 is calculated as:
+
+`(ClickUp Delivery Reliability × 60%) + (Attendance Reliability × 20%) + (Leave & Policy Reliability × 20%)`
+
+#### Attendance summary
+
+The monthly HRMS attendance summary should include:
 
 - Scheduled working days
 - Approved leave
@@ -76,13 +82,26 @@ The monthly HRMS summary should include:
 - Unapproved absence
 - Attendance Reliability score / 10
 
-Approved leave is neutral and must not reduce the employee's score.
+Approved leave is neutral and must not reduce the employee's attendance score.
 
-KPI 1 is calculated as:
+#### Leave & policy summary
 
-`(ClickUp Delivery Reliability × 80%) + (HRMS Attendance Reliability × 20%)`
+The monthly HRMS / People Ops leave-and-policy summary should include:
 
-The manager should review the HRMS record for correctness but should not manually choose or override the Attendance Reliability score without correcting the underlying record or documenting an approved exception.
+- Approved leave count
+- Whether required notice periods were followed
+- Late / last-minute leave requests outside policy
+- Unapproved leave
+- Required notification compliance
+- Required handover / coverage compliance for planned leave
+- Documented leave/policy breaches or approved exceptions
+- Leave & Policy Reliability score / 10
+
+The score measures **process reliability**, not how many approved leave days the employee used.
+
+Approved leave, approved emergencies, and approved policy exceptions are neutral.
+
+The manager should review the HRMS / People Ops record for correctness but should not manually choose or override either objective score without correcting the underlying record or documenting an approved exception.
 
 ### 3. Manager-reviewed evidence
 
@@ -95,7 +114,7 @@ These should be based on documented development progress and the employee's Role
 
 ## Monthly review contents
 
-- Review KPI 1 composite score from ClickUp + HRMS
+- Review KPI 1 composite score from ClickUp + HRMS / People Ops
 - Review KPI 2–8 task-based evidence
 - Assess Growth & Development
 - Assess Role Excellence
@@ -121,4 +140,6 @@ The employee should answer:
 
 The monthly review should summarize evidence already collected during the month rather than reconstructing performance from memory.
 
-Objective ClickUp and HRMS data should remain visible enough that the employee can understand how the score was produced. The manager adds context, evaluates KPI 9 and KPI 10, discusses the result with the employee, and confirms next-month improvement actions.
+Objective ClickUp and HRMS / People Ops data should remain visible enough that the employee can understand how the score was produced. The manager adds context, evaluates KPI 9 and KPI 10, discusses the result with the employee, and confirms next-month improvement actions.
+
+Do not double-count one attendance or leave incident across multiple components unless there is separate observable behaviour that independently belongs to another KPI.

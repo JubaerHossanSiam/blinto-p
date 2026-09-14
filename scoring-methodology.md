@@ -1,14 +1,14 @@
 # KPI Scoring Methodology
 
-This document defines how Blinto converts ClickUp work evidence, HRMS attendance evidence, and manager-reviewed role/development evidence into the monthly 100-point performance score.
+This document defines how Blinto converts ClickUp work evidence, HRMS/People Ops reliability evidence, and manager-reviewed role/development evidence into the monthly 100-point performance score.
 
 ## Core principle
 
-The monthly score should summarize evidence collected during actual work. Managers should not reconstruct objective evidence from memory at month-end when ClickUp or HRMS records exist.
+The monthly score should summarize evidence collected during actual work. Managers should not reconstruct objective evidence from memory at month-end when ClickUp or HRMS/People Ops records exist.
 
 The system has three measurement layers:
 
-- **KPI 1:** composite of ClickUp Delivery Reliability (80%) and HRMS Attendance Reliability (20%).
+- **KPI 1:** composite of ClickUp Delivery Reliability (60%), HRMS Attendance Reliability (20%), and HRMS/People Ops Leave & Policy Reliability (20%).
 - **KPI 2–8:** primarily calculated from eligible ClickUp task evidence.
 - **KPI 9–10:** assessed by the manager in the Monthly Performance Review using documented development and role evidence.
 
@@ -28,7 +28,7 @@ A task should normally count when:
 
 Do not force every KPI field onto every task. A blank or genuinely non-applicable field is **not automatically a poor score**.
 
-Attendance evidence should use the same calendar review month and the finalized HRMS attendance/leave record for that month.
+Attendance and leave/policy evidence should use the same calendar review month and the finalized HRMS/People Ops records for that month.
 
 ---
 
@@ -65,10 +65,6 @@ For each employee and each applicable ClickUp-based KPI, calculate the arithmeti
 `Monthly evidence rating = Sum of valid evidence values ÷ Number of valid observations`
 
 Then convert the five-point evidence rating to the KPI's ten-point scale:
-
-`Monthly KPI score = Monthly evidence rating ÷ 5 × 10`
-
-Equivalent shortcut:
 
 `Monthly KPI score = Monthly evidence rating × 2`
 
@@ -116,24 +112,25 @@ If there is insufficient task evidence to calculate a KPI fairly, the reviewer s
 
 Any manual completion must include a short evidence note. It must not be based only on general impression.
 
-For HRMS attendance evidence, missing or disputed records must be resolved at the source before KPI 1 is finalized. Do not guess an attendance score.
+For HRMS/People Ops evidence, missing or disputed records must be resolved at the source before KPI 1 is finalized. Do not guess an attendance or leave/policy score.
 
 ---
 
 ## 6. KPI 1 — Delivery & Reliability
 
-KPI 1 combines two objective evidence sources:
+KPI 1 combines three evidence sources:
 
-- **80% — ClickUp Delivery Reliability**
+- **60% — ClickUp Delivery Reliability**
 - **20% — HRMS Attendance Reliability**
+- **20% — HRMS / People Ops Leave & Policy Reliability**
 
 Formula:
 
-`KPI 1 = (ClickUp Delivery Reliability × 0.80) + (HRMS Attendance Reliability × 0.20)`
+`KPI 1 = (ClickUp Delivery Reliability × 0.60) + (Attendance Reliability × 0.20) + (Leave & Policy Reliability × 0.20)`
 
-Both component scores are calculated out of 10 before weighting.
+All three component scores are calculated out of 10 before weighting.
 
-### 6.1 ClickUp Delivery Reliability — 80%
+### 6.1 ClickUp Delivery Reliability — 60%
 
 The ClickUp component uses **Delivery Status** together with **Delay / Blockage Responsibility**.
 
@@ -150,7 +147,7 @@ The exact Delivery Status-to-rating mapping should follow the configured ClickUp
 
 ### 6.2 HRMS Attendance Reliability — 20%
 
-Attendance Reliability uses finalized HRMS attendance and leave data for the review month.
+Attendance Reliability uses finalized HRMS attendance data for the review month.
 
 Use these records:
 
@@ -159,7 +156,7 @@ Use these records:
 - company holidays;
 - approved attendance exceptions;
 - late attendance beyond policy allowance;
-- unapproved absence;
+- unapproved absence; and
 - documented attendance-policy breach.
 
 Approved leave is **neutral**. Taking legitimate approved leave must not reduce a performance score.
@@ -170,9 +167,7 @@ Use:
 
 The employee is assessed only against attendance obligations that applied to eligible working days.
 
-The HRMS record maps to Attendance Reliability as follows:
-
-| Monthly HRMS attendance evidence | Attendance Reliability |
+| Monthly attendance evidence | Attendance Reliability |
 |---|---:|
 | No unapproved absence and no late/attendance issue beyond policy allowance | 10 / 10 |
 | One minor attendance issue beyond policy allowance; no unapproved absence | 8 / 10 |
@@ -180,23 +175,61 @@ The HRMS record maps to Attendance Reliability as follows:
 | Repeated attendance issues or repeated unapproved absence | 4 / 10 |
 | Serious or persistent attendance-policy breach | 2 / 10 |
 
-The manager does **not** manually choose this score. HRMS/People Ops records determine the applicable rating.
+The manager does **not** manually choose this score. Finalized HRMS/People Ops records determine the applicable rating.
 
-If Blinto's attendance policy changes, the policy allowance should change at the source; this framework should continue to evaluate only attendance issues that are actually outside the approved policy.
+### 6.3 Leave & Policy Reliability — 20%
 
-### 6.3 KPI 1 example
+This component measures **process discipline and professional reliability around leave and related policy**, not the amount of approved leave used.
 
-If ClickUp Delivery Reliability is `8.0 / 10` and HRMS Attendance Reliability is `10 / 10`:
+Approved leave by itself is neutral.
 
-`(8.0 × 0.80) + (10 × 0.20) = 8.4 / 10`
+Use these records:
 
-Attendance can therefore contribute a maximum of **2 points** to KPI 1 and a maximum of **2 points to the overall 100-point monthly score**.
+- whether leave was requested within the required notice period;
+- whether the correct approval process was followed;
+- whether required handover or coverage was completed for planned leave;
+- whether absence was properly communicated;
+- unapproved leave;
+- repeated last-minute leave outside policy; and
+- documented leave/policy misuse or non-compliance.
 
-### 6.4 No double counting
+| Monthly leave/policy evidence | Leave & Policy Reliability |
+|---|---:|
+| All required leave, approval, notification, and handover processes followed correctly | 10 / 10 |
+| One minor process miss with no material impact | 8 / 10 |
+| Repeated late requests, one meaningful process breach, or weak handover | 6 / 10 |
+| Repeated non-compliance, unapproved leave, or recurring poor handover/notification | 4 / 10 |
+| Serious or persistent leave/policy misuse or non-compliance | 2 / 10 |
 
-Do not deduct the same attendance incident again under another KPI merely because it already reduced Attendance Reliability.
+Approved emergency exceptions remain neutral when properly approved.
 
-A separate KPI may be affected only when there is separate observable behaviour. Example: an unapproved absence affects attendance reliability; failure to notify the manager may separately provide Communication or Ownership evidence.
+A manager should not reduce this component because an employee used legitimate approved leave, even when the number of approved leave days is comparatively high.
+
+### 6.4 KPI 1 example
+
+If:
+
+- ClickUp Delivery Reliability = `8.0 / 10`
+- Attendance Reliability = `10 / 10`
+- Leave & Policy Reliability = `8 / 10`
+
+then:
+
+`(8.0 × 0.60) + (10 × 0.20) + (8 × 0.20) = 8.4 / 10`
+
+This gives HR-related reliability a maximum of **4 points inside KPI 1**, while actual work delivery remains the largest component at **6 points**.
+
+### 6.5 No double counting
+
+Do not deduct the same incident repeatedly across Attendance Reliability, Leave & Policy Reliability, Ownership, or Communication.
+
+A separate KPI may be affected only when there is separate observable behaviour.
+
+Example:
+
+- an unapproved absence may reduce Leave & Policy Reliability;
+- the same absence should not automatically reduce Ownership;
+- but failure to notify the manager may separately provide Communication evidence because that is a distinct behaviour.
 
 ---
 
@@ -237,7 +270,7 @@ Examples include:
 - product improvement;
 - measurable growth;
 - risk reduction;
-- operational improvement;
+- operational improvement; and
 - meaningful stakeholder value.
 
 Routine tasks with no meaningful impact signal should remain unrated for this KPI.
@@ -264,10 +297,9 @@ When only a small amount of task evidence exists for a KPI:
 
 - show the calculated evidence;
 - review whether it is representative of the month;
-- supplement it only with documented evidence from the review period; and
-- note the limited sample in the Monthly Performance Review when it materially affects confidence.
-
-Do not invent additional task ratings merely to increase the sample size.
+- supplement it only with documented evidence from the review period;
+- note the limited sample when it materially affects confidence; and
+- do not invent additional task ratings merely to increase the sample size.
 
 Approved leave may naturally reduce the volume of task evidence in a month. Lower evidence volume caused by legitimate approved leave is not itself negative performance evidence.
 
@@ -315,14 +347,14 @@ Maximum score:
 
 `100 points`
 
-The underlying ClickUp evidence, HRMS attendance record, and manager assessment notes should remain available so the employee can understand how the score was produced.
+The underlying ClickUp evidence, HRMS/People Ops reliability records, and manager assessment notes should remain available so the employee can understand how the score was produced.
 
 ---
 
 ## 15. Rounding
 
 - Calculate averages using the underlying evidence values.
-- Calculate both KPI 1 components before applying the 80/20 weighting.
+- Calculate all three KPI 1 component scores before applying the 60/20/20 weighting.
 - Round each final KPI score to **one decimal place**.
 - Sum the ten rounded KPI scores for the monthly total.
 - Do not round task-level observations because they are already fixed 1–5 values.
@@ -335,7 +367,7 @@ Employees should be able to see the evidence used in their review.
 
 If a ClickUp task rating is factually incorrect or important context is missing, it should be corrected at the evidence level where possible rather than compensated for by manipulating the final monthly score.
 
-If attendance or leave data is incorrect, correct the HRMS/People Ops record before calculating Attendance Reliability.
+If attendance, leave, or policy data is incorrect, correct the HRMS/People Ops record before calculating KPI 1.
 
 The reviewer remains responsible for ensuring the final assessment fairly represents documented evidence.
 
@@ -351,7 +383,7 @@ It does not define:
 - how multiple monthly scores roll into the Final Assessment;
 - promotion eligibility;
 - salary adjustment decisions;
-- probation outcomes;
+- probation outcomes; or
 - formal performance improvement triggers.
 
 Those rules belong in `final-assessment.md`.
