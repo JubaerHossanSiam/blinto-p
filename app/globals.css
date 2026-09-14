@@ -95,7 +95,7 @@ button, input { font: inherit; }
 .timeline-step strong, .timeline-step span { display: block; }
 .timeline-step strong { margin: 7px 0 5px; font-size: 16px; }
 .timeline-step span { color: var(--muted); font-size: 12px; }
-.timeline-number { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: var(--dark); color: #fff; font-size: 11px; font-weight: 800; }
+.timeline-step .timeline-number { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: var(--dark); color: #fff; font-size: 11px; font-weight: 800; line-height: 1; }
 
 .page-hero { padding: 62px 0 30px; }
 .page-title { font-size: clamp(42px, 6vw, 70px); }
