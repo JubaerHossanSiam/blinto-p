@@ -44,6 +44,7 @@ export type CareerAssessmentRecord = {
 
 export type EmployeePerformanceRecord = {
   reviewManager?: string;
+  deliveryReviewer?: string;
   reviews?: Partial<Record<'October' | 'November' | 'December', Partial<MonthlyPerformanceReview>>>;
   deliverables?: DeliverableRecord[];
   career?: Partial<CareerAssessmentRecord>;
@@ -57,22 +58,25 @@ export type EmployeePerformanceRecord = {
  * the source of truth for attendance and leave-policy evidence. Until live integrations are
  * connected, only approved snapshots should be added here and missing data must stay visibly
  * pending rather than being invented.
+ *
+ * Review Manager owns the final monthly review and score. Delivery Reviewer supplies
+ * cross-functional delivery evidence when that reviewer is different from the Review Manager.
  */
 export const performanceRecords: Record<string, EmployeePerformanceRecord> = {
   ifrat: { reviewManager: 'Fazle Rabbi', career: { status: 'Assessment', proposedLevel: 'L2' } },
-  rakibul: { reviewManager: 'Fazle Rabbi', career: { status: 'Assessment', proposedLevel: 'L3' } },
+  rakibul: { reviewManager: 'Fazle Rabbi', deliveryReviewer: 'Ifrat Jahan Chowdhury', career: { status: 'Assessment', proposedLevel: 'L3' } },
   rafsan: { reviewManager: 'Fazle Rabbi', career: { status: 'Assessment', proposedLevel: 'L3' } },
-  munna: { reviewManager: 'Abu Sayem', career: { status: 'Assessment', proposedLevel: 'L1' } },
-  sayem: { reviewManager: 'Fazle Rabbi', career: { status: 'Assessment', proposedLevel: 'L1' } },
-  siam: { reviewManager: 'Fazle Rabbi', career: { status: 'Assessment', proposedLevel: 'L2' } },
-  usha: { reviewManager: 'Siam', career: { status: 'Assessment', proposedLevel: 'L1' } },
-  raihan: { reviewManager: 'Siam', career: { status: 'Assessment', proposedLevel: 'L1' } },
-  fatema: { reviewManager: 'Siam', career: { status: 'Assessment', proposedLevel: 'L1' } },
-  yasin: { reviewManager: 'Siam', career: { status: 'Assessment', proposedLevel: 'L1' } },
-  silvia: { reviewManager: 'Rakibul', career: { status: 'Assessment', proposedLevel: 'L1' } },
-  imran: { reviewManager: 'Rakibul', career: { status: 'Assessment', proposedLevel: 'L1' } },
-  drishty: { reviewManager: 'Shemanto', career: { status: 'Assessment', proposedLevel: 'L2' } },
-  abbrar: { reviewManager: 'Shemanto', career: { status: 'Assessment', proposedLevel: 'L2' } },
+  munna: { reviewManager: 'Abu Sayem', deliveryReviewer: 'Ifrat Jahan Chowdhury', career: { status: 'Assessment', proposedLevel: 'L1' } },
+  sayem: { reviewManager: 'Fazle Rabbi', deliveryReviewer: 'Ifrat Jahan Chowdhury', career: { status: 'Assessment', proposedLevel: 'L1' } },
+  siam: { reviewManager: 'Fazle Rabbi', deliveryReviewer: 'Ifrat Jahan Chowdhury', career: { status: 'Assessment', proposedLevel: 'L2' } },
+  usha: { reviewManager: 'Siam', deliveryReviewer: 'Ifrat Jahan Chowdhury', career: { status: 'Assessment', proposedLevel: 'L1' } },
+  raihan: { reviewManager: 'Siam', deliveryReviewer: 'Ifrat Jahan Chowdhury', career: { status: 'Assessment', proposedLevel: 'L1' } },
+  fatema: { reviewManager: 'Siam', deliveryReviewer: 'Ifrat Jahan Chowdhury', career: { status: 'Assessment', proposedLevel: 'L1' } },
+  yasin: { reviewManager: 'Siam', deliveryReviewer: 'Ifrat Jahan Chowdhury', career: { status: 'Assessment', proposedLevel: 'L1' } },
+  silvia: { reviewManager: 'Rakibul', deliveryReviewer: 'Ifrat Jahan Chowdhury', career: { status: 'Assessment', proposedLevel: 'L1' } },
+  imran: { reviewManager: 'Rakibul', deliveryReviewer: 'Ifrat Jahan Chowdhury', career: { status: 'Assessment', proposedLevel: 'L1' } },
+  drishty: { reviewManager: 'Shemanto', deliveryReviewer: 'Ifrat Jahan Chowdhury', career: { status: 'Assessment', proposedLevel: 'L2' } },
+  abbrar: { reviewManager: 'Shemanto', deliveryReviewer: 'Ifrat Jahan Chowdhury', career: { status: 'Assessment', proposedLevel: 'L2' } },
 };
 
 export function getPerformanceRecord(slug: string) {
@@ -89,6 +93,7 @@ export function getPerformanceRecord(slug: string) {
 
   return {
     reviewManager: record.reviewManager,
+    deliveryReviewer: record.deliveryReviewer,
     reviews,
     deliverables: record.deliverables ?? [],
     career: {
