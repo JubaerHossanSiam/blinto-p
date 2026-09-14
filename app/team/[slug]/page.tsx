@@ -27,5 +27,14 @@ export default async function TeamMemberPage({ params }: PageProps) {
   const roleContent = readFrameworkFile(person.roleFile);
   const roleProfile = parseRoleProfile(roleContent);
 
-  return <>{slug === 'ifrat' ? <div className="shell info-box" style={{ marginTop: 24 }}><strong>Monthly review pilot available</strong><Link className="card-link" href="/review-test/ifrat">Open separate test review →</Link><p>Simulated data; excluded from this official performance card.</p></div> : null}<EmployeePerformanceProfile person={person} roleProfile={roleProfile} /></>;
+  return <>
+    {slug === 'ifrat' ? (
+      <div className="shell info-box" style={{ marginTop: 24 }}>
+        <strong>Current review workspace · October 2026</strong>
+        <Link className="card-link" href="/monthly-reviews/ifrat">Open October review workspace →</Link>
+        <p>This is the working form for the current monthly review. The finalized, approved result belongs on this Performance Card; the workspace is not a second performance record.</p>
+      </div>
+    ) : null}
+    <EmployeePerformanceProfile person={person} roleProfile={roleProfile} />
+  </>;
 }
