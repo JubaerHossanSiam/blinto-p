@@ -1,5 +1,7 @@
 export type ReviewStatus = 'Pending' | 'In review' | 'Complete';
 
+export type ReviewMonth = 'September' | 'October' | 'November' | 'December';
+
 export type KpiName =
   | 'Delivery & Reliability'
   | 'Work Quality'
@@ -28,7 +30,7 @@ export type DeliveryReviewerFeedback = {
 };
 
 export type MonthlyPerformanceReview = {
-  month: 'October' | 'November' | 'December';
+  month: ReviewMonth;
   status: ReviewStatus;
   score?: number;
   summary?: string;
@@ -53,7 +55,7 @@ export type CareerAssessmentRecord = {
 export type EmployeePerformanceRecord = {
   reviewManager?: string;
   deliveryReviewer?: string;
-  reviews?: Partial<Record<'October' | 'November' | 'December', Partial<MonthlyPerformanceReview>>>;
+  reviews?: Partial<Record<ReviewMonth, Partial<MonthlyPerformanceReview>>>;
   deliverables?: DeliverableRecord[];
   career?: Partial<CareerAssessmentRecord>;
 };
@@ -73,7 +75,43 @@ export type EmployeePerformanceRecord = {
  * task-level evidence.
  */
 export const performanceRecords: Record<string, EmployeePerformanceRecord> = {
-  ifrat: { reviewManager: 'Fazle Rabbi', career: { status: 'Assessment', proposedLevel: 'L2' } },
+  ifrat: {
+    reviewManager: 'Fazle Rabbi',
+    reviews: {
+      September: {
+        status: 'In review',
+        score: 78,
+        summary: 'September baseline review using the current sample/manual values so the review system can be evaluated before the formal October cycle.',
+        kpiScores: {
+          'Delivery & Reliability': 10,
+          'Work Quality': 10,
+          'Ownership': 8,
+          'Communication': 8,
+          'Problem Solving': 8,
+          'Collaboration': 8,
+          'Proactiveness': 6,
+          'Business / Client Impact': 6,
+          'Growth & Development': 6,
+          'Role Excellence': 8,
+        },
+        managerReview: {
+          wentWell: [
+            'Strong ownership, communication, problem solving, and collaboration.',
+            'Work quality is currently rated Exceptional in the baseline values.',
+          ],
+          needsImprovement: [
+            'Identify delivery risks and improvement opportunities earlier instead of waiting for escalation.',
+          ],
+          nextPriorities: [
+            'Flag delivery risks early.',
+            'Propose at least one practical workflow improvement during the month.',
+          ],
+          managerSummary: 'Strong overall contribution in the September baseline, with proactiveness and earlier risk identification as the main development focus.',
+        },
+      },
+    },
+    career: { status: 'Assessment', proposedLevel: 'L2' },
+  },
   rakibul: { reviewManager: 'Fazle Rabbi', deliveryReviewer: 'Ifrat Jahan Chowdhury', career: { status: 'Assessment', proposedLevel: 'L3' } },
   rafsan: { reviewManager: 'Fazle Rabbi', career: { status: 'Assessment', proposedLevel: 'L3' } },
   munna: { reviewManager: 'Abu Sayem', deliveryReviewer: 'Ifrat Jahan Chowdhury', career: { status: 'Assessment', proposedLevel: 'L1' } },
@@ -92,7 +130,11 @@ export const performanceRecords: Record<string, EmployeePerformanceRecord> = {
 export function getPerformanceRecord(slug: string) {
   const record = performanceRecords[slug] ?? {};
 
-  const reviews: MonthlyPerformanceReview[] = (['October', 'November', 'December'] as const).map((month) => ({
+  const months: ReviewMonth[] = slug === 'ifrat'
+    ? ['September', 'October', 'November', 'December']
+    : ['October', 'November', 'December'];
+
+  const reviews: MonthlyPerformanceReview[] = months.map((month) => ({
     month,
     status: record.reviews?.[month]?.status ?? 'Pending',
     score: record.reviews?.[month]?.score,
