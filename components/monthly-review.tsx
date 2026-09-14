@@ -19,7 +19,7 @@ const kpis = [
 ] as const;
 
 const initial = {
-  period: 'September 2026',
+  period: 'October 2026',
   ratings: [5, 4, 4, 4, 4, 3, 3, 3, 4],
   delivery: 10,
   attendance: 10,
@@ -34,7 +34,7 @@ const initial = {
 };
 
 type Draft = typeof initial;
-const storageKey = 'blinto-ifrat-monthly-review-v1';
+const storageKey = 'blinto-ifrat-october-2026-review-v1';
 
 export function MonthlyReview() {
   const [draft, setDraft] = useState<Draft>({ ...initial, ratings: [...initial.ratings] });
@@ -60,7 +60,7 @@ export function MonthlyReview() {
     try {
       localStorage.setItem(storageKey, JSON.stringify(draft));
       setSaved(true);
-      setNotice('Draft saved in this browser.');
+      setNotice('Review workspace draft saved in this browser.');
     } catch {
       setNotice('Could not save in this browser. Copy the review to keep your changes.');
     }
@@ -70,15 +70,15 @@ export function MonthlyReview() {
     try {
       const raw = localStorage.getItem(storageKey);
       if (!raw) {
-        setNotice('No saved review draft in this browser.');
+        setNotice('No saved October review draft in this browser.');
         return;
       }
       const value = JSON.parse(raw);
       if (!value || !Array.isArray(value.ratings) || value.ratings.length !== 9) throw new Error('Invalid review');
-      setDraft(value);
+      setDraft({ ...value, period: 'October 2026' });
       setSaved(true);
       setStatus('Draft');
-      setNotice('Saved review draft loaded.');
+      setNotice('Saved October review draft loaded.');
     } catch {
       setNotice('Saved draft could not be loaded. Current entries are unchanged.');
     }
@@ -107,6 +107,7 @@ export function MonthlyReview() {
       '',
       '1:1 completed: ' + (draft.meeting ? 'Yes' : 'No'),
       '',
+      'Workflow: ClickUp + HRMS evidence → review workspace → approved ClickUp monthly review → Performance Card snapshot.',
       'Note: HRMS/ClickUp values shown on this page are currently entered manually until live integrations are connected.',
     ].join('\n');
   }
@@ -114,7 +115,7 @@ export function MonthlyReview() {
   async function copy() {
     try {
       await navigator.clipboard.writeText(exportText());
-      setNotice('Review copied. Paste it into the monthly ClickUp review task.');
+      setNotice('Review copied. Paste the approved result into the monthly ClickUp review task.');
     } catch {
       setNotice('Clipboard unavailable. Use the review text below to copy manually.');
     }
@@ -126,7 +127,7 @@ export function MonthlyReview() {
       return;
     }
     setStatus('Completed');
-    setNotice('Review marked completed on this page. Copy the final review into ClickUp for the official record.');
+    setNotice('Workspace review completed. Copy the approved result into ClickUp; the Performance Card remains the permanent presentation record.');
   }
 
   const feedbackFields = [
@@ -140,13 +141,17 @@ export function MonthlyReview() {
   return (
     <div className="shell review-lab">
       <header className="review-lab-header">
-        <p className="eyebrow">Monthly performance review</p>
+        <p className="eyebrow">Current review workspace</p>
         <h1 className="page-title">Ifrat · {draft.period}</h1>
-        <p className="page-subtitle">The production review template. Current numbers are sample/manual inputs until ClickUp and HRMS integrations are connected.</p>
+        <p className="page-subtitle">Use this workspace to prepare and finalize the current monthly review. Ifrat’s Performance Card is the permanent employee-facing record; this page is not a second performance card.</p>
         <div className="hero-actions">
-          <a className="button button-secondary" href="https://app.clickup.com/t/86eywj0dy" target="_blank" rel="noreferrer">Open source ClickUp task ↗</a>
+          <a className="button button-secondary" href="https://app.clickup.com/t/86eywj0dy" target="_blank" rel="noreferrer">Open ClickUp review task ↗</a>
           <Link className="button button-secondary" href="/task-rating-guide">Rating guide</Link>
-          <Link className="button button-secondary" href="/team/ifrat">Performance card</Link>
+          <Link className="button" href="/team/ifrat">Back to Ifrat’s Performance Card</Link>
+        </div>
+        <div className="info-box">
+          <strong>One review, two views</strong>
+          <p><b>Workspace:</b> collect evidence, compare benchmarks, write feedback, calculate the score, and complete the 1:1. <b>Performance Card:</b> show the approved monthly score, feedback, history, and career evidence after the review is recorded.</p>
         </div>
       </header>
 
@@ -154,7 +159,7 @@ export function MonthlyReview() {
         <div className="review-lab-main">
           <section className="panel" id="review-context">
             <h2>1. Review details</h2>
-            <label className="review-input">Review period<input value={draft.period} onChange={(e) => update('period', e.target.value)} /></label>
+            <label className="review-input">Review period<input value={draft.period} readOnly /></label>
             <dl className="review-facts">
               <div><dt>Employee</dt><dd>Ifrat</dd></div>
               <div><dt>Review Manager</dt><dd>Fazle Rabbi</dd></div>
@@ -228,14 +233,15 @@ export function MonthlyReview() {
 
           <section className="panel" id="final-record">
             <h2>6. Final review record</h2>
-            <p>Until direct integration is available, copy the finalized review into the employee’s monthly ClickUp review task. ClickUp remains the official monthly review record.</p>
-            <button type="button" className="button" onClick={copy}>Copy final review</button>
+            <p>Copy the finalized review into Ifrat’s monthly ClickUp review task. ClickUp remains the operational source of truth; the approved snapshot is then presented on Ifrat’s Performance Card.</p>
+            <button type="button" className="button" onClick={copy}>Copy approved review</button>
+            <Link className="button button-secondary" href="/team/ifrat">Return to Performance Card</Link>
             <details className="review-details"><summary>View/copy review text</summary><textarea aria-label="Monthly review export" readOnly rows={18} value={exportText()} /></details>
           </section>
         </div>
 
         <aside className="panel review-summary" aria-label="Monthly score and review progress">
-          <span className="card-kicker">Monthly performance score</span>
+          <span className="card-kicker">Working monthly score</span>
           <p className="review-total">{total.toFixed(1)}<small>/100</small></p>
           <strong>{band}</strong>
           <p>Status: <strong>{status}</strong></p>
@@ -245,9 +251,9 @@ export function MonthlyReview() {
             <li>Employee reflection: {draft.reflection.trim() ? 'complete' : 'pending'}</li>
             <li>1:1 review: {draft.meeting ? 'complete' : 'pending'}</li>
           </ul>
-          <button type="button" className="button button-block" onClick={finish}>Finalize review</button>
+          <button type="button" className="button button-block" onClick={finish}>Finalize workspace review</button>
           <div className="review-draft-actions"><button type="button" onClick={save}>Save browser draft</button><button type="button" onClick={load}>Load saved draft</button></div>
-          <p className="review-help">{saved ? 'Draft saved in this browser.' : 'Current edits are not saved.'} Shared storage and live HRMS/ClickUp sync are not connected yet.</p>
+          <p className="review-help">{saved ? 'Draft saved in this browser.' : 'Current edits are not saved.'} Direct write-back to ClickUp/Performance Card is not connected yet.</p>
           <p className="review-notice" role="status" aria-live="polite">{notice}</p>
           <nav className="guide-index" aria-label="Review steps">
             <a href="#hrms-inputs">Objective evidence</a>
