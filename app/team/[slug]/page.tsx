@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { EmployeePerformanceProfile } from '@/components/employee-performance-profile';
+import { MonthlyReview } from '@/components/monthly-review';
 import { readFrameworkFile } from '@/lib/content';
 import { getPerson, people } from '@/lib/people';
 import { parseRoleProfile } from '@/lib/performance-profile';
@@ -38,9 +38,16 @@ export default async function TeamMemberPage({ params }: PageProps) {
           <div><span style={{ display: 'block', opacity: 0.7 }}>Coverage</span><strong style={{ fontSize: 24 }}>40%</strong></div>
         </div>
         <p><strong>Finalization gate:</strong> all 10 completed tasks must have their task-level KPI review completed before September can be finalized. The current KPI result is preview-only while 6 task reviews are missing.</p>
-        <Link className="card-link" href="/monthly-reviews/ifrat">Open September review workspace for task-level detail →</Link>
+        <a className="card-link" href="#review-workspace">Open September review workspace below ↓</a>
       </div>
     ) : null}
+
     <EmployeePerformanceProfile person={person} roleProfile={roleProfile} />
+
+    {slug === 'ifrat' ? (
+      <section id="review-workspace" style={{ scrollMarginTop: 24 }}>
+        <MonthlyReview />
+      </section>
+    ) : null}
   </>;
 }
