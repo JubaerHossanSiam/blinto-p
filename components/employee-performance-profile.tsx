@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 import type { PersonProfile } from '@/lib/people';
 import { careerLevels, getCareerLevel, type RoleProfileData } from '@/lib/performance-profile';
-import { getPerformanceRecord, type KpiName } from '@/lib/performance-records';
+import { getPerformanceRecord, type KpiName, type ReviewMonth } from '@/lib/performance-records';
 
 type Props = {
   person: PersonProfile;
@@ -21,6 +21,13 @@ const kpiDefinitions: { name: KpiName; source: string; note?: string }[] = [
   { name: 'Growth & Development', source: 'Manager monthly review' },
   { name: 'Role Excellence', source: 'Manager review + Role Success Plan' },
 ];
+
+const monthKeys: Record<ReviewMonth, string> = {
+  September: '2026-09',
+  October: '2026-10',
+  November: '2026-11',
+  December: '2026-12',
+};
 
 function statusClass(status: string) {
   const normalized = status.toLowerCase();
@@ -141,9 +148,7 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
 
           <div className="deliverable-table-wrap">
             <table className="deliverable-table">
-              <thead>
-                <tr><th>#</th><th>Success outcome</th><th>What good looks like</th><th>Evidence state</th></tr>
-              </thead>
+              <thead><tr><th>#</th><th>Success outcome</th><th>What good looks like</th><th>Evidence state</th></tr></thead>
               <tbody>
                 {roleProfile.deliverables.map((deliverable, index) => {
                   const tracked = record.deliverables.find((item) => item.title.toLowerCase() === deliverable.title.toLowerCase());
@@ -172,16 +177,13 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
             <div>
               <p className="eyebrow">Work Evidence</p>
               <h2>Evidence behind the assessment</h2>
-              <p>ClickUp remains the operational source of truth. This card will present the relevant evidence once the live ClickUp connection is wired.</p>
+              <p>ClickUp remains the operational source of truth. This card presents the relevant approved evidence and monthly results.</p>
             </div>
             <span className="section-number">03</span>
           </div>
 
           <div className="integration-banner">
-            <div>
-              <span className="card-kicker">ClickUp integration</span>
-              <strong>Card UI ready · live sync pending</strong>
-            </div>
+            <div><span className="card-kicker">ClickUp integration</span><strong>Card UI ready · live sync pending</strong></div>
             <span className="tracker-status status-warn">Integration next</span>
           </div>
 
@@ -191,10 +193,7 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
               const status = tracked?.status ?? 'Awaiting evidence';
               return (
                 <article className="evidence-card" key={deliverable.title}>
-                  <div className="evidence-card-top">
-                    <strong>{deliverable.title}</strong>
-                    <span className={`tracker-status ${statusClass(status)}`}>{status}</span>
-                  </div>
+                  <div className="evidence-card-top"><strong>{deliverable.title}</strong><span className={`tracker-status ${statusClass(status)}`}>{status}</span></div>
                   <p>{tracked?.evidence ?? 'Linked ClickUp tasks, project outcomes, documents, and approved evidence will appear here.'}</p>
                 </article>
               );
@@ -207,7 +206,7 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
             <div>
               <p className="eyebrow">Monthly KPI</p>
               <h2>100-point performance score</h2>
-              <p>The same ten KPIs are reviewed every month. Objective evidence should be calculated before manager judgment is added.</p>
+              <p>Each month has its own review instance. Click a month card to open the detailed review, evidence coverage, calculations, feedback, reflection, and finalization workflow.</p>
             </div>
             <span className="section-number">04</span>
           </div>
@@ -215,24 +214,26 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
           <p className="career-note">The December monthly review is completed after month-end. The December 16 career decision uses completed October–November scores and supporting evidence through December 10.</p>
           <div className="review-month-grid">
             {record.reviews.map((review) => (
-              <article className={`review-month-card ${focusReview?.month === review.month ? 'review-month-card-focus' : ''}`} key={review.month}>
+              <Link
+                href={`/team/${person.slug}/reviews/${monthKeys[review.month]}`}
+                className={`review-month-card ${focusReview?.month === review.month ? 'review-month-card-focus' : ''}`}
+                key={review.month}
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
                 <div className="review-month-top">
                   <span>{review.month} 2026</span>
                   <span className={`tracker-status ${statusClass(review.status)}`}>{review.status}</span>
                 </div>
                 <strong className="review-score">{review.score === undefined ? '—' : review.score}<small>/100</small></strong>
-                <p>{review.summary ?? 'Monthly review evidence and approved score will appear here after the review is completed.'}</p>
-                <span className="review-band">{performanceBand(review.score)}</span>
-              </article>
+                <p>{review.summary ?? 'Open this month to review ClickUp evidence, KPI coverage, manager assessment, reflection, and 1:1.'}</p>
+                <span className="review-band">{performanceBand(review.score)} · Open review →</span>
+              </Link>
             ))}
           </div>
 
           <div className="kpi-panel">
             <div className="kpi-panel-head">
-              <div>
-                <span className="card-kicker">{focusReview?.month ?? 'Monthly'} 2026 detail</span>
-                <h3>10 KPIs × 10 points</h3>
-              </div>
+              <div><span className="card-kicker">{focusReview?.month ?? 'Monthly'} 2026 summary</span><h3>10 KPIs × 10 points</h3></div>
               <Link href="/framework" className="card-link">View scoring framework →</Link>
             </div>
 
@@ -256,10 +257,7 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
               </table>
             </div>
 
-            <div className="kpi-one-rule">
-              <strong>KPI 1 — Delivery & Reliability</strong>
-              <span>60% ClickUp Delivery Reliability + 20% Attendance Reliability + 20% Leave & Policy Reliability. Approved leave is neutral.</span>
-            </div>
+            <div className="kpi-one-rule"><strong>KPI 1 — Delivery & Reliability</strong><span>60% ClickUp Delivery Reliability + 20% Attendance Reliability + 20% Leave & Policy Reliability. Approved leave is neutral.</span></div>
           </div>
         </section>
 
@@ -268,28 +266,16 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
             <div>
               <p className="eyebrow">Manager Review</p>
               <h2>{focusReview?.month ?? 'Monthly'} review conversation</h2>
-              <p>The monthly review converts the evidence into useful feedback, reflection, and a small number of clear actions for the next month.</p>
+              <p>The Performance Card shows the current monthly summary. The detailed monthly review page is where the active review is completed.</p>
             </div>
             <span className="section-number">05</span>
           </div>
 
           <div className="manager-review-grid">
-            <article className="review-detail-card">
-              <span className="card-kicker">What went well</span>
-              {managerReview?.wentWell?.length ? <ul>{managerReview.wentWell.map((item) => <li key={item}>{item}</li>)}</ul> : <p>No manager feedback recorded yet.</p>}
-            </article>
-            <article className="review-detail-card">
-              <span className="card-kicker">Needs improvement</span>
-              {managerReview?.needsImprovement?.length ? <ul>{managerReview.needsImprovement.map((item) => <li key={item}>{item}</li>)}</ul> : <p>No improvement notes recorded yet.</p>}
-            </article>
-            <article className="review-detail-card">
-              <span className="card-kicker">Employee reflection</span>
-              <p>{managerReview?.employeeReflection ?? 'Employee reflection will appear here after the monthly review.'}</p>
-            </article>
-            <article className="review-detail-card">
-              <span className="card-kicker">Next-month priorities</span>
-              {managerReview?.nextPriorities?.length ? <ol>{managerReview.nextPriorities.map((item) => <li key={item}>{item}</li>)}</ol> : <p>No next-month priorities recorded yet.</p>}
-            </article>
+            <article className="review-detail-card"><span className="card-kicker">What went well</span>{managerReview?.wentWell?.length ? <ul>{managerReview.wentWell.map((item) => <li key={item}>{item}</li>)}</ul> : <p>No manager feedback recorded yet.</p>}</article>
+            <article className="review-detail-card"><span className="card-kicker">Needs improvement</span>{managerReview?.needsImprovement?.length ? <ul>{managerReview.needsImprovement.map((item) => <li key={item}>{item}</li>)}</ul> : <p>No improvement notes recorded yet.</p>}</article>
+            <article className="review-detail-card"><span className="card-kicker">Employee reflection</span><p>{managerReview?.employeeReflection ?? 'Employee reflection will appear here after the monthly review.'}</p></article>
+            <article className="review-detail-card"><span className="card-kicker">Next-month priorities</span>{managerReview?.nextPriorities?.length ? <ol>{managerReview.nextPriorities.map((item) => <li key={item}>{item}</li>)}</ol> : <p>No next-month priorities recorded yet.</p>}</article>
             {record.deliveryReviewer ? (
               <article className="review-detail-card">
                 <span className="card-kicker">Delivery Reviewer feedback · {record.deliveryReviewer}</span>
@@ -344,8 +330,7 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
               <div className="level-ladder">
                 {careerLevels.map((item) => (
                   <div className={`level-row ${item.level === record.career.proposedLevel ? 'level-row-active' : ''}`} key={item.level}>
-                    <strong>{item.level}</strong>
-                    <div><b>{item.name}</b><span>{item.meaning} · {item.salaryBand}</span></div>
+                    <strong>{item.level}</strong><div><b>{item.name}</b><span>{item.meaning} · {item.salaryBand}</span></div>
                   </div>
                 ))}
               </div>
@@ -353,21 +338,13 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
           </div>
 
           <div className="career-timeline-inline">
-            <span><b>Now</b> Proposed level</span><i>→</i>
-            <span><b>Oct 1–Dec 10</b> Evidence collection</span><i>→</i>
-            <span><b>Dec 11–15</b> Calibration and discussions</span><i>→</i>
-            <span><b>Dec 16</b> Announce decisions</span><i>→</i>
-            <span><b>Jan 1</b> Confirmed level active</span>
+            <span><b>Now</b> Proposed level</span><i>→</i><span><b>Oct 1–Dec 10</b> Evidence collection</span><i>→</i><span><b>Dec 11–15</b> Calibration and discussions</span><i>→</i><span><b>Dec 16</b> Announce decisions</span><i>→</i><span><b>Jan 1</b> Confirmed level active</span>
           </div>
         </section>
 
         <section className="profile-section" id="history">
           <div className="profile-section-head">
-            <div>
-              <p className="eyebrow">Performance History</p>
-              <h2>Monthly record over time</h2>
-              <p>This becomes the employee's long-term performance history. The first formal cycle begins in October 2026.</p>
-            </div>
+            <div><p className="eyebrow">Performance History</p><h2>Monthly record over time</h2><p>This becomes the employee's long-term performance history. The first formal cycle begins in October 2026.</p></div>
             <span className="section-number">07</span>
           </div>
 
@@ -377,7 +354,7 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
               <tbody>
                 {record.reviews.map((review) => (
                   <tr key={review.month}>
-                    <td><strong>{review.month} 2026</strong></td>
+                    <td><Link href={`/team/${person.slug}/reviews/${monthKeys[review.month]}`}><strong>{review.month} 2026</strong></Link></td>
                     <td><span className={`tracker-status ${statusClass(review.status)}`}>{review.status}</span></td>
                     <td>{review.score === undefined ? '—' : `${review.score}/100`}</td>
                     <td>{performanceBand(review.score)}</td>
@@ -388,10 +365,7 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
             </table>
           </div>
 
-          <div className="card-data-note">
-            <strong>Source-of-truth model</strong>
-            <span>ClickUp supplies work and monthly review evidence. HRMS / People Ops supplies attendance and leave-policy evidence. This website is the employee-facing performance card that presents the approved result clearly.</span>
-          </div>
+          <div className="card-data-note"><strong>Source-of-truth model</strong><span>ClickUp supplies work and monthly review evidence. HRMS / People Ops supplies attendance and leave-policy evidence. This Performance Card is the permanent summary; each month opens its own reusable detailed review instance.</span></div>
         </section>
       </section>
     </>
