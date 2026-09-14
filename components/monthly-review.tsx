@@ -6,13 +6,13 @@ import Link from 'next/link';
 const ratingLabels = ['Significant Improvement Needed', 'Needs Improvement', 'Effective', 'Strong', 'Exceptional'];
 const impactLabels = ['No Meaningful Impact', 'Limited Impact', 'Expected Impact', 'Strong Impact', 'Exceptional Impact'];
 const kpis = [
-  ['Work Quality', 'Strong = consistently accurate, complete work with little avoidable rework.', 'ClickUp work evidence'],
-  ['Ownership', 'Strong = owns outcomes, follows through, and raises risks without being chased.', 'ClickUp work evidence'],
-  ['Communication', 'Strong = clear, timely, audience-appropriate updates that reduce ambiguity.', 'ClickUp work evidence'],
-  ['Problem Solving', 'Strong = diagnoses issues and proposes practical solutions independently.', 'ClickUp work evidence'],
-  ['Collaboration', 'Strong = works constructively across functions and helps unblock others.', 'ClickUp work evidence'],
-  ['Proactiveness', 'Strong = identifies risks and opportunities early and acts before escalation.', 'ClickUp work evidence'],
-  ['Client / Business Impact', 'Strong Impact = creates clear client, revenue, efficiency, quality, or risk-reduction value.', 'ClickUp work evidence'],
+  ['Work Quality', 'Strong = consistently accurate, complete work with little avoidable rework.', 'ClickUp task evidence'],
+  ['Ownership', 'Strong = owns outcomes, follows through, and raises risks without being chased.', 'ClickUp task evidence'],
+  ['Communication', 'Strong = clear, timely, audience-appropriate updates that reduce ambiguity.', 'ClickUp task evidence'],
+  ['Problem Solving', 'Strong = diagnoses issues and proposes practical solutions independently.', 'ClickUp task evidence'],
+  ['Collaboration', 'Strong = works constructively across functions and helps unblock others.', 'ClickUp task evidence'],
+  ['Proactiveness', 'Strong = identifies risks and opportunities early and acts before escalation.', 'ClickUp task evidence'],
+  ['Client / Business Impact', 'Strong Impact = creates clear client, revenue, efficiency, quality, or risk-reduction value.', 'ClickUp task evidence'],
   ['Growth & Development', 'Strong = demonstrates visible learning and applies it to improve role performance.', 'Manager monthly assessment'],
   ['Role Excellence', 'Strong = performs core expectations of the current role consistently and independently.', 'Manager monthly assessment'],
 ] as const;
@@ -61,7 +61,7 @@ const initial = {
 };
 
 type Draft = typeof initial;
-const storageKey = 'blinto-ifrat-september-2026-baseline-v2';
+const storageKey = 'blinto-ifrat-september-2026-baseline-v3';
 
 export function MonthlyReview() {
   const [draft, setDraft] = useState<Draft>({ ...initial, ratings: [...initial.ratings] });
@@ -77,6 +77,13 @@ export function MonthlyReview() {
     setDraft((current) => ({ ...current, [field]: value }));
     setStatus('In review');
     setNotice('');
+  }
+
+  function updateManagerRating(index: number, value: number) {
+    if (index < 7) return;
+    const ratings = [...draft.ratings];
+    ratings[index] = value;
+    update('ratings', ratings);
   }
 
   function save() {
@@ -133,7 +140,7 @@ export function MonthlyReview() {
       <header className="review-lab-header">
         <p className="eyebrow">Baseline review workspace</p>
         <h1 className="page-title">Ifrat · September 2026</h1>
-        <p className="page-subtitle">September is a trial month. This test intentionally simulates 10 completed tasks with KPI review values completed on only 4 tasks.</p>
+        <p className="page-subtitle">September is a trial month. ClickUp-derived KPI values are read-only here; the monthly review does not score the same work twice.</p>
         <div className="hero-actions">
           <a className="button button-secondary" href="https://app.clickup.com/t/86eywj0dy" target="_blank" rel="noreferrer">Open ClickUp source task ↗</a>
           <Link className="button button-secondary" href="/task-rating-guide">Rating guide</Link>
@@ -169,7 +176,7 @@ export function MonthlyReview() {
             <h2>3. KPI 1 — Delivery &amp; Reliability</h2>
             <div className="review-input-grid">
               <label className="review-input">ClickUp Delivery Reliability<input value={`${deliveryPreview.toFixed(1)} / 10`} readOnly /></label>
-              {([['attendance', 'Attendance Reliability'], ['policy', 'Leave & Policy Reliability']] as const).map(([field, label]) => (
+              {([['attendance', 'Attendance Reliability · HRMS test value'], ['policy', 'Leave & Policy Reliability · HRMS test value']] as const).map(([field, label]) => (
                 <label className="review-input" key={field}>{label}
                   <select value={draft[field]} onChange={(e) => update(field, Number(e.target.value))}>
                     {Array.from({ length: 11 }, (_, i) => i).map((n) => <option value={n} key={n}>{n.toFixed(1)} / 10</option>)}
@@ -182,16 +189,33 @@ export function MonthlyReview() {
 
           <section className="panel">
             <h2>4. Monthly KPI values</h2>
+            <p className="career-note"><strong>No duplicate scoring:</strong> KPIs 2–8 come from finalized ClickUp task fields and are shown read-only. Only Growth &amp; Development and Role Excellence are assessed here by the Review Manager.</p>
             <div className="review-rating-list">
-              {kpis.map(([name, benchmark, source], i) => (
-                <div className="review-rating-row" key={name}>
-                  <label htmlFor={'rating-' + i}><strong>{i + 2}. {name}</strong><small>{source}</small><small><b>Benchmark:</b> {benchmark}</small></label>
-                  <select id={'rating-' + i} value={draft.ratings[i]} onChange={(e) => { const ratings = [...draft.ratings]; ratings[i] = Number(e.target.value); update('ratings', ratings); }}>
-                    {(i === 6 ? impactLabels : ratingLabels).map((label, j) => <option value={j + 1} key={label}>{label}</option>)}
-                  </select>
-                  <strong>{(draft.ratings[i] * 2).toFixed(1)} / 10</strong>
-                </div>
-              ))}
+              {kpis.map(([name, benchmark, source], i) => {
+                const labels = i === 6 ? impactLabels : ratingLabels;
+                const label = labels[draft.ratings[i] - 1];
+                const fromClickUp = i < 7;
+                return (
+                  <div className="review-rating-row" key={name}>
+                    <label htmlFor={fromClickUp ? undefined : 'rating-' + i}>
+                      <strong>{i + 2}. {name}</strong>
+                      <small>{source}</small>
+                      <small><b>Benchmark:</b> {benchmark}</small>
+                    </label>
+                    {fromClickUp ? (
+                      <div>
+                        <strong>{label}</strong>
+                        <small style={{ display: 'block' }}>Read-only · aggregated from ClickUp</small>
+                      </div>
+                    ) : (
+                      <select id={'rating-' + i} value={draft.ratings[i]} onChange={(e) => updateManagerRating(i, Number(e.target.value))}>
+                        {labels.map((option, j) => <option value={j + 1} key={option}>{option}</option>)}
+                      </select>
+                    )}
+                    <strong>{(draft.ratings[i] * 2).toFixed(1)} / 10</strong>
+                  </div>
+                );
+              })}
             </div>
           </section>
 
@@ -221,6 +245,8 @@ export function MonthlyReview() {
           <ul className="review-checklist">
             <li>KPI coverage: {reviewedTasks}/{completedTasks} · {coverage}%</li>
             <li>Missing task reviews: {missingTaskReviews}</li>
+            <li>ClickUp KPIs 2–8: read-only</li>
+            <li>Manager KPIs 9–10: editable here</li>
             <li>Delivery Reliability: {deliveryPreview.toFixed(1)}/10 preview</li>
             <li>Employee reflection: {draft.reflection.trim() ? 'complete' : 'pending'}</li>
             <li>1:1: {draft.meeting ? 'complete' : 'pending'}</li>
