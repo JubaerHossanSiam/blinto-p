@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 import { MarkdownPage } from '@/components/markdown-page';
 import { readFrameworkFile } from '@/lib/content';
@@ -24,6 +25,8 @@ export default function ReviewProcessPage() {
           <div className="timeline-step"><span className="timeline-number">4</span><strong>Dec 16 → Jan 1</strong><span>Announce decisions → approved changes take effect</span></div>
         </div>
       </section>
+
+      <section className="shell panel" style={{ marginBottom: 24 }}><h2>Try the monthly review</h2><p>Follow Ifrat’s test review from simulated HRMS inputs through manager feedback, employee reflection, and the final score.</p><Link className="button" href="/review-test/ifrat">Open Ifrat’s test review</Link></section>
 
       <div className="shell content-layout">
         <aside className="side-card">

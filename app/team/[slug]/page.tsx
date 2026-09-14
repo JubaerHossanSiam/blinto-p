@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { EmployeePerformanceProfile } from '@/components/employee-performance-profile';
@@ -26,5 +27,5 @@ export default async function TeamMemberPage({ params }: PageProps) {
   const roleContent = readFrameworkFile(person.roleFile);
   const roleProfile = parseRoleProfile(roleContent);
 
-  return <EmployeePerformanceProfile person={person} roleProfile={roleProfile} />;
+  return <>{slug === 'ifrat' ? <div className="shell info-box" style={{ marginTop: 24 }}><strong>Monthly review pilot available</strong><Link className="card-link" href="/review-test/ifrat">Open separate test review →</Link><p>Simulated data; excluded from this official performance card.</p></div> : null}<EmployeePerformanceProfile person={person} roleProfile={roleProfile} /></>;
 }

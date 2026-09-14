@@ -222,3 +222,47 @@ button, input { font: inherit; }
 @media (max-width: 900px) {
   .guide-index { max-height: none; }
 }
+
+/* Monthly review pilot */
+.review-lab { padding-bottom: 64px; }
+.review-lab-header { padding: 48px 0 30px; }
+.review-test-banner { margin-top: 24px; padding: 18px; border: 1px solid #e1be61; border-radius: 12px; background: var(--amber-soft); }
+.review-test-banner p { margin: 7px 0 0; }
+.review-lab-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 22px; align-items: start; }
+.review-lab-main { min-width: 0; display: grid; gap: 20px; }
+.review-lab-main section { scroll-margin-top: 110px; }
+.review-summary { position: sticky; top: 100px; }
+.review-input { display: grid; gap: 8px; margin: 16px 0; font-weight: 650; font-size: 14px; }
+.review-lab input:not([type=checkbox]), .review-lab select, .review-lab textarea { width: 100%; min-width: 0; border: 1px solid #b6bdc4; border-radius: 8px; background: #fff; color: var(--text); font: inherit; padding: 10px; }
+.review-lab textarea { resize: vertical; line-height: 1.5; }
+.review-lab :is(input, select, textarea, button, a):focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+.review-facts div { margin: 12px 0; }
+.review-facts dt { color: var(--muted); font-size: 12px; }
+.review-facts dd { margin: 2px 0 0; font-weight: 600; }
+.review-input-grid { display: grid; gap: 14px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.review-rating-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) 72px; align-items: center; gap: 12px; padding: 16px 0; border-top: 1px solid var(--line); }
+.review-rating-row small { display: block; color: var(--muted); margin-top: 4px; }
+.review-rating-row > strong { font-size: 14px; text-align: right; }
+.review-help { font-size: 12px; color: #555d64; }
+.review-checkbox { display: flex; gap: 10px; align-items: center; margin: 16px 0; }
+.review-checkbox input { width: 18px; height: 18px; }
+.review-total { font-size: 54px; font-weight: 800; letter-spacing: -.04em; margin: 12px 0 0; line-height: 1.1; }
+.review-total small { font-size: 18px; color: var(--muted); }
+.review-checklist { padding-left: 18px; font-size: 13px; line-height: 1.9; }
+.review-draft-actions { display: grid; gap: 8px; margin-top: 10px; }
+.review-draft-actions button { padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: white; cursor: pointer; }
+.review-notice { font-size: 13px; color: var(--blue); }
+.review-details { margin-top: 18px; }
+.review-details summary { cursor: pointer; font-weight: 650; }
+.review-details textarea { margin-top: 12px; font-size: 13px; }
+@media (max-width: 1000px) {
+  .review-lab-layout { grid-template-columns: 1fr; }
+  .review-summary { position: static; }
+}
+@media (max-width: 600px) {
+  .review-input-grid { grid-template-columns: 1fr; gap: 0; }
+  .review-rating-row { grid-template-columns: minmax(0, 1fr) 70px; }
+  .review-rating-row label { grid-column: 1 / -1; }
+  .review-lab .panel { padding: 18px; }
+  .review-lab select, .review-lab textarea, .review-lab input { font-size: 16px; }
+}
