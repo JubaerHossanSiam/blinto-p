@@ -30,9 +30,9 @@ export default async function TeamMemberPage({ params }: PageProps) {
   return <>
     {slug === 'ifrat' ? (
       <div className="shell info-box" style={{ marginTop: 24 }}>
-        <strong>Current review workspace · October 2026</strong>
-        <Link className="card-link" href="/monthly-reviews/ifrat">Open October review workspace →</Link>
-        <p>This is the working form for the current monthly review. The finalized, approved result belongs on this Performance Card; the workspace is not a second performance record.</p>
+        <strong>September 2026 baseline review · In review</strong>
+        <Link className="card-link" href="/monthly-reviews/ifrat">Open September review workspace →</Link>
+        <p>September is being used to test the full review flow with visible values before the formal October–December cycle. The Performance Card below is the permanent view; the workspace is where the baseline values are reviewed and adjusted.</p>
       </div>
     ) : null}
     <EmployeePerformanceProfile person={person} roleProfile={roleProfile} />
