@@ -30,11 +30,11 @@ export default function HomePage() {
             <p className="eyebrow">Blinto Team Performance</p>
             <h1>Know the role. See the evidence. Grow with clarity.</h1>
             <p className="hero-copy">
-              A single place for Blinto&apos;s performance framework, Role Success Plans, KPI reviews,
+              A single place for Blinto&apos;s employee performance profiles, Role Success Plans, KPI reviews,
               and the 2027 career-level assessment.
             </p>
             <div className="hero-actions">
-              <Link className="button" href="/roles">View Role Success Plans</Link>
+              <Link className="button" href="/team">Open Employee Profiles</Link>
               <Link className="button button-secondary" href="/framework">Explore the framework</Link>
             </div>
           </div>

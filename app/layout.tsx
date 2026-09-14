@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { SiteHeader } from '@/components/site-header';
 
 import './globals.css';
+import './performance-profile.css';
 
 export const metadata: Metadata = {
   title: {

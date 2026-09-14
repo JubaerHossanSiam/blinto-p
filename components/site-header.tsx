@@ -24,7 +24,7 @@ export function SiteHeader() {
             <Link href={href} key={href}>{label}</Link>
           ))}
         </nav>
-        <Link className="button button-small" href="/roles">Role Success Plans</Link>
+        <Link className="button button-small" href="/team">Employee Profiles</Link>
       </div>
     </header>
   );
