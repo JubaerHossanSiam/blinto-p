@@ -15,7 +15,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const person = getPerson(slug);
-  return { title: person ? `${person.name} · Performance Profile` : 'Performance Profile' };
+  return { title: person ? `${person.name} · Employee Performance Card` : 'Employee Performance Card' };
 }
 
 export default async function TeamMemberPage({ params }: PageProps) {

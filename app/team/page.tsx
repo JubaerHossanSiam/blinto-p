@@ -11,19 +11,19 @@ export default function TeamPage() {
         <div className="dashboard-head">
           <div>
             <p className="eyebrow">Blinto Team</p>
-            <h1>Employee Performance Profiles</h1>
-            <p>Role Success Plan, deliverables, monthly KPI tracker, and 2027 career assessment for the 14 employees in the standard performance framework.</p>
+            <h1>Employee Performance Cards</h1>
+            <p>One employee-facing card for role success, work evidence, monthly KPI reviews, manager feedback, and the 2027 career assessment.</p>
           </div>
         </div>
 
         <div className="info-box" style={{ marginBottom: 22 }}>
-          <strong>Proposed, not assigned</strong>
-          Each profile now includes a proposed career level and salary band. October–December performance evidence will be used to confirm or adjust the first formal level by December 31, 2026.
+          <strong>Website = performance card · ClickUp = work evidence</strong>
+          ClickUp remains the operational source of truth for tasks and review evidence. These cards present the approved performance story clearly for each of the 14 active employees.
         </div>
 
         <table className="team-table">
           <thead>
-            <tr><th>Employee</th><th>Role</th><th>Role plan</th><th>KPI cycle</th><th>Career</th></tr>
+            <tr><th>Employee</th><th>Role</th><th>Assessment cycle</th><th>Proposed career</th><th>Card</th></tr>
           </thead>
           <tbody>
             {people.map((person) => {
@@ -37,12 +37,12 @@ export default function TeamPage() {
                     <span style={{ color: 'var(--muted)', fontSize: 11 }}>{person.function}</span>
                   </td>
                   <td>{person.role}</td>
-                  <td><span className="tracker-status status-good">Assigned</span></td>
                   <td>Oct–Dec 2026</td>
                   <td>
                     <strong>Proposed {record.career.proposedLevel ?? '—'}</strong><br />
                     <span style={{ color: 'var(--muted)', fontSize: 11 }}>{level?.salaryBand ?? 'Under assessment'}</span>
                   </td>
+                  <td><Link className="card-link" href={`/team/${person.slug}`}>Open card →</Link></td>
                 </tr>
               );
             })}
