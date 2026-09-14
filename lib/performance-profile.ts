@@ -23,14 +23,18 @@ export const kpis = [
 ] as const;
 
 export const careerLevels = [
-  { level: 'L1', name: 'Associate', meaning: 'Entry / Foundation' },
-  { level: 'L2', name: 'Executive / Specialist', meaning: 'Independent Contributor' },
-  { level: 'L3', name: 'Senior', meaning: 'Strong Ownership' },
-  { level: 'L4', name: 'Lead', meaning: 'Leads Work or Small Team' },
-  { level: 'L5', name: 'Principal / Manager', meaning: 'High Impact' },
-  { level: 'L6', name: 'Architect / Head', meaning: 'Department Authority' },
-  { level: 'L7', name: 'Director', meaning: 'Strategic Leadership' },
+  { level: 'L1', name: 'Associate', meaning: 'Entry / Foundation', salaryBand: '৳25,000–৳35,000' },
+  { level: 'L2', name: 'Executive / Specialist', meaning: 'Independent Contributor', salaryBand: '৳35,000–৳50,000' },
+  { level: 'L3', name: 'Senior', meaning: 'Strong Ownership', salaryBand: '৳50,000–৳75,000' },
+  { level: 'L4', name: 'Lead', meaning: 'Leads Work or Small Team', salaryBand: '৳75,000–৳110,000' },
+  { level: 'L5', name: 'Principal / Manager', meaning: 'High Impact', salaryBand: '৳110,000–৳160,000' },
+  { level: 'L6', name: 'Architect / Head', meaning: 'Department Authority', salaryBand: '৳160,000–৳240,000' },
+  { level: 'L7', name: 'Director', meaning: 'Strategic Leadership', salaryBand: '৳240,000–৳350,000+' },
 ] as const;
+
+export function getCareerLevel(level?: string) {
+  return careerLevels.find((item) => item.level === level);
+}
 
 function section(content: string, headings: string[]): string {
   const lines = content.split(/\r?\n/);

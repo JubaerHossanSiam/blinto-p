@@ -2,7 +2,7 @@
 
 ## Scope
 
-The standard Blinto Team Performance Framework currently applies to **15 active employees**.
+The standard Blinto Team Performance Framework currently applies to **14 active employees**.
 
 The following workspace members are excluded from the standard monthly employee KPI review:
 
@@ -38,7 +38,6 @@ Current roster:
 
 - Ifrat
 - Rakibul
-- Jannatul Mukta
 - Rafsan
 - Munna
 - Abbrar
@@ -53,6 +52,14 @@ Current roster:
 - Imran
 
 The custom ClickUp task type is **KPI Review**.
+
+## Career-level context
+
+Each active employee has a **proposed career level** for the October–December assessment period. The proposed level is not an assigned or confirmed level.
+
+Monthly evidence should help leadership determine whether the proposed level should be confirmed or adjusted during the December calibration.
+
+Final career levels are communicated by **December 31, 2026** and become active from **January 1, 2027**.
 
 ## Monthly evidence inputs
 

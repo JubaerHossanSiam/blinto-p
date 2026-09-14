@@ -10,7 +10,7 @@ The framework is designed to be transparent, evidence-based, and focused on cont
 
 ## Current scope
 
-The standard framework currently applies to **15 active employees**.
+The standard framework currently applies to **14 active employees**.
 
 Excluded from the standard employee KPI process:
 
@@ -22,11 +22,19 @@ Excluded from the standard employee KPI process:
 
 ## How the system connects
 
-Career Level → Department Career Ladder → Role Success Plan → Actual Work → Task KPI Evidence → Monthly KPI Review → Final Assessment → Development / Career Decision
+Proposed Career Level → Department Career Ladder → Role Success Plan → Actual Work → Task KPI Evidence → Monthly KPI Review → Final Assessment → Confirmed Level / Development / Compensation Review
+
+## 2026 baseline career cycle
+
+No active employee has an assigned Blinto career level yet. Each employee receives a **proposed level** for the October–December 2026 assessment period.
+
+The proposed level is not final. Monthly KPI evidence, Role Success Plan evidence, role scope, ownership, independence, judgment, and impact are used during the December calibration to confirm or adjust the level.
+
+Final levels are communicated by **December 31, 2026** and become active from **January 1, 2027**.
 
 ## Website scope
 
-The current Blinto Performance website is intentionally standalone. It presents the framework, roles, review process, team roster, and career-leveling model directly from this repository. HRMS authentication and HRMS API integration are deferred for a later phase.
+The current Blinto Performance website is intentionally standalone. It presents the framework, roles, review process, team roster, proposed career levels, salary bands, and career-leveling model directly from this repository. HRMS authentication and HRMS API integration are deferred for a later phase.
 
 ## Wiki
 
@@ -43,7 +51,6 @@ The current Blinto Performance website is intentionally standalone. It presents 
 
 - [Ifrat — Project Manager / Website & Growth Lead](role-success-plan-ifrat.md)
 - [Rakibul — Shopify App & Growth Lead](role-success-plan-rakibul.md)
-- [Jannatul Mukta — People & Operations Executive](role-success-plan-mukta.md)
 - [Rafsan Zahid — Chief of Staff](role-success-plan-rafsan.md)
 - [Munna — Software Developer](role-success-plan-munna.md)
 - [Sayem — Backend Engineer / Technical Lead](role-success-plan-sayem.md)
@@ -86,6 +93,7 @@ The current Blinto Performance website is intentionally standalone. It presents 
 
 - **GitHub:** performance methodology, KPI definitions, career framework, career ladders, role expectations, review methodology, and assessment methodology.
 - **ClickUp:** work execution, task-level KPI evidence, and monthly KPI reviews.
+- **HRMS / People Ops:** attendance, leave, and policy-reliability evidence used by KPI 1.
 
 ## Framework status
 

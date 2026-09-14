@@ -21,7 +21,7 @@ export default function CareerLevelsPage() {
         <div className="shell">
           <p className="eyebrow">Career</p>
           <h1 className="page-title">Career Leveling Framework</h1>
-          <p className="page-subtitle">The reference for evaluating scope, independence, impact, and role maturity. No employee has a level assigned yet.</p>
+          <p className="page-subtitle">The reference for evaluating scope, independence, impact, role maturity, and salary bands. Employees have proposed levels for assessment; no level is confirmed yet.</p>
         </div>
       </section>
       <div className="shell content-layout">

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 import type { PersonProfile } from '@/lib/people';
-import { careerLevels, kpis, type RoleProfileData } from '@/lib/performance-profile';
+import { careerLevels, getCareerLevel, kpis, type RoleProfileData } from '@/lib/performance-profile';
 import { getPerformanceRecord } from '@/lib/performance-records';
 
 type Props = {
@@ -17,9 +17,16 @@ function statusClass(status: string) {
   return 'status-neutral';
 }
 
+function careerStatusLabel(status: string) {
+  if (status === 'Assessment') return 'Under assessment';
+  return status;
+}
+
 export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
   const record = getPerformanceRecord(person.slug);
   const currentScore = record.reviews.find((review) => review.status === 'Complete')?.score;
+  const proposedCareer = getCareerLevel(record.career.proposedLevel);
+  const careerStatus = careerStatusLabel(record.career.status);
 
   return (
     <>
@@ -32,7 +39,7 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
               <p className="profile-role">{person.role}</p>
             </div>
             <div className="profile-heading-actions">
-              <span className="status-pill"><span className="status-dot" /> Career level not assigned</span>
+              <span className="status-pill"><span className="status-dot" /> Proposed {record.career.proposedLevel ?? 'level'} · {careerStatus}</span>
               <Link className="button button-secondary button-small" href={`/roles/${person.slug}`}>Full Role Success Plan</Link>
             </div>
           </div>
@@ -41,7 +48,7 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
             <div><span>Role plan</span><strong>Assigned</strong></div>
             <div><span>Review cycle</span><strong>Oct–Dec 2026</strong></div>
             <div><span>Latest KPI</span><strong>{currentScore === undefined ? 'Pending' : `${currentScore}/100`}</strong></div>
-            <div><span>Career assessment</span><strong>{record.career.status}</strong></div>
+            <div><span>Career assessment</span><strong>{careerStatus}</strong></div>
           </div>
         </div>
       </section>
@@ -73,7 +80,7 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
             <div className="profile-card">
               <span className="card-kicker">Performance system</span>
               <h3>Role → Evidence → KPI → Career</h3>
-              <p>Daily work and deliverables create evidence. Monthly KPI reviews evaluate performance. Sustained evidence informs the annual career assessment.</p>
+              <p>Daily work and deliverables create evidence. Monthly KPI reviews evaluate performance. Sustained evidence confirms or changes the proposed career level.</p>
               <div className="mini-flow"><span>Role</span><b>→</b><span>Evidence</span><b>→</b><span>KPI</span><b>→</b><span>Career</span></div>
             </div>
           </div>
@@ -161,24 +168,24 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
           <div className="profile-section-head">
             <div>
               <p className="eyebrow">Career</p>
-              <h2>2027 annual career assessment</h2>
-              <p>No employee has an assigned level yet. October–December evidence will establish the first baseline level for January 2027.</p>
+              <h2>2027 career-level assessment</h2>
+              <p>The level shown here is proposed, not assigned. October–December evidence will be used to confirm or adjust the first formal career level for January 2027.</p>
             </div>
             <span className="section-number">04</span>
           </div>
 
           <div className="career-summary-grid">
             <div className="career-state-card">
-              <span>Current level</span><strong>Not assigned</strong>
-            </div>
-            <div className="career-state-card">
-              <span>Assessment status</span><strong>{record.career.status}</strong>
+              <span>Confirmed level</span><strong>Not assigned</strong>
             </div>
             <div className="career-state-card">
               <span>Proposed level</span><strong>{record.career.proposedLevel ?? '—'}</strong>
             </div>
             <div className="career-state-card">
-              <span>Effective</span><strong>{record.career.finalLevel ? 'Jan 1, 2027' : 'Pending decision'}</strong>
+              <span>Proposed salary band</span><strong>{proposedCareer?.salaryBand ?? '—'}</strong>
+            </div>
+            <div className="career-state-card">
+              <span>Assessment status</span><strong>{careerStatus}</strong>
             </div>
           </div>
 
@@ -193,7 +200,7 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
                 <li>Role-specific scope and Role Excellence</li>
                 <li>Growth, collaboration, and leadership where relevant</li>
               </ul>
-              <p className="career-note">KPI score provides evidence, but it does not automatically determine career level.</p>
+              <p className="career-note">The proposed level is a starting assessment position. KPI score provides evidence, but it does not automatically confirm or change the career level.</p>
             </div>
 
             <div className="level-ladder-card">
@@ -202,7 +209,7 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
                 {careerLevels.map((item) => (
                   <div className="level-row" key={item.level}>
                     <strong>{item.level}</strong>
-                    <div><b>{item.name}</b><span>{item.meaning}</span></div>
+                    <div><b>{item.name}</b><span>{item.meaning} · {item.salaryBand}</span></div>
                   </div>
                 ))}
               </div>
@@ -210,13 +217,13 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
           </div>
 
           <div className="career-timeline-inline">
+            <span><b>Now</b> Proposed level</span>
+            <i>→</i>
             <span><b>Oct–Dec</b> Evidence collection</span>
             <i>→</i>
             <span><b>Late Dec</b> Assessment + calibration</span>
             <i>→</i>
-            <span><b>By Dec 31</b> Level communicated</span>
-            <i>→</i>
-            <span><b>Jan 1, 2027</b> Level active</span>
+            <span><b>By Dec 31</b> Final level confirmed</span>
           </div>
         </section>
       </section>
