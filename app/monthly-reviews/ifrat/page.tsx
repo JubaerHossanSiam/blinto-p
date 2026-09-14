@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
 
 export default function IfratMonthlyReviewPage() {
-  redirect('/team/ifrat#review-workspace');
+  redirect('/team/ifrat/reviews/2026-09');
 }
