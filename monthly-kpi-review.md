@@ -22,7 +22,9 @@ For the first 2027 career-level baseline assessment, the evidence window is:
 
 - October 2026
 - November 2026
-- December 2026
+- December 1–10, 2026: supporting evidence for career assessment only
+
+Complete assessment, calibration, compensation review, and employee discussions on **December 11–15**. The full December monthly KPI review remains due after month-end and is not included in the December 16 baseline decision score.
 
 September activity may be used for setup/testing but is not part of the official first baseline leveling evidence window.
 
@@ -55,11 +57,11 @@ The custom ClickUp task type is **KPI Review**.
 
 ## Career-level context
 
-Each active employee has a **proposed career level** for the October–December assessment period. The proposed level is not an assigned or confirmed level.
+Each active employee has a **proposed career level** for the October 1–December 10 assessment period. The proposed level is not an assigned or confirmed level.
 
 Monthly evidence should help leadership determine whether the proposed level should be confirmed or adjusted during the December calibration.
 
-Final career levels are communicated by **December 31, 2026** and become active from **January 1, 2027**.
+Final career levels are announced on **December 16, 2026 (Victory Day)** and become active from **January 1, 2027**.
 
 ## Monthly evidence inputs
 
@@ -160,7 +162,7 @@ The Delivery Reviewer feedback must summarize or contextualize existing delivery
 
 Technical depth, craft quality, Growth & Development, Role Excellence, and final career-level judgment remain with the appropriate Review Manager.
 
-For the October–December 2026 cycle, **Ifrat Jahan Chowdhury is the Delivery Reviewer for all active employees except Rafsan Zahid and Ifrat herself**.
+For the October 1–December 10, 2026 cycle, **Ifrat Jahan Chowdhury is the Delivery Reviewer for all active employees except Rafsan Zahid and Ifrat herself**.
 
 For Rafsan and Ifrat, **Fazle Rabbi is already the Review Manager and directly covers the relevant delivery review**, so no separate Delivery Reviewer is assigned.
 

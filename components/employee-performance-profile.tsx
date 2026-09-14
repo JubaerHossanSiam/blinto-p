@@ -77,7 +77,7 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
             <div><span>Review manager</span><strong>{record.reviewManager ?? 'To be assigned'}</strong></div>
             <div><span>Proposed level</span><strong>{record.career.proposedLevel ?? '—'}</strong></div>
             <div><span>Salary band</span><strong>{proposedCareer?.salaryBand ?? '—'}</strong></div>
-            <div><span>Assessment cycle</span><strong>Oct–Dec 2026</strong></div>
+            <div><span>Assessment cycle</span><strong>Oct 1–Dec 10, 2026</strong></div>
             <div><span>Latest KPI</span><strong>{currentScore === undefined ? 'Pending' : `${currentScore}/100`}</strong></div>
           </div>
         </div>
@@ -117,10 +117,10 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
               <p>{proposedCareer?.meaning ?? 'The proposed level is a starting assessment position and is not yet assigned.'}</p>
               <div className="overview-facts">
                 <div><span>Salary band</span><strong>{proposedCareer?.salaryBand ?? '—'}</strong></div>
-                <div><span>Decision by</span><strong>Dec 31, 2026</strong></div>
+                <div><span>Announcement</span><strong>Dec 16, 2026</strong></div>
                 <div><span>Effective</span><strong>Jan 1, 2027</strong></div>
               </div>
-              <p className="career-note">The proposed level is not an assigned level. October–December evidence will confirm or adjust it.</p>
+              <p className="career-note">The proposed level is not an assigned level. Completed October–November reviews and evidence through December 10 will confirm or adjust it.</p>
             </div>
           </div>
 
@@ -212,6 +212,7 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
             <span className="section-number">04</span>
           </div>
 
+          <p className="career-note">The December monthly review is completed after month-end. The December 16 career decision uses completed October–November scores and supporting evidence through December 10.</p>
           <div className="review-month-grid">
             {record.reviews.map((review) => (
               <article className={`review-month-card ${focusReview?.month === review.month ? 'review-month-card-focus' : ''}`} key={review.month}>
@@ -312,7 +313,7 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
             <div>
               <p className="eyebrow">Career</p>
               <h2>2027 career-level assessment</h2>
-              <p>The level shown here is proposed, not assigned. October–December evidence will be used to confirm or adjust the first formal career level for January 2027.</p>
+              <p>The level shown here is proposed, not assigned. Completed October–November reviews and evidence through December 10 will be used to confirm or adjust the first formal career level for January 2027.</p>
             </div>
             <span className="section-number">06</span>
           </div>
@@ -329,7 +330,7 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
               <span className="card-kicker">What confirms the level</span>
               <h3>{record.career.proposedLevel ?? 'Proposed level'} expectations</h3>
               <ul className="assessment-list">
-                <li>Consistent October–December KPI performance and trend</li>
+                <li>Completed October–November KPI performance and trend, plus evidence through December 10</li>
                 <li>Role Success Plan outcomes and real work evidence</li>
                 <li>Scope, independence, ownership, and sound judgment</li>
                 <li>Role-specific quality and measurable impact</li>
@@ -353,9 +354,9 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
 
           <div className="career-timeline-inline">
             <span><b>Now</b> Proposed level</span><i>→</i>
-            <span><b>Oct–Dec</b> Evidence collection</span><i>→</i>
-            <span><b>Late Dec</b> Assessment + calibration</span><i>→</i>
-            <span><b>By Dec 31</b> Confirm or adjust</span><i>→</i>
+            <span><b>Oct 1–Dec 10</b> Evidence collection</span><i>→</i>
+            <span><b>Dec 11–15</b> Calibration and discussions</span><i>→</i>
+            <span><b>Dec 16</b> Announce decisions</span><i>→</i>
             <span><b>Jan 1</b> Confirmed level active</span>
           </div>
         </section>

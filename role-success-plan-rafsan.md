@@ -3,9 +3,9 @@
 **Role:** Chief of Staff  
 **Department:** CEO Office  
 **Reporting Manager:** CEO  
-**Assessment Period:** August 2026 – December 2026  
+**Assessment Period:** August 2026 – December 10, 2026  
 **Career Level:** Under Assessment *(Assessment will follow the CEO Office / Leadership Career Ladder.)*  
-**Review Date:** December 2026
+**Review Date:** December 11–15, 2026; decisions announced December 16 and approved changes effective January 1, 2027
 
 ---
 

@@ -1,6 +1,6 @@
 # Final Performance Assessment
 
-This document defines how Blinto converts October–December monthly performance evidence into the first formal 2027 career-level decision.
+This document defines how Blinto converts completed October–November reviews and supporting evidence through December 10 into the first formal 2027 career-level decision.
 
 ## Purpose
 
@@ -25,15 +25,15 @@ Official evidence window:
 
 - October 2026
 - November 2026
-- December 2026
+- December 1–10, 2026: supporting work and role evidence only
 
-Leadership completes assessment and calibration in late December.
+Evidence closes on **December 10, 2026**. Leadership completes assessment, calibration, compensation review, and employee discussions on **December 11–15, 2026**.
 
-Final level communication deadline:
+Career-level and annual salary-review decision announcement:
 
-**December 31, 2026**
+**December 16, 2026 (Victory Day)**
 
-Confirmed levels become active:
+Confirmed levels and approved salary changes become active:
 
 **January 1, 2027**
 
@@ -55,7 +55,11 @@ Each completed Monthly Performance Review produces a score out of **100**.
 
 For the baseline period:
 
-`Final Performance Score = (October score + November score + December score) ÷ Number of valid completed reviews`
+`Final Performance Score = Sum of valid completed October and November scores ÷ Number of those valid completed reviews`
+
+December 1–10 evidence supports qualitative assessment; it is not a full monthly score and is not included in this average. The full December KPI review takes place after month-end as part of ongoing performance tracking.
+
+If there are no valid completed reviews, leave the score pending and record insufficient history rather than calculating an average.
 
 Missing months must not be treated as zero.
 
@@ -82,7 +86,7 @@ Trend provides context but does not mathematically change the Final Performance 
 
 Leadership should review more than the headline average. At minimum, consider:
 
-- October–December KPI scores;
+- completed October–November KPI scores and supporting evidence through December 10;
 - recurring strengths and recurring gaps across individual KPIs;
 - ClickUp task and deliverable evidence;
 - HRMS / People Ops reliability evidence used in KPI 1;
@@ -119,7 +123,7 @@ The performance band is a summary classification, not a career-level formula.
 
 Performance and career level are related but are **not the same thing**.
 
-At the December calibration, leadership records one of these decisions:
+At the December 11–15 calibration, leadership records one of these decisions:
 
 - **Confirm proposed level** — evidence supports the proposed level.
 - **Confirm lower level** — evidence does not yet support the proposed level, but supports a lower level.
@@ -267,6 +271,8 @@ The final record should contain:
 
 ## 15. Future cycles
 
+Annual career assessments and salary reviews are completed before December 16. Decisions are announced on **December 16 (Victory Day)**, with confirmed levels, approved promotions, and approved salary changes effective **January 1 of the following year**. Salary review does not guarantee an increase.
+
 After the first levels become active on January 1, 2027, future career reviews may use concepts such as:
 
 - developing within current level;
@@ -274,7 +280,7 @@ After the first levels become active on January 1, 2027, future career reviews m
 - demonstrating next-level scope;
 - ready for promotion review.
 
-Those concepts should not be used to describe the October–December 2026 baseline cycle because employees do not yet have confirmed levels.
+Those concepts should not be used to describe the October 1–December 10, 2026 baseline cycle because employees do not yet have confirmed levels.
 
 ---
 

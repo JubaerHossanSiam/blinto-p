@@ -18,13 +18,22 @@ Salary bands are gross monthly ranges and should be reviewed periodically agains
 
 No employee has an assigned Blinto career level yet.
 
-For the first baseline cycle, Blinto gives each active employee a **proposed career level** before the October–December 2026 review period.
+For the first baseline cycle, Blinto gives each active employee a **proposed career level** before the October 1–December 10, 2026 review period.
 
 The proposal is a starting assessment position, not a confirmed level. For this transition cycle, current compensation positioning may be used as a practical baseline for the proposed level, together with role context. Leadership may propose a nearby higher level when there is a clear reason to assess the employee against that level.
 
-October–December performance evidence, Role Success Plan evidence, scope, independence, ownership, judgment, and impact are then used to confirm or adjust the proposal.
+October 1–December 10 performance evidence, Role Success Plan evidence, scope, independence, ownership, judgment, and impact are then used to confirm or adjust the proposal.
 
-Final levels are communicated by **December 31, 2026** and become active from **January 1, 2027**.
+Final levels are announced on **December 16, 2026 (Victory Day)** and become active from **January 1, 2027**.
+
+## Annual decision calendar
+
+- **December 10:** first-cycle evidence cutoff; use completed October–November KPI reviews plus supporting evidence from December 1–10.
+- **December 11–15:** complete assessment, leadership calibration, salary review, and employee discussions.
+- **December 16 (Victory Day):** announce career-level, promotion, and salary-review decisions.
+- **January 1:** confirmed levels and approved changes take effect.
+
+Annual career assessments and salary reviews follow the December 16 announcement and January 1 effective-date schedule. A review does not guarantee promotion or a salary increase. The full December KPI review continues after month-end.
 
 ## Salary progression
 

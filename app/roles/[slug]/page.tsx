@@ -39,7 +39,7 @@ export default async function RoleProfilePage({ params }: PageProps) {
       <div className="shell content-layout">
         <aside className="side-card">
           <strong>2027 Level Assessment</strong>
-          <p>Evidence window: October–December 2026. Proposed level communicated by December 31 and effective January 1, 2027.</p>
+          <p>Evidence window: October 1–December 10, 2026. Confirmed level announced December 16 and effective January 1, 2027.</p>
         </aside>
         <MarkdownPage content={content} />
       </div>

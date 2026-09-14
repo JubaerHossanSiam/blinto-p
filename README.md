@@ -26,11 +26,13 @@ Proposed Career Level → Department Career Ladder → Role Success Plan → Act
 
 ## 2026 baseline career cycle
 
-No active employee has an assigned Blinto career level yet. Each employee receives a **proposed level** for the October–December 2026 assessment period.
+No active employee has an assigned Blinto career level yet. Each employee receives a **proposed level** for the October 1–December 10, 2026 assessment period.
 
 The proposed level is not final. Monthly KPI evidence, Role Success Plan evidence, role scope, ownership, independence, judgment, and impact are used during the December calibration to confirm or adjust the level.
 
-Final levels are communicated by **December 31, 2026** and become active from **January 1, 2027**.
+Final levels are announced on **December 16, 2026 (Victory Day)** and become active from **January 1, 2027**.
+
+The first-cycle evidence cutoff is **December 10**: use completed October–November KPI reviews plus supporting early-December evidence. Assessment, calibration, salary review, and employee discussions finish on **December 11–15**. Annual career and salary-review decisions are announced on **December 16 (Victory Day)**; approved changes take effect on **January 1**. The full December monthly review continues after month-end.
 
 ## Website scope
 

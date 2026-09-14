@@ -39,7 +39,7 @@ export default function TeamPage() {
                   <td>{person.role}</td>
                   <td><strong>{record.reviewManager ?? 'To be assigned'}</strong></td>
                   <td>{record.deliveryReviewer ? <><strong>{record.deliveryReviewer}</strong><br /><span style={{ color: 'var(--muted)', fontSize: 11 }}>Feedback only</span></> : <span style={{ color: 'var(--muted)' }}>Covered by review manager</span>}</td>
-                  <td>Oct–Dec 2026</td>
+                  <td>Oct 1–Dec 10, 2026</td>
                   <td>
                     <strong>Proposed {record.career.proposedLevel ?? '—'}</strong><br />
                     <span style={{ color: 'var(--muted)', fontSize: 11 }}>{level?.salaryBand ?? 'Under assessment'}</span>
