@@ -59,20 +59,20 @@ export type EmployeePerformanceRecord = {
  * pending rather than being invented.
  */
 export const performanceRecords: Record<string, EmployeePerformanceRecord> = {
-  ifrat: { career: { status: 'Assessment', proposedLevel: 'L2' } },
-  rakibul: { career: { status: 'Assessment', proposedLevel: 'L3' } },
-  rafsan: { career: { status: 'Assessment', proposedLevel: 'L3' } },
-  munna: { career: { status: 'Assessment', proposedLevel: 'L1' } },
-  sayem: { career: { status: 'Assessment', proposedLevel: 'L1' } },
-  siam: { career: { status: 'Assessment', proposedLevel: 'L2' } },
-  usha: { career: { status: 'Assessment', proposedLevel: 'L1' } },
-  raihan: { career: { status: 'Assessment', proposedLevel: 'L1' } },
-  fatema: { career: { status: 'Assessment', proposedLevel: 'L1' } },
-  yasin: { career: { status: 'Assessment', proposedLevel: 'L1' } },
-  silvia: { career: { status: 'Assessment', proposedLevel: 'L1' } },
-  imran: { career: { status: 'Assessment', proposedLevel: 'L1' } },
-  drishty: { career: { status: 'Assessment', proposedLevel: 'L2' } },
-  abbrar: { career: { status: 'Assessment', proposedLevel: 'L2' } },
+  ifrat: { reviewManager: 'Fazle Rabbi', career: { status: 'Assessment', proposedLevel: 'L2' } },
+  rakibul: { reviewManager: 'Fazle Rabbi', career: { status: 'Assessment', proposedLevel: 'L3' } },
+  rafsan: { reviewManager: 'Fazle Rabbi', career: { status: 'Assessment', proposedLevel: 'L3' } },
+  munna: { reviewManager: 'Abu Sayem', career: { status: 'Assessment', proposedLevel: 'L1' } },
+  sayem: { reviewManager: 'Fazle Rabbi', career: { status: 'Assessment', proposedLevel: 'L1' } },
+  siam: { reviewManager: 'Fazle Rabbi', career: { status: 'Assessment', proposedLevel: 'L2' } },
+  usha: { reviewManager: 'Siam', career: { status: 'Assessment', proposedLevel: 'L1' } },
+  raihan: { reviewManager: 'Siam', career: { status: 'Assessment', proposedLevel: 'L1' } },
+  fatema: { reviewManager: 'Siam', career: { status: 'Assessment', proposedLevel: 'L1' } },
+  yasin: { reviewManager: 'Siam', career: { status: 'Assessment', proposedLevel: 'L1' } },
+  silvia: { reviewManager: 'Rakibul', career: { status: 'Assessment', proposedLevel: 'L1' } },
+  imran: { reviewManager: 'Rakibul', career: { status: 'Assessment', proposedLevel: 'L1' } },
+  drishty: { reviewManager: 'Shemanto', career: { status: 'Assessment', proposedLevel: 'L2' } },
+  abbrar: { reviewManager: 'Shemanto', career: { status: 'Assessment', proposedLevel: 'L2' } },
 };
 
 export function getPerformanceRecord(slug: string) {

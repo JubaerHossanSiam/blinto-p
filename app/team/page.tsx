@@ -23,7 +23,7 @@ export default function TeamPage() {
 
         <table className="team-table">
           <thead>
-            <tr><th>Employee</th><th>Role</th><th>Assessment cycle</th><th>Proposed career</th><th>Card</th></tr>
+            <tr><th>Employee</th><th>Role</th><th>Review manager</th><th>Assessment cycle</th><th>Proposed career</th><th>Card</th></tr>
           </thead>
           <tbody>
             {people.map((person) => {
@@ -37,6 +37,7 @@ export default function TeamPage() {
                     <span style={{ color: 'var(--muted)', fontSize: 11 }}>{person.function}</span>
                   </td>
                   <td>{person.role}</td>
+                  <td><strong>{record.reviewManager ?? 'To be assigned'}</strong></td>
                   <td>Oct–Dec 2026</td>
                   <td>
                     <strong>Proposed {record.career.proposedLevel ?? '—'}</strong><br />
