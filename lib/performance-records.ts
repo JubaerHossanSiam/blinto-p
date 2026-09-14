@@ -1,10 +1,32 @@
 export type ReviewStatus = 'Pending' | 'In review' | 'Complete';
 
+export type KpiName =
+  | 'Delivery & Reliability'
+  | 'Work Quality'
+  | 'Ownership'
+  | 'Communication'
+  | 'Problem Solving'
+  | 'Collaboration'
+  | 'Proactiveness'
+  | 'Business / Client Impact'
+  | 'Growth & Development'
+  | 'Role Excellence';
+
+export type ManagerReviewRecord = {
+  wentWell?: string[];
+  needsImprovement?: string[];
+  employeeReflection?: string;
+  nextPriorities?: string[];
+  managerSummary?: string;
+};
+
 export type MonthlyPerformanceReview = {
   month: 'October' | 'November' | 'December';
   status: ReviewStatus;
   score?: number;
   summary?: string;
+  kpiScores?: Partial<Record<KpiName, number>>;
+  managerReview?: ManagerReviewRecord;
 };
 
 export type DeliverableRecord = {
@@ -21,17 +43,20 @@ export type CareerAssessmentRecord = {
 };
 
 export type EmployeePerformanceRecord = {
+  reviewManager?: string;
   reviews?: Partial<Record<'October' | 'November' | 'December', Partial<MonthlyPerformanceReview>>>;
   deliverables?: DeliverableRecord[];
   career?: Partial<CareerAssessmentRecord>;
 };
 
 /**
- * Read-only website snapshot.
+ * Employee Performance Card data layer.
  *
- * ClickUp remains the operational source of truth. When a monthly review, deliverable status,
- * or career decision should be reflected on the website, add only the approved summary here.
- * Vercel will publish the updated snapshot after the repository changes.
+ * The website is the employee-facing presentation layer. ClickUp remains the operational
+ * source of truth for work evidence and monthly review workflow; HRMS / People Ops remains
+ * the source of truth for attendance and leave-policy evidence. Until live integrations are
+ * connected, only approved snapshots should be added here and missing data must stay visibly
+ * pending rather than being invented.
  */
 export const performanceRecords: Record<string, EmployeePerformanceRecord> = {
   ifrat: { career: { status: 'Assessment', proposedLevel: 'L2' } },
@@ -58,9 +83,12 @@ export function getPerformanceRecord(slug: string) {
     status: record.reviews?.[month]?.status ?? 'Pending',
     score: record.reviews?.[month]?.score,
     summary: record.reviews?.[month]?.summary,
+    kpiScores: record.reviews?.[month]?.kpiScores,
+    managerReview: record.reviews?.[month]?.managerReview,
   }));
 
   return {
+    reviewManager: record.reviewManager,
     reviews,
     deliverables: record.deliverables ?? [],
     career: {
