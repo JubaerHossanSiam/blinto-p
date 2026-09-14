@@ -203,3 +203,22 @@ button, input { font: inherit; }
   .footer-inner { display: block; }
   .footer-inner span { display: block; margin-top: 4px; }
 }
+
+/* Task rating reference: readable tables and navigation on narrow screens. */
+.guide-intro { margin-top: 24px; max-width: 780px; }
+.guide-index { display: grid; gap: 9px; max-height: 60vh; overflow-y: auto; font-size: 13px; }
+.guide-index a:hover, .guide-index a:focus-visible { text-decoration: underline; }
+.guide-sections { min-width: 0; }
+.guide-section { scroll-margin-top: 100px; margin-bottom: 32px; }
+.guide-section > h2 { font-size: 26px; letter-spacing: -.03em; margin: 0 0 14px; }
+.guide-section .markdown { padding: 24px; }
+.guide-section .markdown table { display: block; overflow-x: auto; }
+.guide-section .markdown th, .guide-section .markdown td { min-width: 125px; }
+.guide-section .markdown blockquote { margin: 16px 0; padding: 4px 16px; border-left: 3px solid var(--blue); background: var(--blue-soft); }
+@media (min-width: 901px) and (max-width: 1150px) {
+  .header-inner { gap: 16px; flex-wrap: wrap; padding-block: 12px; }
+  .nav-links { gap: 16px; flex-wrap: wrap; }
+}
+@media (max-width: 900px) {
+  .guide-index { max-height: none; }
+}

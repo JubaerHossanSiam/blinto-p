@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 const nav = [
   ['Framework', '/framework'],
+  ['Rating Guide', '/task-rating-guide'],
   ['Career Levels', '/career-levels'],
   ['Roles', '/roles'],
   ['Review Process', '/review-process'],

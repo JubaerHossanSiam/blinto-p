@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import Link from 'next/link';
 
 import { SiteHeader } from '@/components/site-header';
 
@@ -22,7 +23,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         <main>{children}</main>
         <footer className="site-footer">
           <div className="shell footer-inner">
-            <span>Blinto Performance</span>
+            <span>Blinto Performance · <Link href="/task-rating-guide">Task Rating Guide</Link></span>
             <span>Performance evidence → role assessment → career decision</span>
           </div>
         </footer>

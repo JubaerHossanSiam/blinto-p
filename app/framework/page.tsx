@@ -22,6 +22,7 @@ export default function FrameworkPage() {
         <aside className="side-card">
           <strong>Important</strong>
           <p>A KPI score measures performance evidence. It does not automatically assign or change a career level.</p>
+          <Link className="card-link" href="/task-rating-guide">Task rating guide →</Link>
           <Link className="card-link" href="/review-process">Review process →</Link>
         </aside>
         <MarkdownPage content={content} />

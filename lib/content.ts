@@ -12,6 +12,7 @@ const allowedFiles = new Set([
   'career-ladder-people-operations-finance.md',
   'kpi-framework.md',
   'scoring-methodology.md',
+  'task-rating-guide.md',
   'monthly-kpi-review.md',
   'final-assessment.md',
   'role-success-plan-ifrat.md',
