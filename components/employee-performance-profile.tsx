@@ -55,6 +55,7 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
   const proposedCareer = getCareerLevel(record.career.proposedLevel);
   const careerStatus = careerStatusLabel(record.career.status);
   const managerReview = focusReview?.managerReview;
+  const deliveryReview = focusReview?.deliveryReview;
 
   return (
     <>
@@ -288,10 +289,20 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
               <span className="card-kicker">Next-month priorities</span>
               {managerReview?.nextPriorities?.length ? <ol>{managerReview.nextPriorities.map((item) => <li key={item}>{item}</li>)}</ol> : <p>No next-month priorities recorded yet.</p>}
             </article>
+            {record.deliveryReviewer ? (
+              <article className="review-detail-card">
+                <span className="card-kicker">Delivery Reviewer feedback · {record.deliveryReviewer}</span>
+                {deliveryReview?.summary ? <p>{deliveryReview.summary}</p> : <p>Qualitative delivery feedback will appear here after the monthly review. It summarizes ClickUp task-level evidence and does not add a separate score.</p>}
+                {deliveryReview?.strengths?.length ? <><strong>Delivery strengths</strong><ul>{deliveryReview.strengths.map((item) => <li key={item}>{item}</li>)}</ul></> : null}
+                {deliveryReview?.improvementPatterns?.length ? <><strong>Improvement patterns</strong><ul>{deliveryReview.improvementPatterns.map((item) => <li key={item}>{item}</li>)}</ul></> : null}
+                {deliveryReview?.context ? <p><strong>Context:</strong> {deliveryReview.context}</p> : null}
+              </article>
+            ) : null}
           </div>
 
           <div className="manager-summary-strip">
             <span>Review manager</span><strong>{record.reviewManager ?? 'To be assigned'}</strong>
+            {record.deliveryReviewer ? <><span>Delivery reviewer</span><strong>{record.deliveryReviewer} · feedback only</strong></> : null}
             <span>Manager summary</span><strong>{managerReview?.managerSummary ?? 'Pending monthly review'}</strong>
           </div>
         </section>

@@ -18,7 +18,7 @@ export default function TeamPage() {
 
         <div className="info-box" style={{ marginBottom: 22 }}>
           <strong>Website = performance card · ClickUp = work evidence</strong>
-          ClickUp remains the operational source of truth for tasks and review evidence. These cards present the approved performance story clearly for each of the 14 active employees.
+          ClickUp remains the operational source of truth for task-level scoring and review evidence. Delivery Reviewer input is qualitative monthly feedback that summarizes this evidence; it does not add a second score.
         </div>
 
         <table className="team-table">
@@ -38,7 +38,7 @@ export default function TeamPage() {
                   </td>
                   <td>{person.role}</td>
                   <td><strong>{record.reviewManager ?? 'To be assigned'}</strong></td>
-                  <td>{record.deliveryReviewer ? <strong>{record.deliveryReviewer}</strong> : <span style={{ color: 'var(--muted)' }}>Covered by review manager</span>}</td>
+                  <td>{record.deliveryReviewer ? <><strong>{record.deliveryReviewer}</strong><br /><span style={{ color: 'var(--muted)', fontSize: 11 }}>Feedback only</span></> : <span style={{ color: 'var(--muted)' }}>Covered by review manager</span>}</td>
                   <td>Oct–Dec 2026</td>
                   <td>
                     <strong>Proposed {record.career.proposedLevel ?? '—'}</strong><br />

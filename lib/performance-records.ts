@@ -20,6 +20,13 @@ export type ManagerReviewRecord = {
   managerSummary?: string;
 };
 
+export type DeliveryReviewerFeedback = {
+  strengths?: string[];
+  improvementPatterns?: string[];
+  context?: string;
+  summary?: string;
+};
+
 export type MonthlyPerformanceReview = {
   month: 'October' | 'November' | 'December';
   status: ReviewStatus;
@@ -27,6 +34,7 @@ export type MonthlyPerformanceReview = {
   summary?: string;
   kpiScores?: Partial<Record<KpiName, number>>;
   managerReview?: ManagerReviewRecord;
+  deliveryReview?: DeliveryReviewerFeedback;
 };
 
 export type DeliverableRecord = {
@@ -59,8 +67,10 @@ export type EmployeePerformanceRecord = {
  * connected, only approved snapshots should be added here and missing data must stay visibly
  * pending rather than being invented.
  *
- * Review Manager owns the final monthly review and score. Delivery Reviewer supplies
- * cross-functional delivery evidence when that reviewer is different from the Review Manager.
+ * Review Manager owns the final monthly review and score. Delivery Reviewer provides a
+ * qualitative monthly summary based on delivery evidence already captured in ClickUp task
+ * fields. Delivery Reviewer feedback must not create a second score or double-count the same
+ * task-level evidence.
  */
 export const performanceRecords: Record<string, EmployeePerformanceRecord> = {
   ifrat: { reviewManager: 'Fazle Rabbi', career: { status: 'Assessment', proposedLevel: 'L2' } },
@@ -89,6 +99,7 @@ export function getPerformanceRecord(slug: string) {
     summary: record.reviews?.[month]?.summary,
     kpiScores: record.reviews?.[month]?.kpiScores,
     managerReview: record.reviews?.[month]?.managerReview,
+    deliveryReview: record.reviews?.[month]?.deliveryReview,
   }));
 
   return {

@@ -134,30 +134,43 @@ The **Review Manager** owns the final monthly review. This person is accountable
 
 ### Delivery Reviewer
 
-A **Delivery Reviewer** provides additional cross-functional delivery evidence when they work closely with the employee but are not the employee's Review Manager.
+A **Delivery Reviewer** provides a short qualitative monthly delivery summary when they work closely with the employee but are not the employee's Review Manager.
 
-The Delivery Reviewer does **not** create a separate weighted score and does not replace the Review Manager. Their input is supporting evidence, especially for observable delivery-related areas such as:
+The Delivery Reviewer does **not** create a separate score, weighted score, or second KPI calculation. Ifrat already records delivery-related task evidence through ClickUp fields while working with the team, so scoring the same behaviour again during the monthly review would risk double-counting.
 
-- Delivery & Reliability
-- Ownership
-- Communication
-- Collaboration
-- Proactiveness
-- Business / Client Impact
+The Delivery Reviewer summary should contextualize the ClickUp evidence and highlight patterns the Review Manager should know, especially around:
 
-Technical depth, craft quality, growth, and career-level judgment remain with the appropriate Review Manager unless the Delivery Reviewer directly has relevant evidence.
+- notable delivery strengths
+- recurring delivery improvement patterns
+- ownership
+- communication and collaboration
+- proactiveness
+- business / client impact
+- exceptional contributions or important delivery context
+
+The monthly Delivery Reviewer feedback should answer, where relevant:
+
+1. What did this employee do particularly well in delivery this month?
+2. What delivery behaviour or pattern needs improvement?
+3. Is there any repeated pattern in ownership, communication, collaboration, proactiveness, or impact?
+4. Was there any exceptional contribution worth highlighting?
+5. Is there any context the Review Manager should know before finalizing the review?
+
+The Delivery Reviewer feedback must summarize or contextualize existing delivery evidence. It should **not independently rescore KPIs already captured through ClickUp**.
+
+Technical depth, craft quality, Growth & Development, Role Excellence, and final career-level judgment remain with the appropriate Review Manager.
 
 For the October–December 2026 cycle, **Ifrat Jahan Chowdhury is the Delivery Reviewer for all active employees except Rafsan Zahid and Ifrat herself**.
 
 For Rafsan and Ifrat, **Fazle Rabbi is already the Review Manager and directly covers the relevant delivery review**, so no separate Delivery Reviewer is assigned.
 
-A Delivery Reviewer should provide evidence only where there was meaningful direct working exposure during the month. Lack of direct exposure should remain blank rather than becoming a generic opinion.
+A Delivery Reviewer should provide feedback only where there was meaningful direct working exposure during the month. Lack of direct exposure should remain blank rather than becoming a generic opinion.
 
 ## Monthly review contents
 
 - Review KPI 1 composite score from ClickUp + HRMS / People Ops
 - Review KPI 2–8 task-based evidence
-- Include Delivery Reviewer input where assigned and relevant
+- Include Delivery Reviewer qualitative feedback where assigned and relevant
 - Assess Growth & Development
 - Assess Role Excellence
 - Record key achievements
@@ -182,6 +195,6 @@ The employee should answer:
 
 The monthly review should summarize evidence already collected during the month rather than reconstructing performance from memory.
 
-Objective ClickUp and HRMS / People Ops data should remain visible enough that the employee can understand how the score was produced. The Delivery Reviewer contributes direct delivery evidence where applicable. The Review Manager adds context, evaluates KPI 9 and KPI 10, discusses the result with the employee, and confirms the final score and next-month improvement actions.
+Objective ClickUp and HRMS / People Ops data should remain visible enough that the employee can understand how the score was produced. The Delivery Reviewer provides qualitative context based on delivery evidence already captured in ClickUp. The Review Manager adds judgment where required, evaluates KPI 9 and KPI 10, discusses the result with the employee, and confirms the final score and next-month improvement actions.
 
 Do not double-count one attendance, leave, or delivery event across multiple components unless there is separate observable behaviour that independently belongs to another KPI.
