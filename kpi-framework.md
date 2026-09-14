@@ -2,7 +2,7 @@
 
 | # | KPI | Points | Measurement |
 |---|---|---:|---|
-| 1 | Delivery & Reliability | 10 | 60% ClickUp delivery + 20% HRMS attendance + 20% HRMS leave/policy reliability |
+| 1 | Delivery & Reliability | 10 | 60% ClickUp Delivery Reliability + 20% HRMS Attendance Reliability + 20% HRMS Leave/Policy Reliability |
 | 2 | Work Quality | 10 | ClickUp task evidence |
 | 3 | Ownership | 10 | ClickUp task evidence |
 | 4 | Communication | 10 | ClickUp task evidence |
@@ -22,6 +22,24 @@ The monthly score combines three evidence sources:
 2. **People reliability evidence — HRMS / People Ops**: attendance, approved leave, leave-request discipline, unapproved absence, and policy compliance used only where the framework explicitly requires them.
 3. **Manager review evidence**: Growth & Development and Role Excellence, supported by documented monthly evidence.
 
+## KPI review coverage rule
+
+Every completed task that is eligible for employee performance review must be reviewed before the monthly score becomes final.
+
+`KPI Review Coverage = Reviewed completed tasks ÷ Total completed eligible tasks × 100`
+
+The system may show a **preview** from currently reviewed tasks, but the monthly review cannot be finalized until coverage reaches **100%**.
+
+Example:
+
+- Completed eligible tasks: 10
+- Tasks with KPI review completed: 4
+- Coverage: 40%
+- Missing reviews: 6
+- Result: preview score may be displayed, but the monthly review remains **Incomplete**.
+
+Blank KPI fields must not silently become zero. The reviewer must either complete the applicable task review or document why a field is not applicable before the task is treated as reviewed.
+
 ## KPI 1 — Delivery & Reliability
 
 KPI 1 is a composite score:
@@ -32,9 +50,48 @@ All three components are scored out of 10 before applying the weighting.
 
 This means:
 
-- Work delivery contributes a maximum of **6 points**.
-- Attendance reliability contributes a maximum of **2 points**.
-- Leave & policy reliability contributes a maximum of **2 points**.
+- ClickUp Delivery Reliability contributes a maximum of **6 points**.
+- Attendance Reliability contributes a maximum of **2 points**.
+- Leave & Policy Reliability contributes a maximum of **2 points**.
+
+### ClickUp Delivery Reliability
+
+Each reviewed task receives a Delivery Reliability score out of 10.
+
+`Task Delivery Reliability = (Adjusted Delivery Status × 70%) + (Rework Required × 30%)`
+
+#### Delivery Status conversion
+
+| Delivery Status | Score |
+|---|---:|
+| On Time | 10 |
+| Minor Delay | 6 |
+| Late | 2 |
+
+#### Rework Required conversion
+
+| Rework Required | Score |
+|---|---:|
+| None | 10 |
+| Minor | 6 |
+| Major | 2 |
+
+#### Blockage attribution rule
+
+Blockage Responsibility does not create a separate score. It determines whether a timing penalty belongs to the employee.
+
+- **Assignee**: use the Delivery Status score as recorded.
+- **Client**: if the delay is client-caused, neutralize the timing penalty and use 10 for the adjusted Delivery Status component.
+- **Third Parties**: if the delay is third-party-caused, neutralize the timing penalty and use 10 for the adjusted Delivery Status component.
+- **No blockage**: use the Delivery Status score as recorded.
+
+If the task was delayed by a client or third party but the employee failed to manage or escalate the dependency appropriately, the reviewer should record the primary responsibility accurately rather than neutralizing the delay automatically.
+
+The monthly ClickUp Delivery Reliability value is:
+
+`Monthly ClickUp Delivery Reliability = Average of Task Delivery Reliability scores for all reviewed eligible completed tasks`
+
+The value remains provisional until KPI Review Coverage reaches 100%.
 
 ### Approved leave is neutral
 
@@ -83,14 +140,24 @@ Approved emergency exceptions remain neutral when properly approved.
 
 ### No double counting
 
-Do not deduct the same incident repeatedly across Attendance Reliability, Leave & Policy Reliability, Ownership, or Communication.
+Do not deduct the same incident repeatedly across Attendance Reliability, Leave & Policy Reliability, Ownership, Communication, or another KPI.
 
-A separate KPI may be affected only when there is separate observable behaviour. Example: an unapproved absence may affect Leave & Policy Reliability; a separate failure to notify the manager may also provide Communication evidence.
+Delivery Quality remains the source for Work Quality. Delivery Reliability uses Delivery Status, Rework Required, and Blockage Responsibility only for the documented reliability formula above.
 
 ## Scoring
 
-KPI 2–8 are primarily calculated from observable task-level evidence collected during the month.
+KPI 2–8 are calculated from final task-level values collected during the month. The task-level values are not reinterpreted during the monthly review.
+
+For the five-level task KPI fields:
+
+- Exceptional = 10 / 10
+- Strong = 8 / 10
+- Effective = 6 / 10
+- Needs Improvement = 4 / 10
+- Significant Improvement Needed = 2 / 10
+
+The monthly KPI score is the average of the eligible task values for that KPI.
 
 KPI 9 and KPI 10 are assessed by the manager during the Monthly KPI Review because they require broader development and role-specific judgment.
 
-The framework intentionally avoids arbitrary manager scoring wherever objective evidence exists. ClickUp and HRMS/People Ops data should feed the calculation according to the documented methodology, while managers remain responsible for reviewing context and evidence quality.
+The framework intentionally avoids arbitrary manager rescoring wherever objective evidence exists. ClickUp and HRMS / People Ops data feed the calculation according to the documented methodology, while managers remain responsible for reviewing context and evidence quality.
