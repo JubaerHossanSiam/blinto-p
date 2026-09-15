@@ -1,4 +1,4 @@
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { auth } from '@/lib/auth';
@@ -12,6 +12,15 @@ export type PortalUser = {
   role: PortalRole;
   active: boolean;
 };
+
+export type ViewAsOption = {
+  email: string;
+  employeeSlug: string | null;
+  role: PortalRole;
+  name: string;
+};
+
+const VIEW_AS_COOKIE = 'blinto_view_as';
 
 export async function getPortalUser(email: string): Promise<PortalUser | null> {
   if (!databaseConfigured) return null;
@@ -40,6 +49,34 @@ export async function getPortalUser(email: string): Promise<PortalUser | null> {
   };
 }
 
+export async function getViewAsOptions(): Promise<ViewAsOption[]> {
+  if (!databaseConfigured) return [];
+
+  const result = await db.query<{
+    email: string;
+    employee_slug: string | null;
+    role: PortalRole;
+    name: string;
+  }>(
+    `select au.email,
+            au.employee_slug,
+            au.role,
+            coalesce(e.full_name, u.name, au.email) as name
+       from approved_users au
+       left join employees e on e.slug = au.employee_slug
+       left join "user" u on lower(u.email) = lower(au.email)
+      where au.is_active = true
+      order by coalesce(e.full_name, u.name, au.email), au.email`,
+  );
+
+  return result.rows.map((row) => ({
+    email: row.email,
+    employeeSlug: row.employee_slug,
+    role: row.role,
+    name: row.name,
+  }));
+}
+
 export async function isApprovedEmail(email?: string | null) {
   if (!email || !databaseConfigured) return false;
   const user = await getPortalUser(email);
@@ -52,10 +89,26 @@ export async function getCurrentPortalUser() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user?.email) return null;
 
-  const portalUser = await getPortalUser(session.user.email);
-  if (!portalUser?.active) return null;
+  const actualPortalUser = await getPortalUser(session.user.email);
+  if (!actualPortalUser?.active) return null;
 
-  return { session, portalUser };
+  let portalUser = actualPortalUser;
+  let viewingAs: PortalUser | null = null;
+
+  if (actualPortalUser.role === 'admin') {
+    const cookieStore = await cookies();
+    const requestedEmail = cookieStore.get(VIEW_AS_COOKIE)?.value;
+
+    if (requestedEmail && requestedEmail.toLowerCase() !== actualPortalUser.email.toLowerCase()) {
+      const requestedUser = await getPortalUser(requestedEmail);
+      if (requestedUser?.active) {
+        portalUser = requestedUser;
+        viewingAs = requestedUser;
+      }
+    }
+  }
+
+  return { session, portalUser, actualPortalUser, viewingAs };
 }
 
 export async function requirePortalUser() {
