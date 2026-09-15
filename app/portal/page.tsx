@@ -12,6 +12,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function PortalPage() {
   const { session, portalUser } = await requirePortalUser();
+  const isCEO = portalUser.email.toLowerCase() === 'fazle@blinto.co';
 
   let visibleEmployees: VisibleEmployee[] = [];
 
@@ -49,22 +50,35 @@ export default async function PortalPage() {
       <section className="portal-intro">
         <p className="eyebrow">Blinto Performance Portal</p>
         <h1 className="page-title">Welcome, {session.user.name || session.user.email}</h1>
-        <p className="page-subtitle">Your performance, career framework, and permitted team access in one place.</p>
+        <p className="page-subtitle">
+          {isCEO
+            ? 'Company performance, team visibility, and the shared performance framework in one place.'
+            : 'Your performance, career framework, and permitted team access in one place.'}
+        </p>
       </section>
 
       <div className="profile-two-col portal-primary-grid">
-        <section className="profile-card profile-card-dark">
-          <span className="card-kicker">My Performance</span>
-          <h2>My Performance Card</h2>
-          {portalUser.employeeSlug ? (
-            <>
-              <p>Review your monthly KPI history, manager feedback, evidence, and career assessment.</p>
-              <Link className="button" href={`/team/${portalUser.employeeSlug}`}>Open my card →</Link>
-            </>
-          ) : (
-            <p>Your approved account is not linked to an employee profile. People Ops can add the employee mapping.</p>
-          )}
-        </section>
+        {isCEO ? (
+          <section className="profile-card profile-card-dark">
+            <span className="card-kicker">CEO Dashboard</span>
+            <h2>Company & Team Performance</h2>
+            <p>Review employee performance, review completion, career progress, and organization-wide performance evidence.</p>
+            <Link className="button" href="/team">Open team performance →</Link>
+          </section>
+        ) : (
+          <section className="profile-card profile-card-dark">
+            <span className="card-kicker">My Performance</span>
+            <h2>My Performance Card</h2>
+            {portalUser.employeeSlug ? (
+              <>
+                <p>Review your monthly KPI history, manager feedback, evidence, and career assessment.</p>
+                <Link className="button" href={`/team/${portalUser.employeeSlug}`}>Open my card →</Link>
+              </>
+            ) : (
+              <p>Your approved account is not linked to an employee profile. People Ops can add the employee mapping.</p>
+            )}
+          </section>
+        )}
 
         <section className="profile-card">
           <span className="card-kicker">Shared framework</span>
