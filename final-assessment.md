@@ -2,6 +2,14 @@
 
 This document defines how Blinto converts completed October–November reviews and supporting evidence through December 10 into the first formal 2027 career-level decision.
 
+## Launch and trial boundary
+
+The performance portal launches on **September 16, 2026**. The period **September 20–30, 2026** is a live system trial for all employees in the standard performance framework.
+
+September trial reviews may contain simulated/test values so the workflow can be validated end to end. September is **not assessment-eligible** and must never be included in career-level, promotion, or salary-review calculations.
+
+Official career-assessment evidence begins on **October 1, 2026**.
+
 ## Purpose
 
 The Final Performance Assessment should answer four questions:
@@ -23,9 +31,9 @@ Each employee receives a **proposed career level** before the formal evidence wi
 
 Official evidence window:
 
-- October 2026
-- November 2026
-- December 1–10, 2026: supporting work and role evidence only
+- October 1–31, 2026 — full monthly review
+- November 1–30, 2026 — full monthly review
+- December 1–10, 2026 — supporting work, role, and performance evidence through the cutoff
 
 Evidence closes on **December 10, 2026**. Leadership completes assessment, calibration, compensation review, and employee discussions on **December 11–15, 2026**.
 
@@ -57,7 +65,11 @@ For the baseline period:
 
 `Final Performance Score = Sum of valid completed October and November scores ÷ Number of those valid completed reviews`
 
-December 1–10 evidence supports qualitative assessment; it is not a full monthly score and is not included in this average. The full December KPI review takes place after month-end as part of ongoing performance tracking.
+December 1–10 evidence supports the assessment through documented work, role, delivery, reliability, growth, and impact evidence. It is not treated as a third full month and is not given equal mathematical weight with October or November.
+
+The full December KPI review takes place after month-end as part of ongoing performance tracking.
+
+September trial scores are excluded completely.
 
 If there are no valid completed reviews, leave the score pending and record insufficient history rather than calculating an average.
 
@@ -65,7 +77,7 @@ Missing months must not be treated as zero.
 
 Keep the final score to one decimal place.
 
-Each valid month has equal mathematical weight.
+Each valid completed full month has equal mathematical weight.
 
 ---
 
