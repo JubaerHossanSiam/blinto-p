@@ -14,19 +14,48 @@ The following workspace members are excluded from the standard monthly employee 
 
 Consultants, contractors, and interns may use separate engagement or development reviews when required.
 
-## Official review cycle
+## Launch and first official review cycle
 
-The first formal counted performance cycle begins in **October 2026**.
+The employee performance portal launches on **September 16, 2026**.
 
-For the first 2027 career-level baseline assessment, the evidence window is:
+### September live trial
 
-- October 2026
-- November 2026
-- December 1–10, 2026: supporting evidence for career assessment only
+**September 20–30, 2026** is the live trial period.
 
-Complete assessment, calibration, compensation review, and employee discussions on **December 11–15**. The full December monthly KPI review remains due after month-end and is not included in the December 16 baseline decision score.
+Every active employee in the standard framework should have a **September Trial Review** so Blinto can test the full workflow before official scoring begins.
 
-September activity may be used for setup/testing but is not part of the official first baseline leveling evidence window.
+September trial reviews may include simulated or manually entered test data for:
+
+- ClickUp KPI coverage and task ratings
+- Delivery Reliability
+- HRMS attendance and leave/policy reliability
+- Growth & Development
+- Role Excellence
+- manager feedback
+- employee reflection
+- 1:1 completion
+
+September trial data must always be clearly identified as **Trial / Test Data** and is **not eligible for the 2027 career assessment**.
+
+Do not use September scores in career-level, promotion, or salary-review calculations.
+
+### Official counted evidence window
+
+The first formal counted performance cycle begins on **October 1, 2026**.
+
+For the first 2027 career-level baseline assessment, the official evidence window is:
+
+- **October 1–31, 2026** — full monthly review
+- **November 1–30, 2026** — full monthly review
+- **December 1–10, 2026** — supporting work, role, and performance evidence through the evidence cutoff
+
+Complete assessment, calibration, compensation review, and employee discussions on **December 11–15**.
+
+Final career-level and annual salary-review decisions are announced on **December 16, 2026 (Victory Day)**.
+
+Confirmed levels and approved salary changes become active from **January 1, 2027**.
+
+The full December monthly KPI review remains due after month-end and belongs to ongoing performance tracking. The December 16 baseline career decision uses completed October and November monthly scores plus supporting evidence collected through December 10.
 
 ## ClickUp structure
 
@@ -54,6 +83,8 @@ Current roster:
 - Imran
 
 The custom ClickUp task type is **KPI Review**.
+
+For September, use the same structure for trial purposes, but mark the review as **Trial / Not Counted**.
 
 ## Career-level context
 
