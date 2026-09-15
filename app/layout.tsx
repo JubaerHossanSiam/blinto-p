@@ -8,6 +8,7 @@ import { getCurrentPortalUser } from '@/lib/access';
 import './globals.css';
 import './performance-profile.css';
 import './responsive.css';
+import './mobile-nav.css';
 
 export const metadata: Metadata = {
   title: {
