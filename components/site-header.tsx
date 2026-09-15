@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+import { ProfileMenu } from '@/components/profile-menu';
+
 const nav = [
   ['Framework', '/framework'],
   ['Rating Guide', '/task-rating-guide'],
@@ -9,23 +11,30 @@ const nav = [
   ['Team', '/team'],
 ] as const;
 
-export function SiteHeader() {
+type SiteHeaderProps = {
+  userName?: string | null;
+  userEmail: string;
+};
+
+export function SiteHeader({ userName, userEmail }: SiteHeaderProps) {
   return (
     <header className="site-header">
       <div className="shell header-inner">
-        <Link className="brand" href="/">
+        <Link className="brand" href="/portal">
           <span className="brand-mark">B</span>
-          <span>
+          <span className="brand-copy">
             <strong>Blinto Performance</strong>
-            <small>Team Performance Framework</small>
+            <small>Team Performance</small>
           </span>
         </Link>
+
         <nav className="nav-links" aria-label="Primary navigation">
           {nav.map(([label, href]) => (
             <Link href={href} key={href}>{label}</Link>
           ))}
         </nav>
-        <Link className="button button-small" href="/team">Performance Cards</Link>
+
+        <ProfileMenu name={userName} email={userEmail} />
       </div>
     </header>
   );
