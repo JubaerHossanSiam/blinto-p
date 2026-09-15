@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { EmployeePerformanceProfile } from '@/components/employee-performance-profile';
+import { requireEmployeeProfileAccess } from '@/lib/access';
 import { readFrameworkFile } from '@/lib/content';
 import { getPerson, people } from '@/lib/people';
 import { parseRoleProfile } from '@/lib/performance-profile';
@@ -22,6 +23,8 @@ export default async function TeamMemberPage({ params }: PageProps) {
   const { slug } = await params;
   const person = getPerson(slug);
   if (!person) notFound();
+
+  await requireEmployeeProfileAccess(slug);
 
   const roleContent = readFrameworkFile(person.roleFile);
   const roleProfile = parseRoleProfile(roleContent);
