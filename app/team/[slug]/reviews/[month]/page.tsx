@@ -5,6 +5,8 @@ import { MonthlyReview } from '@/components/monthly-review';
 import { requireEmployeeProfileAccess } from '@/lib/access';
 import { getPerson, people } from '@/lib/people';
 
+export const dynamic = 'force-dynamic';
+
 const monthMap: Record<string, string> = {
   '2026-09': 'September',
   '2026-10': 'October',
