@@ -3,13 +3,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getPortalUser } from '@/lib/access';
 import { auth } from '@/lib/auth';
 
-const PUBLIC_PATHS = ['/sign-in', '/unauthorized'];
+const PUBLIC_PATHS = ['/sign-in', '/unauthorized', '/api/integrations/clickup/status'];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Better Auth must remain reachable for Google sign-in/callback/session requests.
   if (pathname.startsWith('/api/auth')) {
+    return NextResponse.next();
+  }
+
+  // Safe integration health endpoint exposes configuration state only, never credentials.
+  if (pathname === '/api/integrations/clickup/status') {
     return NextResponse.next();
   }
 
