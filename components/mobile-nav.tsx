@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
+import type { PortalRole } from '@/lib/access';
+
 const nav = [
   ['Dashboard', '/portal'],
   ['Framework', '/framework'],
@@ -10,11 +12,15 @@ const nav = [
   ['Career Levels', '/career-levels'],
   ['Roles', '/roles'],
   ['Review Process', '/review-process'],
-  ['Team', '/team'],
 ] as const;
 
-export function MobileNav() {
+type MobileNavProps = {
+  role: PortalRole;
+};
+
+export function MobileNav({ role }: MobileNavProps) {
   const [open, setOpen] = useState(false);
+  const canViewTeam = role === 'admin' || role === 'people_ops';
 
   return (
     <div className="mobile-nav">
@@ -45,6 +51,9 @@ export function MobileNav() {
               {nav.map(([label, href]) => (
                 <Link href={href} key={href} onClick={() => setOpen(false)}>{label}<span aria-hidden="true">→</span></Link>
               ))}
+              {canViewTeam ? (
+                <Link href="/team" onClick={() => setOpen(false)}>Team<span aria-hidden="true">→</span></Link>
+              ) : null}
             </div>
           </nav>
         </>
