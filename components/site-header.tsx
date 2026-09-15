@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import { MobileNav } from '@/components/mobile-nav';
 import { ProfileMenu } from '@/components/profile-menu';
 
 const nav = [
@@ -34,7 +35,10 @@ export function SiteHeader({ userName, userEmail }: SiteHeaderProps) {
           ))}
         </nav>
 
-        <ProfileMenu name={userName} email={userEmail} />
+        <div className="header-actions">
+          <MobileNav />
+          <ProfileMenu name={userName} email={userEmail} />
+        </div>
       </div>
     </header>
   );
