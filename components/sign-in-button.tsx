@@ -24,11 +24,12 @@ export function SignInButton() {
   }
 
   return (
-    <div>
-      <button className="button" type="button" disabled={pending} onClick={signIn}>
-        {pending ? 'Opening Google…' : 'Continue with Google'}
+    <div className="signin-action">
+      <button className="google-signin-button" type="button" disabled={pending} onClick={signIn}>
+        <span className="google-mark" aria-hidden="true">G</span>
+        <span>{pending ? 'Opening Google…' : 'Continue with Google'}</span>
       </button>
-      {error ? <p className="review-notice" role="alert">{error}</p> : null}
+      {error ? <p className="signin-error" role="alert">{error}</p> : null}
     </div>
   );
 }
