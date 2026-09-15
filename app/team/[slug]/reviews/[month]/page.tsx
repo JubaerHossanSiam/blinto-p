@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { MonthlyReview } from '@/components/monthly-review';
+import { requireEmployeeProfileAccess } from '@/lib/access';
 import { getPerson, people } from '@/lib/people';
 
 const monthMap: Record<string, string> = {
@@ -32,6 +33,8 @@ export default async function EmployeeMonthlyReviewPage({ params }: PageProps) {
   const person = getPerson(slug);
   const monthLabel = monthMap[month];
   if (!person || !monthLabel) notFound();
+
+  await requireEmployeeProfileAccess(slug);
 
   return <MonthlyReview employeeName={person.name} employeeSlug={person.slug} monthKey={month} monthLabel={monthLabel} />;
 }
