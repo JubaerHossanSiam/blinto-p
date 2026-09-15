@@ -9,6 +9,7 @@ import './globals.css';
 import './performance-profile.css';
 import './responsive.css';
 import './mobile-nav.css';
+import './role-preview.css';
 
 export const metadata: Metadata = {
   title: {
