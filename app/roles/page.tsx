@@ -12,7 +12,7 @@ export default function RolesPage() {
         <div className="shell">
           <p className="eyebrow">Role</p>
           <h1 className="page-title">Role Success Plans</h1>
-          <p className="page-subtitle">Role expectations for the 15 employees currently in Blinto&apos;s standard performance framework.</p>
+          <p className="page-subtitle">Role expectations, functions, and reporting ownership across Blinto&apos;s standard performance framework.</p>
         </div>
       </section>
       <section className="shell role-grid">
@@ -21,6 +21,7 @@ export default function RolesPage() {
             <span className="function">{person.function}</span>
             <h3>{person.name}</h3>
             <span className="role">{person.role}</span>
+            <span className="role" style={{ marginTop: 10 }}><strong>Manager:</strong> {person.manager}</span>
             <span className="card-link">View role profile →</span>
           </Link>
         ))}
