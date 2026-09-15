@@ -31,6 +31,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             userName={current.session.user.name}
             userEmail={current.session.user.email}
             actualRole={current.actualPortalUser.role}
+            effectiveRole={current.portalUser.role}
             viewingAsEmail={current.viewingAs?.email ?? null}
             viewAsOptions={viewAsOptions}
           />
