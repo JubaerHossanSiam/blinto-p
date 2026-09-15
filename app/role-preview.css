@@ -40,46 +40,56 @@
   font-size: 11px;
 }
 
-.role-preview-options {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 7px;
+.role-preview-bar > p {
+  max-width: 460px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
 }
 
-.role-preview-options a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 34px;
-  padding: 0 11px;
+.profile-view-as {
+  display: grid;
+  gap: 7px;
+  margin: 6px 0;
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.profile-view-as label {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.profile-view-as select {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 34px 0 10px;
   border: 1px solid var(--line);
   border-radius: 9px;
-  background: var(--surface-2);
-  color: #4f565d;
-  font-size: 11px;
-  font-weight: 750;
-}
-
-.role-preview-options a:hover {
-  border-color: #b9c0c5;
   background: #fff;
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
 }
 
-.role-preview-options a.is-active {
-  border-color: var(--dark);
-  background: var(--dark);
-  color: #fff;
+.profile-view-as select:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.profile-view-as small {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.45;
 }
 
 @media (max-width: 860px) {
   .role-preview-bar {
     align-items: flex-start;
     flex-direction: column;
-  }
-
-  .role-preview-options {
-    width: 100%;
-    justify-content: flex-start;
   }
 }
 
@@ -88,15 +98,5 @@
     margin-bottom: 22px;
     padding: 14px;
     border-radius: 13px;
-  }
-
-  .role-preview-options {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .role-preview-options a {
-    justify-content: center;
-    width: 100%;
   }
 }
