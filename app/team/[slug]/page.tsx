@@ -7,6 +7,8 @@ import { readFrameworkFile } from '@/lib/content';
 import { getPerson, people } from '@/lib/people';
 import { parseRoleProfile } from '@/lib/performance-profile';
 
+export const dynamic = 'force-dynamic';
+
 type PageProps = { params: Promise<{ slug: string }> };
 
 export function generateStaticParams() {
