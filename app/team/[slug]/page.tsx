@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
+import { ClickUpPerformanceEvidence } from '@/components/clickup-performance-evidence';
 import { EmployeePerformanceProfile } from '@/components/employee-performance-profile';
 import { requireEmployeeProfileAccess } from '@/lib/access';
+import { getLiveClickUpEvidence } from '@/lib/clickup-performance';
 import { readFrameworkFile } from '@/lib/content';
 import { getPerson, people } from '@/lib/people';
 import { parseRoleProfile } from '@/lib/performance-profile';
@@ -30,10 +32,12 @@ export default async function TeamMemberPage({ params }: PageProps) {
 
   const roleContent = readFrameworkFile(person.roleFile);
   const roleProfile = parseRoleProfile(roleContent);
+  const clickUpEvidence = await getLiveClickUpEvidence(person);
 
   return (
     <>
       <EmployeePerformanceProfile person={person} roleProfile={roleProfile} />
+      <ClickUpPerformanceEvidence evidence={clickUpEvidence} />
 
       <section className="shell profile-sections" aria-label="Career level success benchmark">
         <section className="profile-section">
