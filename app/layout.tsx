@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 
 import { SiteHeader } from '@/components/site-header';
-import { getCurrentPortalUser } from '@/lib/access';
+import { getCurrentPortalUser, getViewAsOptions } from '@/lib/access';
 
 import './globals.css';
 import './performance-profile.css';
@@ -21,6 +21,7 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   const current = await getCurrentPortalUser();
+  const viewAsOptions = current?.actualPortalUser.role === 'admin' ? await getViewAsOptions() : [];
 
   return (
     <html lang="en">
@@ -29,6 +30,9 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           <SiteHeader
             userName={current.session.user.name}
             userEmail={current.session.user.email}
+            actualRole={current.actualPortalUser.role}
+            viewingAsEmail={current.viewingAs?.email ?? null}
+            viewAsOptions={viewAsOptions}
           />
         ) : null}
         <main>{children}</main>
