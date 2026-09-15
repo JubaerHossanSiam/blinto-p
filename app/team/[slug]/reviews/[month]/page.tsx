@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { MonthlyReview } from '@/components/monthly-review';
+import { SeptemberTrialReview } from '@/components/september-trial-review';
 import { requireEmployeeProfileAccess } from '@/lib/access';
 import { getPerson, people } from '@/lib/people';
 
@@ -37,6 +38,10 @@ export default async function EmployeeMonthlyReviewPage({ params }: PageProps) {
   if (!person || !monthLabel) notFound();
 
   await requireEmployeeProfileAccess(slug);
+
+  if (month === '2026-09') {
+    return <SeptemberTrialReview employeeName={person.name} employeeSlug={person.slug} />;
+  }
 
   return <MonthlyReview employeeName={person.name} employeeSlug={person.slug} monthKey={month} monthLabel={monthLabel} />;
 }
