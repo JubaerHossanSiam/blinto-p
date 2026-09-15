@@ -1,6 +1,5 @@
 import Link from 'next/link';
 
-import { SignOutButton } from '@/components/sign-out-button';
 import { requirePortalUser } from '@/lib/access';
 import { db } from '@/lib/db';
 
@@ -46,37 +45,34 @@ export default async function PortalPage() {
   }
 
   return (
-    <main className="shell" style={{ paddingTop: 48, paddingBottom: 80 }}>
-      <div className="profile-heading-row">
-        <div>
-          <p className="eyebrow">Blinto Performance Portal</p>
-          <h1 className="page-title">Welcome, {session.user.name || session.user.email}</h1>
-          <p className="page-subtitle">Your access is based on your approved account, role, and reporting relationships.</p>
-        </div>
-        <SignOutButton />
-      </div>
+    <main className="shell portal-shell">
+      <section className="portal-intro">
+        <p className="eyebrow">Blinto Performance Portal</p>
+        <h1 className="page-title">Welcome, {session.user.name || session.user.email}</h1>
+        <p className="page-subtitle">Your performance, career framework, and permitted team access in one place.</p>
+      </section>
 
-      <div className="profile-two-col" style={{ marginTop: 28 }}>
+      <div className="profile-two-col portal-primary-grid">
         <section className="profile-card profile-card-dark">
           <span className="card-kicker">My Performance</span>
           <h2>My Performance Card</h2>
           {portalUser.employeeSlug ? (
             <>
-              <p>Open your permanent performance record, monthly KPI history, manager feedback, and career assessment.</p>
+              <p>Review your monthly KPI history, manager feedback, evidence, and career assessment.</p>
               <Link className="button" href={`/team/${portalUser.employeeSlug}`}>Open my card →</Link>
             </>
           ) : (
-            <p>Your approved account is not linked to an employee profile yet. People Ops can add the employee mapping in Neon.</p>
+            <p>Your approved account is not linked to an employee profile. People Ops can add the employee mapping.</p>
           )}
         </section>
 
         <section className="profile-card">
           <span className="card-kicker">Shared framework</span>
           <h2>How performance works</h2>
-          <p>These references are common across Blinto and explain the scoring, task ratings, career levels, and review process.</p>
-          <div className="hero-actions">
+          <p>Reference the scoring framework, task rating guide, career levels, and review process.</p>
+          <div className="portal-link-grid">
             <Link className="button button-secondary" href="/framework">KPI Framework</Link>
-            <Link className="button button-secondary" href="/task-rating-guide">Task Rating Guide</Link>
+            <Link className="button button-secondary" href="/task-rating-guide">Rating Guide</Link>
             <Link className="button button-secondary" href="/career-levels">Career Levels</Link>
             <Link className="button button-secondary" href="/review-process">Review Process</Link>
           </div>
@@ -84,15 +80,15 @@ export default async function PortalPage() {
       </div>
 
       {visibleEmployees.length ? (
-        <section className="profile-section" style={{ marginTop: 40 }}>
+        <section className="profile-section portal-team-section">
           <div className="profile-section-head">
             <div>
               <p className="eyebrow">Access scope</p>
               <h2>{portalUser.role === 'manager' ? 'My Team' : portalUser.role === 'delivery_reviewer' ? 'Assigned Reviews' : 'All Employees'}</h2>
-              <p>Only profiles permitted by your role and reporting relationships are listed here.</p>
+              <p>Only employee profiles permitted by your role and reporting relationships appear here.</p>
             </div>
           </div>
-          <div className="evidence-grid">
+          <div className="evidence-grid portal-employee-grid">
             {visibleEmployees.map((employee) => (
               <article className="evidence-card" key={employee.slug}>
                 <div className="evidence-card-top">
