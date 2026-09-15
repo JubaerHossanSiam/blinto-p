@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 
 import { SiteHeader } from '@/components/site-header';
+import { getCurrentPortalUser } from '@/lib/access';
 
 import './globals.css';
 import './performance-profile.css';
@@ -12,21 +13,25 @@ export const metadata: Metadata = {
     default: 'Blinto Performance',
     template: '%s · Blinto Performance',
   },
-  description: 'Blinto team performance, role expectations, KPI reviews, and career framework.',
+  description: 'Blinto employee performance portal.',
 };
 
-export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+  const current = await getCurrentPortalUser();
+
   return (
     <html lang="en">
       <body>
-        <SiteHeader />
+        {current ? <SiteHeader /> : null}
         <main>{children}</main>
-        <footer className="site-footer">
-          <div className="shell footer-inner">
-            <span>Blinto Performance · <Link href="/task-rating-guide">Task Rating Guide</Link></span>
-            <span>Performance evidence → role assessment → career decision</span>
-          </div>
-        </footer>
+        {current ? (
+          <footer className="site-footer">
+            <div className="shell footer-inner">
+              <span>Blinto Performance · <Link href="/task-rating-guide">Task Rating Guide</Link></span>
+              <span>Performance evidence → role assessment → career decision</span>
+            </div>
+          </footer>
+        ) : null}
       </body>
     </html>
   );
