@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import { MobileNav } from '@/components/mobile-nav';
 import { ProfileMenu } from '@/components/profile-menu';
+import type { PortalRole, ViewAsOption } from '@/lib/access';
 
 const nav = [
   ['Framework', '/framework'],
@@ -15,9 +16,12 @@ const nav = [
 type SiteHeaderProps = {
   userName?: string | null;
   userEmail: string;
+  actualRole: PortalRole;
+  viewingAsEmail: string | null;
+  viewAsOptions: ViewAsOption[];
 };
 
-export function SiteHeader({ userName, userEmail }: SiteHeaderProps) {
+export function SiteHeader({ userName, userEmail, actualRole, viewingAsEmail, viewAsOptions }: SiteHeaderProps) {
   return (
     <header className="site-header">
       <div className="shell header-inner">
@@ -37,7 +41,13 @@ export function SiteHeader({ userName, userEmail }: SiteHeaderProps) {
 
         <div className="header-actions">
           <MobileNav />
-          <ProfileMenu name={userName} email={userEmail} />
+          <ProfileMenu
+            name={userName}
+            email={userEmail}
+            actualRole={actualRole}
+            viewingAsEmail={viewingAsEmail}
+            viewAsOptions={viewAsOptions}
+          />
         </div>
       </div>
     </header>
