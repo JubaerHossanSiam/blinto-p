@@ -10,18 +10,20 @@ const nav = [
   ['Career Levels', '/career-levels'],
   ['Roles', '/roles'],
   ['Review Process', '/review-process'],
-  ['Team', '/team'],
 ] as const;
 
 type SiteHeaderProps = {
   userName?: string | null;
   userEmail: string;
   actualRole: PortalRole;
+  effectiveRole: PortalRole;
   viewingAsEmail: string | null;
   viewAsOptions: ViewAsOption[];
 };
 
-export function SiteHeader({ userName, userEmail, actualRole, viewingAsEmail, viewAsOptions }: SiteHeaderProps) {
+export function SiteHeader({ userName, userEmail, actualRole, effectiveRole, viewingAsEmail, viewAsOptions }: SiteHeaderProps) {
+  const canViewTeam = effectiveRole === 'admin' || effectiveRole === 'people_ops';
+
   return (
     <header className="site-header">
       <div className="shell header-inner">
@@ -37,10 +39,11 @@ export function SiteHeader({ userName, userEmail, actualRole, viewingAsEmail, vi
           {nav.map(([label, href]) => (
             <Link href={href} key={href}>{label}</Link>
           ))}
+          {canViewTeam ? <Link href="/team">Team</Link> : null}
         </nav>
 
         <div className="header-actions">
-          <MobileNav />
+          <MobileNav role={effectiveRole} />
           <ProfileMenu
             name={userName}
             email={userEmail}
