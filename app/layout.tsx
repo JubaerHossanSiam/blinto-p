@@ -7,6 +7,7 @@ import { getCurrentPortalUser } from '@/lib/access';
 
 import './globals.css';
 import './performance-profile.css';
+import './responsive.css';
 
 export const metadata: Metadata = {
   title: {
@@ -22,7 +23,12 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="en">
       <body>
-        {current ? <SiteHeader /> : null}
+        {current ? (
+          <SiteHeader
+            userName={current.session.user.name}
+            userEmail={current.session.user.email}
+          />
+        ) : null}
         <main>{children}</main>
         {current ? (
           <footer className="site-footer">
