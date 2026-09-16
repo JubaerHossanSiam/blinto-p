@@ -30,6 +30,10 @@ type MonthlyReviewProps = {
   monthKey: string;
   monthLabel: string;
   year?: number;
+  attendanceScore?: number | null;
+  leavePolicyScore?: number | null;
+  hrmsStatus?: 'pending' | 'synced' | 'error';
+  hrmsSyncedAt?: string | null;
 };
 
 const septemberDeliveryTasks: DeliveryTask[] = [
@@ -48,7 +52,17 @@ function deliveryTaskScore(task: DeliveryTask) {
   return Math.round((adjustedStatus * 0.7 + reworkScore[task.rework] * 0.3) * 10) / 10;
 }
 
-export function MonthlyReview({ employeeName, employeeSlug, monthKey, monthLabel, year = 2026 }: MonthlyReviewProps) {
+export function MonthlyReview({
+  employeeName,
+  employeeSlug,
+  monthKey,
+  monthLabel,
+  year = 2026,
+  attendanceScore = null,
+  leavePolicyScore = null,
+  hrmsStatus = 'pending',
+  hrmsSyncedAt = null,
+}: MonthlyReviewProps) {
   const isSeptemberBaseline = employeeSlug === 'ifrat' && monthKey === '2026-09';
   const deliveryTasks = isSeptemberBaseline ? septemberDeliveryTasks : [];
   const completedTasks = isSeptemberBaseline ? 10 : 0;
@@ -61,8 +75,6 @@ export function MonthlyReview({ employeeName, employeeSlug, monthKey, monthLabel
     : 0;
 
   const [managerRatings, setManagerRatings] = useState(isSeptemberBaseline ? [3, 4] : [0, 0]);
-  const [attendance, setAttendance] = useState(isSeptemberBaseline ? 10 : 0);
-  const [policy, setPolicy] = useState(isSeptemberBaseline ? 10 : 0);
   const [strengths, setStrengths] = useState(isSeptemberBaseline ? 'Strong ownership, communication, problem solving, and collaboration.' : '');
   const [improvements, setImprovements] = useState(isSeptemberBaseline ? 'Identify delivery risks and improvement opportunities earlier instead of waiting for escalation.' : '');
   const [priorities, setPriorities] = useState(isSeptemberBaseline ? 'Complete KPI review fields on every completed task before the monthly review is finalized.' : '');
@@ -73,9 +85,14 @@ export function MonthlyReview({ employeeName, employeeSlug, monthKey, monthLabel
   const [notice, setNotice] = useState('');
   const [status, setStatus] = useState(isSeptemberBaseline ? 'In review' : 'Pending');
 
-  const storageKey = `blinto-${employeeSlug}-${monthKey}-review-v1`;
+  const storageKey = `blinto-${employeeSlug}-${monthKey}-review-v2`;
   const round = (n: number) => Math.round(n * 10) / 10;
-  const reliability = deliveryTasks.length ? round(deliveryPreview * .6 + attendance * .2 + policy * .2) : undefined;
+  const hrmsReady = hrmsStatus === 'synced' && attendanceScore !== null && leavePolicyScore !== null;
+  const attendance = attendanceScore === null ? null : round(attendanceScore / 10);
+  const policy = leavePolicyScore === null ? null : round(leavePolicyScore / 10);
+  const reliability = deliveryTasks.length && hrmsReady && attendance !== null && policy !== null
+    ? round(deliveryPreview * 0.6 + attendance * 0.2 + policy * 0.2)
+    : undefined;
   const allRatings = [...clickUpRatings, ...managerRatings];
   const allScoresPresent = allRatings.every((rating) => rating > 0) && reliability !== undefined;
   const total = allScoresPresent ? round(reliability + allRatings.reduce((sum, n) => sum + n * 2, 0)) : undefined;
@@ -92,7 +109,7 @@ export function MonthlyReview({ employeeName, employeeSlug, monthKey, monthLabel
 
   function save() {
     try {
-      localStorage.setItem(storageKey, JSON.stringify({ managerRatings, attendance, policy, strengths, improvements, priorities, support, summary, reflection, meeting }));
+      localStorage.setItem(storageKey, JSON.stringify({ managerRatings, strengths, improvements, priorities, support, summary, reflection, meeting }));
       setNotice(`${monthLabel} review draft saved in this browser.`);
     } catch {
       setNotice('Could not save this browser draft.');
@@ -105,8 +122,6 @@ export function MonthlyReview({ employeeName, employeeSlug, monthKey, monthLabel
     try {
       const value = JSON.parse(raw);
       if (Array.isArray(value.managerRatings)) setManagerRatings(value.managerRatings);
-      if (typeof value.attendance === 'number') setAttendance(value.attendance);
-      if (typeof value.policy === 'number') setPolicy(value.policy);
       setStrengths(value.strengths ?? '');
       setImprovements(value.improvements ?? '');
       setPriorities(value.priorities ?? '');
@@ -121,19 +136,19 @@ export function MonthlyReview({ employeeName, employeeSlug, monthKey, monthLabel
     }
   }
 
-  const reviewReady = coverageReady && managerRatings.every((rating) => rating > 0) && reflection.trim() && meeting;
+  const reviewReady = coverageReady && hrmsReady && managerRatings.every((rating) => rating > 0) && Boolean(reflection.trim()) && meeting;
+  const hrmsStatusLabel = hrmsReady ? 'Synced' : hrmsStatus === 'error' ? 'Sync error' : 'Pending HRMS';
 
   return (
     <div className="shell review-lab">
       <header className="review-lab-header">
         <p className="eyebrow">Monthly performance review</p>
         <h1 className="page-title">{employeeName} · {monthLabel} {year}</h1>
-        <p className="page-subtitle">One reusable monthly-review template. ClickUp-derived KPI values are read-only; only monthly manager assessments and review conversation fields are entered here.</p>
+        <p className="page-subtitle">ClickUp and HRMS evidence are read-only. Managers enter only monthly assessments and review conversation fields.</p>
         <div className="hero-actions">
           <Link className="button" href={`/team/${employeeSlug}`}>Back to Performance Card</Link>
           <Link className="button button-secondary" href="/task-rating-guide">Rating guide</Link>
           <Link className="button button-secondary" href="/framework">Formula guide</Link>
-          {isSeptemberBaseline ? <a className="button button-secondary" href="https://app.clickup.com/t/86eywj0dy" target="_blank" rel="noreferrer">Open ClickUp test task ↗</a> : null}
         </div>
       </header>
 
@@ -142,12 +157,9 @@ export function MonthlyReview({ employeeName, employeeSlug, monthKey, monthLabel
           <section className="panel">
             <h2>1. Task KPI coverage</h2>
             {completedTasks ? (
-              <>
-                <div className="info-box"><strong>{reviewedTasks} of {completedTasks} completed tasks reviewed · {coverage}% coverage</strong><p>{missingTaskReviews} completed tasks are still missing KPI review values.</p></div>
-                <p>The score can preview from available evidence, but the review cannot be finalized until completed-task KPI coverage reaches 100%.</p>
-              </>
+              <div className="info-box"><strong>{reviewedTasks} of {completedTasks} completed tasks reviewed · {coverage}% coverage</strong><p>{missingTaskReviews} completed tasks are still missing KPI review values.</p></div>
             ) : (
-              <div className="info-box"><strong>ClickUp evidence pending</strong><p>No completed-task review data has been loaded for {monthLabel} yet. This month remains Pending.</p></div>
+              <div className="info-box"><strong>ClickUp evidence pending</strong><p>No completed-task review data has been loaded for {monthLabel} yet.</p></div>
             )}
           </section>
 
@@ -165,19 +177,15 @@ export function MonthlyReview({ employeeName, employeeSlug, monthKey, monthLabel
           <section className="panel">
             <h2>3. KPI 1 — Delivery &amp; Reliability</h2>
             <div className="review-input-grid">
-              <label className="review-input">ClickUp Delivery Reliability<input value={deliveryTasks.length ? `${deliveryPreview.toFixed(1)} / 10` : 'Pending'} readOnly /></label>
-              <label className="review-input">Attendance Reliability · HRMS test/manual
-                <select value={attendance} onChange={(e) => { setAttendance(Number(e.target.value)); setStatus('In review'); }}>
-                  {Array.from({ length: 11 }, (_, i) => i).map((n) => <option value={n} key={n}>{n === 0 ? 'Pending' : `${n.toFixed(1)} / 10`}</option>)}
-                </select>
-              </label>
-              <label className="review-input">Leave &amp; Policy Reliability · HRMS test/manual
-                <select value={policy} onChange={(e) => { setPolicy(Number(e.target.value)); setStatus('In review'); }}>
-                  {Array.from({ length: 11 }, (_, i) => i).map((n) => <option value={n} key={n}>{n === 0 ? 'Pending' : `${n.toFixed(1)} / 10`}</option>)}
-                </select>
-              </label>
+              <label className="review-input">ClickUp Delivery Reliability<input value={deliveryTasks.length ? `${deliveryPreview.toFixed(1)} / 10` : 'Pending ClickUp'} readOnly /></label>
+              <label className="review-input">Attendance Reliability · HRMS<input value={attendance === null || !hrmsReady ? 'Pending HRMS' : `${attendance.toFixed(1)} / 10`} readOnly /></label>
+              <label className="review-input">Leave &amp; Policy Reliability · HRMS<input value={policy === null || !hrmsReady ? 'Pending HRMS' : `${policy.toFixed(1)} / 10`} readOnly /></label>
             </div>
-            <div className="info-box"><strong>KPI 1 = {reliability === undefined ? 'Pending' : `${reliability.toFixed(1)} / 10`}</strong>{reliability !== undefined ? <p>{deliveryPreview.toFixed(1)} × 60% + {attendance} × 20% + {policy} × 20%</p> : null}</div>
+            <div className="info-box">
+              <strong>HRMS: {hrmsStatusLabel}</strong>
+              <p>{hrmsSyncedAt && hrmsReady ? `Last synced ${new Date(hrmsSyncedAt).toLocaleString()}. ` : ''}Pending or error HRMS values do not count as 0 or 100.</p>
+            </div>
+            <div className="info-box"><strong>KPI 1 = {reliability === undefined ? 'Pending' : `${reliability.toFixed(1)} / 10`}</strong>{reliability !== undefined && attendance !== null && policy !== null ? <p>{deliveryPreview.toFixed(1)} × 60% + {attendance.toFixed(1)} × 20% + {policy.toFixed(1)} × 20%</p> : null}</div>
           </section>
 
           <section className="panel">
@@ -231,9 +239,10 @@ export function MonthlyReview({ employeeName, employeeSlug, monthKey, monthLabel
           <strong>{band}</strong>
           <p>Status: <strong>{coverageReady ? status : completedTasks ? 'Incomplete evidence' : 'Pending'}</strong></p>
           <ul className="review-checklist">
-            <li>KPI coverage: {completedTasks ? `${reviewedTasks}/${completedTasks} · ${coverage}%` : 'Pending'}</li>
-            <li>Missing task reviews: {completedTasks ? missingTaskReviews : '—'}</li>
-            <li>ClickUp KPIs 2–8: read-only</li>
+            <li>ClickUp coverage: {completedTasks ? `${reviewedTasks}/${completedTasks} · ${coverage}%` : 'Pending'}</li>
+            <li>HRMS: {hrmsStatusLabel}</li>
+            <li>Attendance: {attendance === null || !hrmsReady ? 'pending' : `${attendance.toFixed(1)}/10`}</li>
+            <li>Leave &amp; Policy: {policy === null || !hrmsReady ? 'pending' : `${policy.toFixed(1)}/10`}</li>
             <li>Manager KPIs 9–10: {managerRatings.every((rating) => rating > 0) ? 'complete' : 'pending'}</li>
             <li>Employee reflection: {reflection.trim() ? 'complete' : 'pending'}</li>
             <li>1:1: {meeting ? 'complete' : 'pending'}</li>
@@ -241,6 +250,7 @@ export function MonthlyReview({ employeeName, employeeSlug, monthKey, monthLabel
           <button type="button" className="button button-block" onClick={() => {
             if (!completedTasks) return setNotice('Cannot complete: ClickUp completed-task evidence has not been loaded for this month.');
             if (!coverageReady) return setNotice(`Cannot complete: ${missingTaskReviews} completed tasks still need KPI review values.`);
+            if (!hrmsReady) return setNotice('Cannot complete: Attendance and Leave & Policy scores are still pending from HRMS.');
             if (!reviewReady) return setNotice('Complete manager KPIs, employee reflection, and the 1:1 before finalizing this month.');
             setStatus('Complete');
             setNotice(`${monthLabel} review marked complete in this browser workspace.`);
