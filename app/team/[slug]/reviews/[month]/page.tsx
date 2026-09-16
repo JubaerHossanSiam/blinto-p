@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { MonthlyReview } from '@/components/monthly-review';
 import { SeptemberTrialReview } from '@/components/september-trial-review';
 import { requireEmployeeProfileAccess } from '@/lib/access';
+import { getMonthlyHrmsScore } from '@/lib/hrms-performance';
 import { getPerson, people } from '@/lib/people';
 
 export const dynamic = 'force-dynamic';
@@ -43,5 +44,18 @@ export default async function EmployeeMonthlyReviewPage({ params }: PageProps) {
     return <SeptemberTrialReview employeeName={person.name} employeeSlug={person.slug} />;
   }
 
-  return <MonthlyReview employeeName={person.name} employeeSlug={person.slug} monthKey={month} monthLabel={monthLabel} />;
+  const hrms = await getMonthlyHrmsScore(person.slug, month);
+
+  return (
+    <MonthlyReview
+      employeeName={person.name}
+      employeeSlug={person.slug}
+      monthKey={month}
+      monthLabel={monthLabel}
+      attendanceScore={hrms.attendanceScore}
+      leavePolicyScore={hrms.leavePolicyScore}
+      hrmsStatus={hrms.syncStatus}
+      hrmsSyncedAt={hrms.syncedAt}
+    />
+  );
 }
