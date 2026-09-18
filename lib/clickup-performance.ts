@@ -1,4 +1,5 @@
 import type { PersonProfile } from '@/lib/people';
+import { getVerifiedTaskKpiEvidence } from '@/lib/rating-integrity';
 
 const CLICKUP_WORKSPACE_ID = process.env.CLICKUP_WORKSPACE_ID ?? '9018782844';
 const CLICKUP_API_URL = 'https://api.clickup.com/api/v2';
@@ -92,28 +93,24 @@ function average(values: number[]) {
 }
 
 function evidenceWindow(monthKey?: string) {
-  if (monthKey === '2026-09') {
-    return {
-      start: Date.parse('2026-09-18T00:00:00+06:00'),
-      end: Date.parse('2026-10-01T00:00:00+06:00'),
-      label: 'September 18–30, 2026 trial',
-    };
+  if (monthKey) {
+    const [year, month] = monthKey.split('-').map(Number);
+    const nextYear = month === 12 ? year + 1 : year;
+    const nextMonth = month === 12 ? 1 : month + 1;
+    const start = Date.parse(`${year}-${String(month).padStart(2, '0')}-01T00:00:00+06:00`);
+    const end = Date.parse(`${nextYear}-${String(nextMonth).padStart(2, '0')}-01T00:00:00+06:00`);
+    const date = new Date(start);
+    const label = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric', timeZone: 'Asia/Dhaka' }).format(date);
+    return { start, end, label: monthKey === '2026-09' ? `${label} trial` : label };
   }
 
   const now = new Date();
   const parts = new Intl.DateTimeFormat('en-CA', {
-    year: 'numeric',
-    month: '2-digit',
-    timeZone: 'Asia/Dhaka',
+    year: 'numeric', month: '2-digit', timeZone: 'Asia/Dhaka',
   }).formatToParts(now);
   const year = Number(parts.find((part) => part.type === 'year')?.value);
   const month = Number(parts.find((part) => part.type === 'month')?.value);
-  const nextYear = month === 12 ? year + 1 : year;
-  const nextMonth = month === 12 ? 1 : month + 1;
-  const start = Date.parse(`${year}-${String(month).padStart(2, '0')}-01T00:00:00+06:00`);
-  const end = Date.parse(`${nextYear}-${String(nextMonth).padStart(2, '0')}-01T00:00:00+06:00`);
-  const label = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric', timeZone: 'Asia/Dhaka' }).format(now);
-  return { start, end, label };
+  return evidenceWindow(`${year}-${String(month).padStart(2, '0')}`);
 }
 
 function isCompletedInWindow(task: ClickUpTask, start: number, end: number) {
@@ -162,6 +159,45 @@ export async function getLiveClickUpEvidence(person: PersonProfile, monthKey?: s
     return { connected: false, periodLabel: label, tasksReviewed: 0, ratedTasks: 0, kpis: [], recentTasks: [], message: 'No ClickUp user mapping for this employee.' };
   }
 
+  const definitions = [
+    ['Delivery & Reliability', CLICKUP_FIELD_IDS.deliveryStatus],
+    ['Work Quality', CLICKUP_FIELD_IDS.deliveryQuality],
+    ['Ownership', CLICKUP_FIELD_IDS.ownership],
+    ['Communication', CLICKUP_FIELD_IDS.communication],
+    ['Problem Solving', CLICKUP_FIELD_IDS.problemSolving],
+    ['Collaboration', CLICKUP_FIELD_IDS.collaboration],
+    ['Proactiveness', CLICKUP_FIELD_IDS.proactiveness],
+    ['Business / Client Impact', CLICKUP_FIELD_IDS.businessImpact],
+  ] as const;
+
+  // October 1, 2026 is the official boundary. Official months use only
+  // webhook-audited, authority-verified evidence from Blinto's database.
+  if (monthKey && monthKey >= '2026-10') {
+    try {
+      const verified = await getVerifiedTaskKpiEvidence(person.slug, monthKey);
+      if (verified) {
+        const kpis = definitions.map(([kpiLabel, fieldId]) => ({
+          label: kpiLabel,
+          average: verified.byField.get(fieldId)?.average,
+          ratedTasks: verified.byField.get(fieldId)?.ratedTasks ?? 0,
+        }));
+        const liveAverages = kpis.map((kpi) => kpi.average).filter((value): value is number => value !== undefined);
+        const score = liveAverages.length ? Math.round(liveAverages.reduce((sum, value) => sum + value, 0) * 10) / 10 : undefined;
+        const ratedTasks = new Set(verified.tasks.map((task) => task.task_id)).size;
+        return {
+          connected: true, periodLabel: label, tasksReviewed: ratedTasks, ratedTasks, score, kpis,
+          recentTasks: verified.tasks.map((task) => ({ id: task.task_id, name: task.task_name, url: task.task_url, status: 'Verified' })),
+          message: ratedTasks ? undefined : 'No verified task-rating evidence has been recorded for this official month yet.',
+        };
+      }
+    } catch (error) {
+      return {
+        connected: false, periodLabel: label, tasksReviewed: 0, ratedTasks: 0, kpis: [], recentTasks: [],
+        message: error instanceof Error ? error.message : 'Unable to load verified rating evidence.',
+      };
+    }
+  }
+
   if (!process.env.CLICKUP_API_TOKEN) {
     return { connected: false, periodLabel: label, tasksReviewed: 0, ratedTasks: 0, kpis: [], recentTasks: [], message: 'ClickUp integration is configured in code and waiting for the server API token.' };
   }
@@ -169,17 +205,6 @@ export async function getLiveClickUpEvidence(person: PersonProfile, monthKey?: s
   try {
     const assigned = (await fetchAssignedTasks(person.clickupUserId, start, forceRefresh)) ?? [];
     const tasks = assigned.filter((task) => isCompletedInWindow(task, start, end));
-
-    const definitions = [
-      ['Delivery & Reliability', CLICKUP_FIELD_IDS.deliveryStatus],
-      ['Work Quality', CLICKUP_FIELD_IDS.deliveryQuality],
-      ['Ownership', CLICKUP_FIELD_IDS.ownership],
-      ['Communication', CLICKUP_FIELD_IDS.communication],
-      ['Problem Solving', CLICKUP_FIELD_IDS.problemSolving],
-      ['Collaboration', CLICKUP_FIELD_IDS.collaboration],
-      ['Proactiveness', CLICKUP_FIELD_IDS.proactiveness],
-      ['Business / Client Impact', CLICKUP_FIELD_IDS.businessImpact],
-    ] as const;
 
     const kpis = definitions.map(([label, fieldId]) => {
       const values = tasks.map((task) => scoreField(task, fieldId)).filter((value): value is number => value !== undefined);

@@ -60,7 +60,7 @@ The neutral expected-performance point is **3 — Effective / Expected Impact**.
 
 ## 3. Task evidence aggregation
 
-For each employee and each applicable ClickUp-based KPI, calculate the arithmetic mean of all valid task-level evidence values collected during the month.
+For each employee and each applicable ClickUp-based KPI, calculate the arithmetic mean of all **verified** task-level evidence values collected during the month.
 
 `Monthly evidence rating = Sum of valid evidence values ÷ Number of valid observations`
 
@@ -366,6 +366,8 @@ The underlying ClickUp evidence, HRMS/People Ops reliability records, and manage
 Employees should be able to see the evidence used in their review.
 
 If a ClickUp task rating is factually incorrect or important context is missing, it should be corrected at the evidence level where possible rather than compensated for by manipulating the final monthly score.
+
+A ClickUp value is not automatically trusted merely because it exists. Blinto records the rating actor and classifies evidence as **Verified**, **Needs Validation**, or **Invalid**. Unauthorized changes to previously verified evidence are surfaced for review and do not silently replace the last verified value. CEO/Admin may validate a legitimate cross-functional exception for a specific task without granting permanent reviewer authority.
 
 If attendance, leave, or policy data is incorrect, correct the HRMS/People Ops record before calculating KPI 1.
 

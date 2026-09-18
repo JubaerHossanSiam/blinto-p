@@ -20,7 +20,7 @@ The employee performance portal launches on **September 16, 2026**.
 
 ### September live trial
 
-**September 20–30, 2026** is the live trial period.
+**September 2026** is the live trial and QA period. Official counted performance tracking begins on **October 1, 2026**.
 
 Every active employee in the standard framework should have a **September Trial Review** so Blinto can test the full workflow before official scoring begins.
 
