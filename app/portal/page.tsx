@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+import { ClickUpSyncButton } from '@/components/clickup-sync-button';
+
 import { requirePortalUser, type PortalRole } from '@/lib/access';
 import { db } from '@/lib/db';
 
@@ -139,6 +141,8 @@ export default async function PortalPage() {
           </div>
         </section>
       </div>
+
+      {isCeoAccount ? <ClickUpSyncButton /> : null}
 
       {visibleEmployees.length ? (
         <section className="profile-section portal-team-section">

@@ -116,7 +116,7 @@ function isCompletedInWindow(task: ClickUpTask, start: number, end: number) {
   return closedAt >= start && closedAt < end;
 }
 
-async function fetchAssignedTasks(userId: string, start: number) {
+async function fetchAssignedTasks(userId: string, start: number, forceRefresh = false) {
   const token = process.env.CLICKUP_API_TOKEN;
   if (!token) return null;
 
@@ -132,7 +132,7 @@ async function fetchAssignedTasks(userId: string, start: number) {
 
     const response = await fetch(`${CLICKUP_API_URL}/team/${CLICKUP_WORKSPACE_ID}/task?${params.toString()}`, {
       headers: { Authorization: token },
-      next: { revalidate: 300 },
+      ...(forceRefresh ? { cache: 'no-store' as const } : { next: { revalidate: 300 } }),
     });
 
     if (!response.ok) {
@@ -147,7 +147,7 @@ async function fetchAssignedTasks(userId: string, start: number) {
   return tasks;
 }
 
-export async function getLiveClickUpEvidence(person: PersonProfile, monthKey?: string): Promise<LiveClickUpEvidence> {
+export async function getLiveClickUpEvidence(person: PersonProfile, monthKey?: string, forceRefresh = false): Promise<LiveClickUpEvidence> {
   const { start, end, label } = evidenceWindow(monthKey);
 
   if (!person.clickupUserId) {
@@ -159,7 +159,7 @@ export async function getLiveClickUpEvidence(person: PersonProfile, monthKey?: s
   }
 
   try {
-    const assigned = (await fetchAssignedTasks(person.clickupUserId, start)) ?? [];
+    const assigned = (await fetchAssignedTasks(person.clickupUserId, start, forceRefresh)) ?? [];
     const tasks = assigned.filter((task) => isCompletedInWindow(task, start, end));
 
     const definitions = [
