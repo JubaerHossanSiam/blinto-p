@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import type { LiveClickUpEvidence } from '@/lib/clickup-performance';
 import type { PersonProfile } from '@/lib/people';
 import { careerLevels, getCareerLevel, type RoleProfileData } from '@/lib/performance-profile';
 import { getPerformanceRecord, type KpiName, type ReviewMonth } from '@/lib/performance-records';
@@ -7,6 +8,7 @@ import { getPerformanceRecord, type KpiName, type ReviewMonth } from '@/lib/perf
 type Props = {
   person: PersonProfile;
   roleProfile: RoleProfileData;
+  clickUpEvidence: LiveClickUpEvidence;
 };
 
 const kpiDefinitions: { name: KpiName; source: string; note?: string }[] = [
@@ -51,14 +53,13 @@ function performanceBand(score?: number) {
   return 'Significant Improvement Needed';
 }
 
-export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
+export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidence }: Props) {
   const record = getPerformanceRecord(person.slug);
   const latestCompleteReview = [...record.reviews].reverse().find((review) => review.status === 'Complete');
   const focusReview = record.reviews.find((review) => review.status === 'In review')
     ?? record.reviews.find((review) => review.status === 'Pending')
     ?? latestCompleteReview
     ?? record.reviews[0];
-  const currentScore = latestCompleteReview?.score;
   const proposedCareer = getCareerLevel(record.career.proposedLevel);
   const careerStatus = careerStatusLabel(record.career.status);
   const managerReview = focusReview?.managerReview;
@@ -80,12 +81,35 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
             </div>
           </div>
 
-          <div className="profile-metrics profile-metrics-five">
-            <div><span>Review manager</span><strong>{record.reviewManager ?? 'To be assigned'}</strong></div>
-            <div><span>Proposed level</span><strong>{record.career.proposedLevel ?? '—'}</strong></div>
-            <div><span>Salary band</span><strong>{proposedCareer?.salaryBand ?? '—'}</strong></div>
-            <div><span>Assessment cycle</span><strong>Oct 1–Dec 10, 2026</strong></div>
-            <div><span>Latest KPI</span><strong>{currentScore === undefined ? 'Pending' : `${currentScore}/100`}</strong></div>
+          <div className="profile-metrics profile-metrics-five" aria-label="Monthly performance scores">
+            {record.reviews.map((review) => {
+              const isSeptember = review.month === 'September';
+              const score = isSeptember ? clickUpEvidence.score : review.score;
+              const denominator = isSeptember ? 80 : 100;
+              return (
+                <Link
+                  key={review.month}
+                  href={`/team/${person.slug}/reviews/${monthKeys[review.month]}`}
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  <span>{review.month}{isSeptember ? <small style={{ marginLeft: 6, opacity: 0.65 }}>Trial</small> : null}</span>
+                  <strong>{score === undefined ? '—' : `${score}/${denominator}`}</strong>
+                </Link>
+              );
+            })}
+            <div>
+              <span>Overall</span>
+              <strong>
+                {(() => {
+                  const officialScores = record.reviews
+                    .filter((review) => !review.isTest && review.score !== undefined)
+                    .map((review) => review.score as number);
+                  return officialScores.length
+                    ? `${Math.round((officialScores.reduce((sum, score) => sum + score, 0) / officialScores.length) * 10) / 10}/100`
+                    : '—';
+                })()}
+              </strong>
+            </div>
           </div>
         </div>
       </section>

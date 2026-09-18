@@ -36,7 +36,7 @@ export default async function TeamMemberPage({ params }: PageProps) {
 
   return (
     <>
-      <EmployeePerformanceProfile person={person} roleProfile={roleProfile} />
+      <EmployeePerformanceProfile person={person} roleProfile={roleProfile} clickUpEvidence={clickUpEvidence} />
       <ClickUpPerformanceEvidence evidence={clickUpEvidence} />
 
       <section className="shell profile-sections" aria-label="Career level success benchmark">
