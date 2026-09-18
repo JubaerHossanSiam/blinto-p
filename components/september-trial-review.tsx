@@ -27,7 +27,7 @@ export function SeptemberTrialReview({ employeeName, employeeSlug }: Props) {
   return (
     <div className="shell review-lab">
       <header className="review-lab-header">
-        <p className="eyebrow">September 20–30 live trial · test data</p>
+        <p className="eyebrow">September 18–30 live trial · test data</p>
         <h1 className="page-title">{employeeName} · September 2026</h1>
         <p className="page-subtitle">This review exists to test the performance workflow before official scoring begins on October 1. All values shown here are simulated trial data and are excluded from career, promotion, and salary-review calculations.</p>
         <div className="hero-actions">
@@ -89,7 +89,7 @@ export function SeptemberTrialReview({ employeeName, employeeSlug }: Props) {
           <strong>Test only</strong>
           <p>Status: <strong>{review?.status ?? 'Pending'}</strong></p>
           <ul className="review-checklist">
-            <li>Trial window: Sep 20–30</li>
+            <li>Trial window: Sep 18–30</li>
             <li>Assessment eligible: No</li>
             <li>Official data starts: Oct 1</li>
             <li>Evidence cutoff: Dec 10</li>
