@@ -2,10 +2,12 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { MonthlyReview } from '@/components/monthly-review';
+import { ManagerReviewForm } from '@/components/manager-review-form';
 import { SeptemberTrialReview } from '@/components/september-trial-review';
 import { requireEmployeeProfileAccess } from '@/lib/access';
 import { getLiveClickUpEvidence } from '@/lib/clickup-performance';
 import { getMonthlyHrmsScore } from '@/lib/hrms-performance';
+import { getManagerMonthlyReview } from '@/lib/manager-monthly-review';
 import { getPerson, people } from '@/lib/people';
 
 export const dynamic = 'force-dynamic';
@@ -39,11 +41,14 @@ export default async function EmployeeMonthlyReviewPage({ params }: PageProps) {
   const monthLabel = monthMap[month];
   if (!person || !monthLabel) notFound();
 
-  await requireEmployeeProfileAccess(slug);
+  const access = await requireEmployeeProfileAccess(slug);
+  const managerReview = await getManagerMonthlyReview(slug, month);
+  const canEditManagerReview = (access.actualPortalUser.role === 'admin' && !access.viewingAs)
+    || (access.portalUser.role === 'manager' && access.portalUser.employeeSlug !== slug);
 
   if (month === '2026-09') {
     const clickUpEvidence = await getLiveClickUpEvidence(person, month);
-    return <SeptemberTrialReview employeeName={person.name} employeeSlug={person.slug} clickUpEvidence={clickUpEvidence} />;
+    return <><SeptemberTrialReview employeeName={person.name} employeeSlug={person.slug} clickUpEvidence={clickUpEvidence} /><div className="shell"><ManagerReviewForm employeeSlug={person.slug} monthKey={month} initial={managerReview} canEdit={canEditManagerReview} clickUpScore={clickUpEvidence.score} /></div></>;
   }
 
   const hrms = await getMonthlyHrmsScore(person.slug, month);
