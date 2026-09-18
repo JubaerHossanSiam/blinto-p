@@ -24,6 +24,7 @@ type WebhookHistoryItem = {
   user?: { id?: number | string; username?: string };
   after?: unknown;
   data?: { field_id?: string };
+  custom_field?: { id?: string; name?: string; type?: string };
 };
 
 type ClickUpWebhook = {
@@ -90,9 +91,14 @@ export async function POST(request: Request) {
   if (payload.event !== 'taskUpdated' || !payload.task_id) return NextResponse.json({ ok: true, ignored: true });
 
   const history = payload.history_items ?? [];
-  const relevant = history.filter((item) =>
-    item.field === 'custom_field' && item.data?.field_id && performanceFieldIds.has(item.data.field_id),
-  );
+  const relevant = history.filter((item) => {
+    if (item.field !== 'custom_field') return false;
+    // ClickUp's documented custom-field webhook payload identifies the field
+    // under history_items[].custom_field.id. Keep data.field_id as a fallback
+    // for compatibility with older/alternate payload shapes.
+    const fieldId = item.custom_field?.id ?? item.data?.field_id;
+    return Boolean(fieldId && performanceFieldIds.has(fieldId));
+  });
   const statusChanged = history.some((item) => item.field === 'status');
   if (!relevant.length && !statusChanged) return NextResponse.json({ ok: true, ignored: true });
 
@@ -115,7 +121,7 @@ export async function POST(request: Request) {
   }
 
   for (const item of relevant) {
-    const fieldId = item.data?.field_id as string;
+    const fieldId = (item.custom_field?.id ?? item.data?.field_id) as string;
     const actorId = item.user?.id === undefined ? '' : String(item.user.id);
     const actorName = item.user?.username ?? null;
     const field = task.custom_fields?.find((candidate) => candidate.id === fieldId);
