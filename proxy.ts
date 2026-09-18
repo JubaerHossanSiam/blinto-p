@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getPortalUser } from '@/lib/access';
 import { auth } from '@/lib/auth';
 
-const PUBLIC_PATHS = ['/sign-in', '/unauthorized', '/api/integrations/clickup/status'];
+const PUBLIC_PATHS = ['/sign-in', '/unauthorized', '/api/integrations/clickup/status', '/api/integrations/clickup/webhook'];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -13,8 +13,9 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Safe integration health endpoint exposes configuration state only, never credentials.
-  if (pathname === '/api/integrations/clickup/status') {
+  // Integration endpoints are public at the auth-proxy layer. The webhook itself
+  // authenticates ClickUp using its HMAC signature and CLICKUP_WEBHOOK_SECRET.
+  if (pathname === '/api/integrations/clickup/status' || pathname === '/api/integrations/clickup/webhook') {
     return NextResponse.next();
   }
 
