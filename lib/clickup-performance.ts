@@ -68,7 +68,15 @@ const standardRatings: Record<string, number> = {
 
 function optionName(field: ClickUpCustomField | undefined) {
   if (!field || field.value === undefined || field.value === null) return undefined;
-  const option = field.type_config?.options?.find((item) => item.id === field.value);
+  const options = field.type_config?.options ?? [];
+
+  // ClickUp's API returns dropdown values as the option index for these fields
+  // (for example 0, 1, 2), while some payloads can return the option id.
+  // Support both representations so live KPI ratings are not silently dropped.
+  if (typeof field.value === 'number') return options[field.value]?.name;
+  if (/^\d+$/.test(String(field.value))) return options[Number(field.value)]?.name;
+
+  const option = options.find((item) => item.id === field.value);
   return option?.name;
 }
 
