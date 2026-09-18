@@ -44,6 +44,7 @@ export type LiveClickUpEvidence = {
   periodLabel: string;
   tasksReviewed: number;
   ratedTasks: number;
+  score?: number;
   kpis: LiveClickUpKpi[];
   recentTasks: Array<{ id: string; name: string; url: string; status: string }>;
   message?: string;
@@ -82,12 +83,29 @@ function average(values: number[]) {
   return Math.round((values.reduce((sum, value) => sum + value, 0) / values.length) * 10) / 10;
 }
 
-function currentMonthWindow() {
+function evidenceWindow(monthKey?: string) {
+  if (monthKey === '2026-09') {
+    return {
+      start: Date.parse('2026-09-18T00:00:00+06:00'),
+      end: Date.parse('2026-10-01T00:00:00+06:00'),
+      label: 'September 18–30, 2026 trial',
+    };
+  }
+
   const now = new Date();
-  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-  const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
-  const label = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(start);
-  return { start: start.getTime(), end: end.getTime(), label };
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric',
+    month: '2-digit',
+    timeZone: 'Asia/Dhaka',
+  }).formatToParts(now);
+  const year = Number(parts.find((part) => part.type === 'year')?.value);
+  const month = Number(parts.find((part) => part.type === 'month')?.value);
+  const nextYear = month === 12 ? year + 1 : year;
+  const nextMonth = month === 12 ? 1 : month + 1;
+  const start = Date.parse(`${year}-${String(month).padStart(2, '0')}-01T00:00:00+06:00`);
+  const end = Date.parse(`${nextYear}-${String(nextMonth).padStart(2, '0')}-01T00:00:00+06:00`);
+  const label = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric', timeZone: 'Asia/Dhaka' }).format(now);
+  return { start, end, label };
 }
 
 function isCompletedInWindow(task: ClickUpTask, start: number, end: number) {
@@ -129,8 +147,8 @@ async function fetchAssignedTasks(userId: string, start: number) {
   return tasks;
 }
 
-export async function getLiveClickUpEvidence(person: PersonProfile): Promise<LiveClickUpEvidence> {
-  const { start, end, label } = currentMonthWindow();
+export async function getLiveClickUpEvidence(person: PersonProfile, monthKey?: string): Promise<LiveClickUpEvidence> {
+  const { start, end, label } = evidenceWindow(monthKey);
 
   if (!person.clickupUserId) {
     return { connected: false, periodLabel: label, tasksReviewed: 0, ratedTasks: 0, kpis: [], recentTasks: [], message: 'No ClickUp user mapping for this employee.' };
@@ -160,6 +178,11 @@ export async function getLiveClickUpEvidence(person: PersonProfile): Promise<Liv
       return { label, average: average(values), ratedTasks: values.length };
     });
 
+    const liveAverages = kpis.map((kpi) => kpi.average).filter((value): value is number => value !== undefined);
+    const score = liveAverages.length
+      ? Math.round(liveAverages.reduce((sum, value) => sum + value, 0) * 10) / 10
+      : undefined;
+
     const ratedTaskIds = new Set<string>();
     for (const task of tasks) {
       if (definitions.some(([, fieldId]) => scoreField(task, fieldId) !== undefined)) ratedTaskIds.add(task.id);
@@ -170,6 +193,7 @@ export async function getLiveClickUpEvidence(person: PersonProfile): Promise<Liv
       periodLabel: label,
       tasksReviewed: tasks.length,
       ratedTasks: ratedTaskIds.size,
+      score,
       kpis,
       recentTasks: tasks.slice(0, 8).map((task) => ({
         id: task.id,

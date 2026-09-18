@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { MonthlyReview } from '@/components/monthly-review';
 import { SeptemberTrialReview } from '@/components/september-trial-review';
 import { requireEmployeeProfileAccess } from '@/lib/access';
+import { getLiveClickUpEvidence } from '@/lib/clickup-performance';
 import { getMonthlyHrmsScore } from '@/lib/hrms-performance';
 import { getPerson, people } from '@/lib/people';
 
@@ -41,7 +42,8 @@ export default async function EmployeeMonthlyReviewPage({ params }: PageProps) {
   await requireEmployeeProfileAccess(slug);
 
   if (month === '2026-09') {
-    return <SeptemberTrialReview employeeName={person.name} employeeSlug={person.slug} />;
+    const clickUpEvidence = await getLiveClickUpEvidence(person, month);
+    return <SeptemberTrialReview employeeName={person.name} employeeSlug={person.slug} clickUpEvidence={clickUpEvidence} />;
   }
 
   const hrms = await getMonthlyHrmsScore(person.slug, month);

@@ -224,9 +224,9 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
                   <span>{review.month} 2026</span>
                   <span className={`tracker-status ${statusClass(review.status)}`}>{review.status}</span>
                 </div>
-                <strong className="review-score">{review.score === undefined ? '—' : review.score}<small>/100</small></strong>
+                <strong className="review-score">{review.isTest ? 'Live' : (review.score === undefined ? '—' : review.score)}{review.isTest ? null : <small>/100</small>}</strong>
                 <p>{review.summary ?? 'Open this month to review ClickUp evidence, KPI coverage, manager assessment, reflection, and 1:1.'}</p>
-                <span className="review-band">{performanceBand(review.score)} · Open review →</span>
+                <span className="review-band">{review.isTest ? 'Live trial evidence' : performanceBand(review.score)} · Open review →</span>
               </Link>
             ))}
           </div>
@@ -242,7 +242,7 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
                 <thead><tr><th>#</th><th>KPI</th><th>Evidence source</th><th>Score</th><th>Status</th></tr></thead>
                 <tbody>
                   {kpiDefinitions.map((kpi, index) => {
-                    const score = focusReview?.kpiScores?.[kpi.name];
+                    const score = focusReview?.isTest ? undefined : focusReview?.kpiScores?.[kpi.name];
                     return (
                       <tr key={kpi.name}>
                         <td>{String(index + 1).padStart(2, '0')}</td>
@@ -356,8 +356,8 @@ export function EmployeePerformanceProfile({ person, roleProfile }: Props) {
                   <tr key={review.month}>
                     <td><Link href={`/team/${person.slug}/reviews/${monthKeys[review.month]}`}><strong>{review.month} 2026</strong></Link></td>
                     <td><span className={`tracker-status ${statusClass(review.status)}`}>{review.status}</span></td>
-                    <td>{review.score === undefined ? '—' : `${review.score}/100`}</td>
-                    <td>{performanceBand(review.score)}</td>
+                    <td>{review.isTest ? 'Live trial' : (review.score === undefined ? '—' : `${review.score}/100`)}</td>
+                    <td>{review.isTest ? 'Test only' : performanceBand(review.score)}</td>
                     <td>{review.summary ?? 'No completed review yet.'}</td>
                   </tr>
                 ))}

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import type { LiveClickUpEvidence } from '@/lib/clickup-performance';
 import { getPerformanceRecord, type KpiName } from '@/lib/performance-records';
 
 const kpis: KpiName[] = [
@@ -18,18 +19,20 @@ const kpis: KpiName[] = [
 type Props = {
   employeeName: string;
   employeeSlug: string;
+  clickUpEvidence: LiveClickUpEvidence;
 };
 
-export function SeptemberTrialReview({ employeeName, employeeSlug }: Props) {
+export function SeptemberTrialReview({ employeeName, employeeSlug, clickUpEvidence }: Props) {
   const record = getPerformanceRecord(employeeSlug);
   const review = record.reviews.find((item) => item.month === 'September');
+  const liveKpis = new Map(clickUpEvidence.kpis.map((kpi) => [kpi.label, kpi.average]));
 
   return (
     <div className="shell review-lab">
       <header className="review-lab-header">
         <p className="eyebrow">September 18–30 live trial · test data</p>
         <h1 className="page-title">{employeeName} · September 2026</h1>
-        <p className="page-subtitle">This review exists to test the performance workflow before official scoring begins on October 1. All values shown here are simulated trial data and are excluded from career, promotion, and salary-review calculations.</p>
+        <p className="page-subtitle">This review uses live completed + rated ClickUp evidence from September 18–30 to test the performance workflow before official scoring begins on October 1. September remains excluded from career, promotion, and salary-review calculations.</p>
         <div className="hero-actions">
           <Link className="button" href={`/team/${employeeSlug}`}>Back to Performance Card</Link>
           <Link className="button button-secondary" href="/review-process">Review timeline</Link>
@@ -42,7 +45,7 @@ export function SeptemberTrialReview({ employeeName, employeeSlug }: Props) {
           <section className="panel">
             <span className="tracker-status status-warn">TRIAL · NOT COUNTED</span>
             <h2 style={{ marginTop: 14 }}>September validation review</h2>
-            <p>{review?.summary}</p>
+            <p>Live ClickUp trial evidence is used for task-based KPIs. September remains test-only and does not count toward career or compensation decisions.</p>
             <div className="info-box">
               <strong>Assessment eligibility: No</strong>
               <p>Official counted evidence starts October 1, 2026 and closes December 10, 2026.</p>
@@ -50,20 +53,20 @@ export function SeptemberTrialReview({ employeeName, employeeSlug }: Props) {
           </section>
 
           <section className="panel">
-            <h2>Trial KPI values</h2>
-            <p>These values are deliberately populated so employees, managers, the Delivery Reviewer, People Ops, and Admin can validate how a completed score appears before real data starts.</p>
+            <h2>Live trial KPI values</h2>
+            <p>Task-based KPI values below come from completed tasks with ClickUp ratings in the September 18–30 trial window. Growth & Development and Role Excellence remain pending until manager review data is connected.</p>
             <div className="kpi-table-wrap">
               <table className="kpi-score-table">
                 <thead><tr><th>#</th><th>KPI</th><th>Test score</th><th>State</th></tr></thead>
                 <tbody>
                   {kpis.map((kpi, index) => {
-                    const score = review?.kpiScores?.[kpi];
+                    const score = liveKpis.get(kpi);
                     return (
                       <tr key={kpi}>
                         <td>{String(index + 1).padStart(2, '0')}</td>
                         <td><strong>{kpi}</strong></td>
                         <td><strong>{score === undefined ? '—' : score.toFixed(1)}</strong><span>/10</span></td>
-                        <td><span className="tracker-status status-warn">Test data</span></td>
+                        <td><span className={`tracker-status ${score === undefined ? 'status-neutral' : 'status-good'}`}>{score === undefined ? 'Pending' : 'Live ClickUp'}</span></td>
                       </tr>
                     );
                   })}
@@ -85,11 +88,12 @@ export function SeptemberTrialReview({ employeeName, employeeSlug }: Props) {
 
         <aside className="panel review-summary">
           <span className="card-kicker">September trial score</span>
-          <p className="review-total">{review?.score ?? '—'}<small>/100</small></p>
-          <strong>Test only</strong>
+          <p className="review-total">{clickUpEvidence.score ?? '—'}<small>/80</small></p>
+          <strong>Live ClickUp trial score · 8 task KPIs</strong>
           <p>Status: <strong>{review?.status ?? 'Pending'}</strong></p>
           <ul className="review-checklist">
             <li>Trial window: Sep 18–30</li>
+            <li>Rated completed tasks: {clickUpEvidence.ratedTasks}</li>
             <li>Assessment eligible: No</li>
             <li>Official data starts: Oct 1</li>
             <li>Evidence cutoff: Dec 10</li>
