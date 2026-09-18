@@ -90,11 +90,12 @@ function currentMonthWindow() {
   return { start: start.getTime(), end: end.getTime(), label };
 }
 
-function isInWindow(task: ClickUpTask, start: number, end: number) {
-  const timestamps = [task.date_closed, task.due_date, task.date_updated]
-    .filter(Boolean)
-    .map((value) => Number(value));
-  return timestamps.some((value) => value >= start && value < end);
+function isCompletedInWindow(task: ClickUpTask, start: number, end: number) {
+  // Performance evidence is earned when work is completed, not merely
+  // assigned, updated, due, or rated while still in progress.
+  if (!task.date_closed) return false;
+  const closedAt = Number(task.date_closed);
+  return closedAt >= start && closedAt < end;
 }
 
 async function fetchAssignedTasks(userId: string, start: number) {
@@ -141,7 +142,7 @@ export async function getLiveClickUpEvidence(person: PersonProfile): Promise<Liv
 
   try {
     const assigned = (await fetchAssignedTasks(person.clickupUserId, start)) ?? [];
-    const tasks = assigned.filter((task) => isInWindow(task, start, end));
+    const tasks = assigned.filter((task) => isCompletedInWindow(task, start, end));
 
     const definitions = [
       ['Delivery & Reliability', CLICKUP_FIELD_IDS.deliveryStatus],

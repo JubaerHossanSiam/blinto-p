@@ -56,9 +56,9 @@ export function ClickUpPerformanceEvidence({ evidence }: Props) {
         <>
           <div className="career-summary-grid" style={{ marginTop: 18 }}>
             <div className="career-state-card">
-              <span>Assigned tasks</span>
+              <span>Completed tasks</span>
               <strong>{evidence.tasksReviewed}</strong>
-              <p>Tasks active in this month&apos;s evidence window.</p>
+              <p>Tasks completed during this month&apos;s evidence window.</p>
             </div>
             <div className="career-state-card">
               <span>Rated tasks</span>
@@ -68,7 +68,7 @@ export function ClickUpPerformanceEvidence({ evidence }: Props) {
             <div className="career-state-card">
               <span>Evidence coverage</span>
               <strong>{evidence.tasksReviewed ? `${Math.round((evidence.ratedTasks / evidence.tasksReviewed) * 100)}%` : '—'}</strong>
-              <p>Rated tasks divided by assigned tasks in the window.</p>
+              <p>Rated completed tasks divided by completed tasks in the window.</p>
             </div>
             <div className="career-state-card">
               <span>Sync</span>
@@ -103,7 +103,7 @@ export function ClickUpPerformanceEvidence({ evidence }: Props) {
           </div>
 
           <div className="profile-card" style={{ marginTop: 18 }}>
-            <span className="card-kicker">Recent ClickUp tasks in evidence window</span>
+            <span className="card-kicker">Recent completed ClickUp tasks in evidence window</span>
             {evidence.recentTasks.length ? (
               <ul className="assessment-list">
                 {evidence.recentTasks.map((task) => (
@@ -113,7 +113,7 @@ export function ClickUpPerformanceEvidence({ evidence }: Props) {
                 ))}
               </ul>
             ) : (
-              <p>No assigned ClickUp tasks were found in this month&apos;s evidence window.</p>
+              <p>No completed ClickUp tasks were found in this month&apos;s evidence window.</p>
             )}
           </div>
         </>
