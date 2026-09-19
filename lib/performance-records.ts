@@ -93,13 +93,13 @@ export function getPerformanceRecord(slug: string) {
 
   const reviews: MonthlyPerformanceReview[] = months.map((month) => ({
     month,
-    status: record.reviews?.[month]?.status ?? 'Pending',
+    status: record.reviews?.[month]?.status ?? (month === 'September' ? 'In review' : 'Pending'),
     score: record.reviews?.[month]?.score,
     summary: record.reviews?.[month]?.summary,
     kpiScores: record.reviews?.[month]?.kpiScores,
     managerReview: record.reviews?.[month]?.managerReview,
     deliveryReview: record.reviews?.[month]?.deliveryReview,
-    isTest: record.reviews?.[month]?.isTest ?? false,
+    isTest: record.reviews?.[month]?.isTest ?? month === 'September',
     assessmentEligible: record.reviews?.[month]?.assessmentEligible ?? month !== 'September',
   }));
 

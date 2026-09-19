@@ -64,6 +64,9 @@ export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidenc
   const careerStatus = careerStatusLabel(record.career.status);
   const managerReview = focusReview?.managerReview;
   const deliveryReview = focusReview?.deliveryReview;
+  const evidenceCoverage = clickUpEvidence.tasksReviewed
+    ? Math.round((clickUpEvidence.ratedTasks / clickUpEvidence.tasksReviewed) * 100)
+    : undefined;
 
   return (
     <>
@@ -81,35 +84,41 @@ export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidenc
             </div>
           </div>
 
-          <div className="profile-metrics profile-metrics-five" aria-label="Monthly performance scores">
-            {record.reviews.map((review) => {
-              const isSeptember = review.month === 'September';
-              const score = isSeptember ? clickUpEvidence.score : review.score;
-              const denominator = isSeptember ? 80 : 100;
-              return (
-                <Link
-                  key={review.month}
-                  href={`/team/${person.slug}/reviews/${monthKeys[review.month]}`}
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                >
-                  <span>{review.month}{isSeptember ? <small style={{ marginLeft: 6, opacity: 0.65 }}>Trial</small> : null}</span>
-                  <strong>{score === undefined ? '—' : `${score}/${denominator}`}</strong>
-                </Link>
-              );
-            })}
-            <div>
-              <span>Overall</span>
-              <strong>
-                {(() => {
-                  const officialScores = record.reviews
-                    .filter((review) => !review.isTest && review.score !== undefined)
-                    .map((review) => review.score as number);
-                  return officialScores.length
-                    ? `${Math.round((officialScores.reduce((sum, score) => sum + score, 0) / officialScores.length) * 10) / 10}/100`
-                    : '—';
-                })()}
-              </strong>
+          <div className="performance-snapshot-grid" aria-label="Current performance snapshot">
+            <Link className="snapshot-card snapshot-card-primary" href={`/team/${person.slug}/reviews/2026-09`}>
+              <div className="snapshot-card-head">
+                <span>September task evidence</span>
+                <em>Trial</em>
+              </div>
+              <strong>{clickUpEvidence.score === undefined ? '—' : `${clickUpEvidence.score}/80`}</strong>
+              <p>Live ClickUp evidence only. This is not an official monthly /100 result.</p>
+            </Link>
+
+            <div className="snapshot-card">
+              <div className="snapshot-card-head"><span>Evidence coverage</span></div>
+              <strong>{evidenceCoverage === undefined ? '—' : `${evidenceCoverage}%`}</strong>
+              <p>{clickUpEvidence.ratedTasks} rated of {clickUpEvidence.tasksReviewed} completed tasks.</p>
             </div>
+
+            <div className="snapshot-card">
+              <div className="snapshot-card-head"><span>Current review</span></div>
+              <strong>{focusReview?.month ?? '—'}</strong>
+              <p>{focusReview?.status ?? 'Pending'} · Manager: {record.reviewManager ?? person.manager}</p>
+            </div>
+
+            <div className="snapshot-card">
+              <div className="snapshot-card-head"><span>Career assessment</span></div>
+              <strong>{record.career.proposedLevel ? `Proposed ${record.career.proposedLevel}` : 'Under assessment'}</strong>
+              <p>{proposedCareer?.name ?? 'Level not proposed'} · not yet assigned.</p>
+            </div>
+          </div>
+
+          <div className="data-integrity-strip">
+            <div>
+              <span className="card-kicker">Data status</span>
+              <strong>September is a live test cycle, not an official score.</strong>
+            </div>
+            <p>Task evidence covers the eight ClickUp-based KPI areas. For Delivery & Reliability, the live task view is only the ClickUp delivery component; the final KPI also requires HRMS attendance and leave/policy data. KPI 9–10 require the monthly manager review. September stays excluded from official totals and career decisions.</p>
           </div>
         </div>
       </section>
@@ -117,10 +126,9 @@ export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidenc
       <div className="profile-nav-wrap">
         <nav className="shell profile-tabs" aria-label={`${person.name} employee performance card`}>
           <a href="#overview">Overview</a>
+          <a href="#monthly-kpi">Monthly Performance</a>
           <a href="#role-success">Role Success</a>
-          <a href="#work-evidence">Work Evidence</a>
-          <a href="#monthly-kpi">Monthly KPI</a>
-          <a href="#manager-review">Manager Review</a>
+          <a href="#manager-review">Feedback</a>
           <a href="#career">Career</a>
           <a href="#history">History</a>
         </nav>
@@ -207,8 +215,8 @@ export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidenc
           </div>
 
           <div className="integration-banner">
-            <div><span className="card-kicker">ClickUp integration</span><strong>Card UI ready · live sync pending</strong></div>
-            <span className="tracker-status status-warn">Integration next</span>
+            <div><span className="card-kicker">ClickUp integration</span><strong>Live evidence loads from ClickUp</strong></div>
+            <span className="tracker-status status-warn">Live source</span>
           </div>
 
           <div className="evidence-grid">
@@ -229,8 +237,8 @@ export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidenc
           <div className="profile-section-head">
             <div>
               <p className="eyebrow">Monthly KPI</p>
-              <h2>100-point performance score</h2>
-              <p>Each month has its own review instance. Click a month card to open the detailed review, evidence coverage, calculations, feedback, reflection, and finalization workflow.</p>
+              <h2>{focusReview?.isTest ? 'September trial · task evidence /80' : '100-point performance score'}</h2>
+              <p>{focusReview?.isTest ? 'September is the live workflow test. ClickUp task evidence is collected now, while HRMS and manager-review inputs remain separate until the monthly /100 review is complete.' : 'Each month has its own review instance. Click a month card to open the detailed review, evidence coverage, calculations, feedback, reflection, and finalization workflow.'}</p>
             </div>
             <span className="section-number">04</span>
           </div>
@@ -266,14 +274,27 @@ export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidenc
                 <thead><tr><th>#</th><th>KPI</th><th>Evidence source</th><th>Score</th><th>Status</th></tr></thead>
                 <tbody>
                   {kpiDefinitions.map((kpi, index) => {
-                    const score = focusReview?.isTest ? undefined : focusReview?.kpiScores?.[kpi.name];
+                    const liveClickUpKpi = clickUpEvidence.kpis.find((item) => item.label === kpi.name);
+                    const officialScore = focusReview?.kpiScores?.[kpi.name];
+                    const isManagerKpi = index >= 8;
+                    const score = focusReview?.isTest
+                      ? (isManagerKpi ? undefined : liveClickUpKpi?.average)
+                      : officialScore;
+                    const status = focusReview?.isTest
+                      ? (isManagerKpi
+                        ? 'Manager pending'
+                        : kpi.name === 'Delivery & Reliability'
+                          ? (score === undefined ? 'ClickUp pending' : 'ClickUp only')
+                          : (score === undefined ? 'No evidence' : 'Live evidence'))
+                      : (score === undefined ? 'Pending' : 'Recorded');
+                    const statusTone = score === undefined ? 'status-neutral' : (kpi.name === 'Delivery & Reliability' && focusReview?.isTest ? 'status-warn' : 'status-good');
                     return (
                       <tr key={kpi.name}>
                         <td>{String(index + 1).padStart(2, '0')}</td>
                         <td><strong>{kpi.name}</strong>{kpi.note ? <small>{kpi.note}</small> : null}</td>
                         <td>{kpi.source}</td>
                         <td><strong>{score === undefined ? '—' : score.toFixed(1)}</strong><span>/10</span></td>
-                        <td><span className={`tracker-status ${score === undefined ? 'status-neutral' : 'status-good'}`}>{score === undefined ? 'Pending' : 'Recorded'}</span></td>
+                        <td><span className={`tracker-status ${statusTone}`}>{status}</span></td>
                       </tr>
                     );
                   })}
@@ -329,10 +350,10 @@ export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidenc
           </div>
 
           <div className="career-summary-grid">
-            <div className="career-state-card"><span>Confirmed level</span><strong>{record.career.finalLevel ?? 'Not assigned'}</strong></div>
-            <div className="career-state-card"><span>Proposed level</span><strong>{record.career.proposedLevel ?? '—'}</strong></div>
-            <div className="career-state-card"><span>Proposed salary band</span><strong>{proposedCareer?.salaryBand ?? '—'}</strong></div>
-            <div className="career-state-card"><span>Assessment status</span><strong>{careerStatus}</strong></div>
+            <div className="career-state-card"><span>Proposed level</span><strong>{record.career.proposedLevel ?? '—'}</strong><p>{proposedCareer?.name ?? 'Level under assessment'}</p></div>
+            <div className="career-state-card"><span>Success benchmark</span><strong>85%+</strong><p>Overall Career Level Success required.</p></div>
+            <div className="career-state-card"><span>Critical floor</span><strong>70%+</strong><p>No critical career dimension below this threshold.</p></div>
+            <div className="career-state-card"><span>Current readiness</span><strong>Not calculated</strong><p>September trial data is excluded from the career decision.</p></div>
           </div>
 
           <div className="career-assessment-grid">
