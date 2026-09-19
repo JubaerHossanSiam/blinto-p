@@ -14,6 +14,18 @@ Rate demonstrated work, not personality, seniority, effort alone, or how much yo
 
 A blank field means no valid observation. It is not zero, poor performance, or an automatic Effective rating.
 
+## What counts as a ratable task?
+
+Use the standard **Task** type only for a meaningful individual deliverable that should create performance evidence.
+
+When a larger deliverable is split into smaller internal work items for an individual—such as implementation steps, fixes, checks, coordination items, supporting execution, or other internal breakdown—use the **Feature** type. Feature items remain assignable and trackable in ClickUp, but they do **not** independently enter task-rating coverage or the task-based KPI score.
+
+**Simple rule:** **Task = performance evidence. Feature = supporting/internal work breakdown.**
+
+Do not convert a small internal work item into a Task merely to rate it. Likewise, a genuine individually accountable deliverable may remain a Task even when it sits under another item. Eligibility follows Task Type, not parent/subtask hierarchy.
+
+This prevents one deliverable from being overrepresented in an employee's KPI simply because the work was decomposed into several ClickUp items.
+
 ## Shared rating scale
 
 | Select in ClickUp | Value | Evidence needed |
