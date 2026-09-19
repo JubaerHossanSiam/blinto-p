@@ -180,27 +180,30 @@ export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidenc
 
           <div className="deliverable-table-wrap">
             <table className="deliverable-table">
-              <thead><tr><th>#</th><th>Success outcome</th><th>What good looks like</th><th>Evidence state</th></tr></thead>
+              <thead><tr><th>#</th><th>Success outcome</th><th>What success looks like</th></tr></thead>
               <tbody>
-                {roleProfile.deliverables.map((deliverable, index) => {
-                  const tracked = record.deliverables.find((item) => item.title.toLowerCase() === deliverable.title.toLowerCase());
-                  const status = tracked?.status ?? 'Awaiting evidence';
-                  return (
-                    <tr key={deliverable.title}>
-                      <td className="deliverable-index">{String(index + 1).padStart(2, '0')}</td>
-                      <td><strong>{deliverable.title}</strong></td>
-                      <td>{deliverable.expectedResult}</td>
-                      <td><span className={`tracker-status ${statusClass(status)}`}>{status}</span></td>
-                    </tr>
-                  );
-                })}
+                {roleProfile.deliverables.map((deliverable, index) => (
+                  <tr key={deliverable.title}>
+                    <td className="deliverable-index">{String(index + 1).padStart(2, '0')}</td>
+                    <td><strong>{deliverable.title}</strong></td>
+                    <td>{deliverable.expectedResult}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
 
+          <div className="role-assessment-strip">
+            <div>
+              <span className="card-kicker">Role Success Assessment</span>
+              <strong>Not assessed yet</strong>
+            </div>
+            <p>Role Success is evaluated during the career-level assessment using monthly performance, manager observations, and documented work outcomes. September trial data does not create a formal Role Success rating.</p>
+          </div>
+
           <div className="tracker-note">
             <div><strong>Role plan</strong><span>The Role Success Plan defines the outcomes and standards this role is accountable for.</span></div>
-            <div><strong>Evidence standard</strong><span>{roleProfile.evidence || 'Use documented work output, delivery quality, ownership, collaboration, and measurable results.'}</span></div>
+            <div><strong>Assessment evidence</strong><span>{roleProfile.evidence || 'Use documented work output, delivery quality, ownership, collaboration, and measurable results.'}</span></div>
           </div>
         </section>
 
