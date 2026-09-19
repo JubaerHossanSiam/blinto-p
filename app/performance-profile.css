@@ -310,3 +310,59 @@ a.snapshot-card:hover {
     gap: 10px;
   }
 }
+
+
+.evidence-toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 12px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+}
+.evidence-toolbar strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 16px;
+  letter-spacing: -.02em;
+}
+.evidence-period-filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.evidence-period-filter > span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.evidence-period-filter select {
+  min-width: 190px;
+  padding: 10px 34px 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+@media (max-width: 640px) {
+  .evidence-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .evidence-period-filter {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .evidence-period-filter select {
+    width: 100%;
+  }
+}

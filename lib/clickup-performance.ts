@@ -194,6 +194,18 @@ export async function getLiveClickUpEvidence(person: PersonProfile, monthKey?: s
           message: !ratedTasks ? 'No verified task-rating evidence has been recorded for this official month yet.' : !evidenceComplete ? `Insufficient evidence: ${missingKpis.length} of 8 KPI areas still have no verified observation.` : undefined,
         };
       }
+
+      return {
+        connected: true,
+        periodLabel: label,
+        tasksReviewed: 0,
+        ratedTasks: 0,
+        evidenceComplete: false,
+        missingKpis: definitions.map(([kpiLabel]) => kpiLabel),
+        kpis: definitions.map(([kpiLabel]) => ({ label: kpiLabel, ratedTasks: 0 })),
+        recentTasks: [],
+        message: 'No verified task-rating evidence has been recorded for this official month yet.',
+      };
     } catch (error) {
       return {
         connected: false, periodLabel: label, tasksReviewed: 0, ratedTasks: 0, evidenceComplete: false, missingKpis: [], kpis: [], recentTasks: [],

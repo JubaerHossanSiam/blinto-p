@@ -14,6 +14,25 @@ export const dynamic = 'force-dynamic';
 
 type PageProps = { params: Promise<{ slug: string }> };
 
+function currentDhakaMonthKey() {
+  const parts = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', timeZone: 'Asia/Dhaka' }).formatToParts(new Date());
+  const year = parts.find((part) => part.type === 'year')?.value ?? '2026';
+  const month = parts.find((part) => part.type === 'month')?.value ?? '09';
+  return `${year}-${month}`;
+}
+
+function evidenceMonthKeys(endKey: string) {
+  const keys: string[] = [];
+  let year = 2026;
+  let month = 9;
+  while (`${year}-${String(month).padStart(2, '0')}` <= endKey) {
+    keys.push(`${year}-${String(month).padStart(2, '0')}`);
+    month += 1;
+    if (month === 13) { month = 1; year += 1; }
+  }
+  return keys;
+}
+
 export function generateStaticParams() {
   return people.map((person) => ({ slug: person.slug }));
 }
@@ -33,12 +52,19 @@ export default async function TeamMemberPage({ params }: PageProps) {
 
   const roleContent = readFrameworkFile(person.roleFile);
   const roleProfile = parseRoleProfile(roleContent);
-  const [clickUpEvidence, officialResults] = await Promise.all([getLiveClickUpEvidence(person), getOfficialMonthlyResults(person.slug)]);
+  const activeMonthKey = currentDhakaMonthKey();
+  const monthKeys = evidenceMonthKeys(activeMonthKey);
+  const [monthlyClickUpEvidence, officialResults] = await Promise.all([
+    Promise.all(monthKeys.map(async (monthKey) => ({ monthKey, evidence: await getLiveClickUpEvidence(person, monthKey) }))),
+    getOfficialMonthlyResults(person.slug),
+  ]);
+  const clickUpEvidence = monthlyClickUpEvidence.find((item) => item.monthKey === activeMonthKey)?.evidence
+    ?? await getLiveClickUpEvidence(person, activeMonthKey);
 
   return (
     <>
       <EmployeePerformanceProfile person={person} roleProfile={roleProfile} clickUpEvidence={clickUpEvidence} />
-      <ClickUpPerformanceEvidence evidence={clickUpEvidence} />
+      <ClickUpPerformanceEvidence evidence={clickUpEvidence} monthlyEvidence={monthlyClickUpEvidence} defaultMonthKey={activeMonthKey} />
       {officialResults.length ? <section className="shell profile-sections"><section className="profile-section"><div className="profile-section-head"><div><p className="eyebrow">Official monthly results</p><h2>Finalized performance history</h2><p>Live ClickUp /80 evidence remains visible above. These are the month-end snapshots generated on the 1st and are the official historical results.</p></div></div><div className="evidence-grid">{officialResults.map(result=><article className="evidence-card" key={result.monthKey}><div className="evidence-card-top"><strong>{result.monthKey}</strong><span className={`tracker-status ${result.status==='complete'?'status-good':'status-warn'}`}>{result.status}</span></div><p>ClickUp: {result.clickUpScore===null?'—':`${result.clickUpScore} / 80`} · Manager: {result.managerScore===null?'—':`${result.managerScore} / 20`}</p><strong>{result.finalScore===null?'Official result unavailable':`${result.finalScore} / 100`}</strong></article>)}</div></section></section> : null}
 
       <section className="shell profile-sections" aria-label="Career level success benchmark">
