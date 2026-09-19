@@ -134,7 +134,8 @@ export async function POST(request: Request) {
         : { status: 'needs_validation' as const, reason: 'ClickUp did not identify the rating actor.' };
       const changedAt = item.date ? new Date(Number(item.date)).toISOString() : new Date().toISOString();
 
-      await db.query(
+      try {
+        await db.query(
         `insert into task_rating_integrity
           (task_id, field_id, employee_slug, task_name, task_url, current_score, current_label,
            current_actor_clickup_id, current_actor_name, verified_score, verified_label,
@@ -161,7 +162,18 @@ export async function POST(request: Request) {
            updated_at=now()`,
         [task.id, fieldId, employeeSlug, task.name, task.url, score, label, actorId || null, actorName,
          decision.status, decision.reason, task.date_closed ? new Date(Number(task.date_closed)).toISOString() : null, changedAt],
-      );
+        );
+      } catch (error) {
+        console.error('ClickUp rating integrity upsert failed', {
+          taskId: task.id,
+          fieldId,
+          employeeSlug,
+          actorId,
+          status: decision.status,
+          error: error instanceof Error ? error.message : String(error),
+        });
+        return NextResponse.json({ ok: false, message: 'Rating integrity write failed.' }, { status: 500 });
+      }
     }
   }
 
