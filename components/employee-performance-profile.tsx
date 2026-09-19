@@ -4,11 +4,13 @@ import type { LiveClickUpEvidence } from '@/lib/clickup-performance';
 import type { PersonProfile } from '@/lib/people';
 import { careerLevels, getCareerLevel, type RoleProfileData } from '@/lib/performance-profile';
 import { getPerformanceRecord, type KpiName, type ReviewMonth } from '@/lib/performance-records';
+import type { OfficialMonthlyResult } from '@/lib/monthly-performance-results';
 
 type Props = {
   person: PersonProfile;
   roleProfile: RoleProfileData;
   clickUpEvidence: LiveClickUpEvidence;
+  officialResults: OfficialMonthlyResult[];
 };
 
 const kpiDefinitions: { name: KpiName; source: string; note?: string }[] = [
@@ -53,7 +55,7 @@ function performanceBand(score?: number) {
   return 'Significant Improvement Needed';
 }
 
-export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidence }: Props) {
+export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidence, officialResults }: Props) {
   const record = getPerformanceRecord(person.slug);
   const latestCompleteReview = [...record.reviews].reverse().find((review) => review.status === 'Complete');
   const focusReview = record.reviews.find((review) => review.status === 'In review')
@@ -259,9 +261,20 @@ export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidenc
                   <span>{review.month} 2026</span>
                   <span className={`tracker-status ${statusClass(review.status)}`}>{review.status}</span>
                 </div>
-                <strong className="review-score">{review.isTest ? 'Live' : (review.score === undefined ? '—' : review.score)}{review.isTest ? null : <small>/100</small>}</strong>
-                <p>{review.summary ?? 'Open this month to review ClickUp evidence, KPI coverage, manager assessment, reflection, and 1:1.'}</p>
-                <span className="review-band">{review.isTest ? 'Live trial evidence' : performanceBand(review.score)} · Open review →</span>
+                <strong className="review-score">
+                  {review.isTest
+                    ? (clickUpEvidence.score === undefined ? '—' : clickUpEvidence.score)
+                    : (review.score === undefined ? '—' : review.score)}
+                  <small>{review.isTest ? '/80' : '/100'}</small>
+                </strong>
+                {review.isTest ? (
+                  <p>
+                    Live ClickUp task evidence · Coverage {evidenceCoverage === undefined ? '—' : `${evidenceCoverage}%`} · HRMS pending · Manager review pending.
+                  </p>
+                ) : (
+                  <p>{review.summary ?? 'Open this month to review ClickUp evidence, KPI coverage, manager assessment, reflection, and 1:1.'}</p>
+                )}
+                <span className="review-band">{review.isTest ? 'Trial only · Not an official /100 result' : performanceBand(review.score)} · Open review →</span>
               </Link>
             ))}
           </div>
@@ -398,17 +411,39 @@ export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidenc
 
           <div className="history-table-wrap">
             <table className="history-table">
-              <thead><tr><th>Month</th><th>Status</th><th>Score</th><th>Performance band</th><th>Summary</th></tr></thead>
+              <thead><tr><th>Month</th><th>Status</th><th>Final score</th><th>Career use</th></tr></thead>
               <tbody>
-                {record.reviews.map((review) => (
-                  <tr key={review.month}>
-                    <td><Link href={`/team/${person.slug}/reviews/${monthKeys[review.month]}`}><strong>{review.month} 2026</strong></Link></td>
-                    <td><span className={`tracker-status ${statusClass(review.status)}`}>{review.status}</span></td>
-                    <td>{review.isTest ? 'Live trial' : (review.score === undefined ? '—' : `${review.score}/100`)}</td>
-                    <td>{review.isTest ? 'Test only' : performanceBand(review.score)}</td>
-                    <td>{review.summary ?? 'No completed review yet.'}</td>
-                  </tr>
-                ))}
+                {record.reviews.map((review) => {
+                  const monthKey = monthKeys[review.month];
+                  const official = officialResults.find((result) => result.monthKey === monthKey);
+                  const status = review.isTest
+                    ? 'Trial'
+                    : official?.status === 'complete'
+                      ? 'Complete'
+                      : official?.status === 'incomplete'
+                        ? 'Incomplete'
+                        : review.status;
+                  const score = review.isTest
+                    ? (clickUpEvidence.score === undefined ? '— /80 trial' : `${clickUpEvidence.score}/80 trial`)
+                    : official?.finalScore !== null && official?.finalScore !== undefined
+                      ? `${official.finalScore}/100`
+                      : review.score === undefined
+                        ? '—'
+                        : `${review.score}/100`;
+                  const careerUse = review.month === 'September'
+                    ? 'Excluded'
+                    : review.month === 'December'
+                      ? 'Evidence through Dec 10'
+                      : 'Included after finalization';
+                  return (
+                    <tr key={review.month}>
+                      <td><Link href={`/team/${person.slug}/reviews/${monthKey}`}><strong>{review.month} 2026</strong></Link></td>
+                      <td><span className={`tracker-status ${statusClass(status)}`}>{status}</span></td>
+                      <td>{score}</td>
+                      <td>{careerUse}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

@@ -63,9 +63,8 @@ export default async function TeamMemberPage({ params }: PageProps) {
 
   return (
     <>
-      <EmployeePerformanceProfile person={person} roleProfile={roleProfile} clickUpEvidence={clickUpEvidence} />
+      <EmployeePerformanceProfile person={person} roleProfile={roleProfile} clickUpEvidence={clickUpEvidence} officialResults={officialResults} />
       <ClickUpPerformanceEvidence evidence={clickUpEvidence} monthlyEvidence={monthlyClickUpEvidence} defaultMonthKey={activeMonthKey} />
-      {officialResults.length ? <section className="shell profile-sections"><section className="profile-section"><div className="profile-section-head"><div><p className="eyebrow">Official monthly results</p><h2>Finalized performance history</h2><p>Live ClickUp /80 evidence remains visible above. These are the month-end snapshots generated on the 1st and are the official historical results.</p></div></div><div className="evidence-grid">{officialResults.map(result=><article className="evidence-card" key={result.monthKey}><div className="evidence-card-top"><strong>{result.monthKey}</strong><span className={`tracker-status ${result.status==='complete'?'status-good':'status-warn'}`}>{result.status}</span></div><p>ClickUp: {result.clickUpScore===null?'—':`${result.clickUpScore} / 80`} · Manager: {result.managerScore===null?'—':`${result.managerScore} / 20`}</p><strong>{result.finalScore===null?'Official result unavailable':`${result.finalScore} / 100`}</strong></article>)}</div></section></section> : null}
 
       <section className="shell profile-sections" aria-label="Career level success benchmark">
         <section className="profile-section">
