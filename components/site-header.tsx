@@ -7,6 +7,7 @@ import type { PortalRole, ViewAsOption } from '@/lib/access';
 const nav = [
   ['Framework', '/framework'],
   ['Rating Guide', '/task-rating-guide'],
+  ['Rules', '/rules'],
   ['Career Levels', '/career-levels'],
   ['Roles', '/roles'],
   ['Review Process', '/review-process'],

@@ -9,6 +9,7 @@ const nav = [
   ['Dashboard', '/portal'],
   ['Framework', '/framework'],
   ['Rating Guide', '/task-rating-guide'],
+  ['Rules', '/rules'],
   ['Career Levels', '/career-levels'],
   ['Roles', '/roles'],
   ['Review Process', '/review-process'],

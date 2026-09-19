@@ -40,7 +40,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         {current ? (
           <footer className="site-footer">
             <div className="shell footer-inner">
-              <span>Blinto Performance · <Link href="/task-rating-guide">Task Rating Guide</Link></span>
+              <span>Blinto Performance · <Link href="/task-rating-guide">Task Rating Guide</Link> · <Link href="/rules">System Rules</Link></span>
               <span>Performance evidence → role assessment → career decision</span>
             </div>
           </footer>
