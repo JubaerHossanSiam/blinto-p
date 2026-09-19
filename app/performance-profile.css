@@ -366,3 +366,95 @@ a.snapshot-card:hover {
     width: 100%;
   }
 }
+
+
+.task-rating-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+.task-evidence-list-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+.task-evidence-list-head h3 {
+  margin: 6px 0 0;
+  font-size: 20px;
+  letter-spacing: -.025em;
+}
+.task-evidence-list-head p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+.task-rating-filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 7px;
+  max-width: 560px;
+}
+.task-rating-filter {
+  padding: 8px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+.task-rating-filter:hover {
+  border-color: #aeb5bb;
+  color: var(--text);
+}
+.task-rating-filter-active {
+  background: var(--dark);
+  border-color: var(--dark);
+  color: #fff;
+}
+.task-evidence-table-wrap {
+  overflow-x: auto;
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.task-evidence-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.task-evidence-table th,
+.task-evidence-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: middle;
+  font-size: 12px;
+}
+.task-evidence-table th {
+  background: var(--soft);
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.task-evidence-table tr:last-child td {
+  border-bottom: 0;
+}
+@media (max-width: 1100px) {
+  .task-rating-summary-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 760px) {
+  .task-rating-summary-grid { grid-template-columns: 1fr 1fr; }
+  .task-evidence-list-head { flex-direction: column; }
+  .task-rating-filters { justify-content: flex-start; max-width: none; }
+}
+@media (max-width: 520px) {
+  .task-rating-summary-grid { grid-template-columns: 1fr; }
+}

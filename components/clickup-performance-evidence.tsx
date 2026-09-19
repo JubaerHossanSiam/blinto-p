@@ -26,6 +26,7 @@ function monthLabel(monthKey: string, trial = false) {
 export function ClickUpPerformanceEvidence({ evidence, monthlyEvidence, defaultMonthKey }: Props) {
   const [target, setTarget] = useState<HTMLElement | null>(null);
   const [period, setPeriod] = useState(defaultMonthKey);
+  const [taskFilter, setTaskFilter] = useState<'all' | 'needs-rating' | 'fully-rated' | 'partially-rated' | 'unrated'>('needs-rating');
 
   useEffect(() => {
     const workEvidence = document.getElementById('work-evidence');
@@ -55,6 +56,9 @@ export function ClickUpPerformanceEvidence({ evidence, monthlyEvidence, defaultM
   const allSummary = useMemo(() => {
     const tasksReviewed = monthlyEvidence.reduce((sum, item) => sum + item.evidence.tasksReviewed, 0);
     const ratedTasks = monthlyEvidence.reduce((sum, item) => sum + item.evidence.ratedTasks, 0);
+    const fullyRatedTasks = monthlyEvidence.reduce((sum, item) => sum + item.evidence.fullyRatedTasks, 0);
+    const partiallyRatedTasks = monthlyEvidence.reduce((sum, item) => sum + item.evidence.partiallyRatedTasks, 0);
+    const unratedTasks = monthlyEvidence.reduce((sum, item) => sum + item.evidence.unratedTasks, 0);
     const connected = monthlyEvidence.every((item) => item.evidence.connected);
     const recentTasks = [...monthlyEvidence]
       .reverse()
@@ -64,7 +68,10 @@ export function ClickUpPerformanceEvidence({ evidence, monthlyEvidence, defaultM
       connected,
       tasksReviewed,
       ratedTasks,
-      coverage: tasksReviewed ? Math.round((ratedTasks / tasksReviewed) * 100) : undefined,
+      fullyRatedTasks,
+      partiallyRatedTasks,
+      unratedTasks,
+      coverage: tasksReviewed ? Math.round((fullyRatedTasks / tasksReviewed) * 100) : undefined,
       recentTasks,
     };
   }, [monthlyEvidence]);
@@ -76,7 +83,20 @@ export function ClickUpPerformanceEvidence({ evidence, monthlyEvidence, defaultM
   const connected = isAll ? allSummary.connected : active.connected;
   const tasksReviewed = isAll ? allSummary.tasksReviewed : active.tasksReviewed;
   const ratedTasks = isAll ? allSummary.ratedTasks : active.ratedTasks;
-  const coverage = tasksReviewed ? Math.round((ratedTasks / tasksReviewed) * 100) : undefined;
+  const fullyRatedTasks = isAll ? allSummary.fullyRatedTasks : active.fullyRatedTasks;
+  const partiallyRatedTasks = isAll ? allSummary.partiallyRatedTasks : active.partiallyRatedTasks;
+  const unratedTasks = isAll ? allSummary.unratedTasks : active.unratedTasks;
+  const pendingRatingTasks = partiallyRatedTasks + unratedTasks;
+  const coverage = tasksReviewed ? Math.round((fullyRatedTasks / tasksReviewed) * 100) : undefined;
+
+  const periodTasks = isAll
+    ? allSummary.recentTasks
+    : active.recentTasks.map((task) => ({ ...task, monthKey: period }));
+  const filteredTasks = periodTasks.filter((task) => {
+    if (taskFilter === 'all') return true;
+    if (taskFilter === 'needs-rating') return task.ratingState === 'partially-rated' || task.ratingState === 'unrated';
+    return task.ratingState === taskFilter;
+  });
 
   return createPortal(
     <div aria-label="Live ClickUp performance evidence">
@@ -119,26 +139,31 @@ export function ClickUpPerformanceEvidence({ evidence, monthlyEvidence, defaultM
         </div>
       ) : (
         <>
-          <div className="career-summary-grid" style={{ marginTop: 18 }}>
+          <div className="task-rating-summary-grid" style={{ marginTop: 18 }}>
             <div className="career-state-card">
               <span>Completed tasks</span>
               <strong>{tasksReviewed}</strong>
               <p>{isAll ? 'Completed tasks across all available evidence months.' : 'Tasks completed during this month\'s evidence window.'}</p>
             </div>
             <div className="career-state-card">
-              <span>Rated tasks</span>
-              <strong>{ratedTasks}</strong>
-              <p>{isAll ? 'Rated completed tasks across the available history.' : 'Tasks with at least one performance field completed.'}</p>
+              <span>Fully rated</span>
+              <strong>{fullyRatedTasks}</strong>
+              <p>All 8 task performance fields have ratings.</p>
             </div>
             <div className="career-state-card">
-              <span>Evidence coverage</span>
+              <span>Partially rated</span>
+              <strong>{partiallyRatedTasks}</strong>
+              <p>Some performance fields are rated, but the task is not complete yet.</p>
+            </div>
+            <div className="career-state-card">
+              <span>Unrated</span>
+              <strong>{unratedTasks}</strong>
+              <p>No performance rating has been recorded on these completed tasks.</p>
+            </div>
+            <div className="career-state-card">
+              <span>Rating coverage</span>
               <strong>{coverage === undefined ? '—' : `${coverage}%`}</strong>
-              <p>Rated completed tasks divided by completed tasks in the selected period.</p>
-            </div>
-            <div className="career-state-card">
-              <span>Sync</span>
-              <strong>Automatic</strong>
-              <p>ClickUp evidence refreshes every few minutes.</p>
+              <p>Fully rated completed tasks divided by all completed tasks.</p>
             </div>
           </div>
 
@@ -153,19 +178,20 @@ export function ClickUpPerformanceEvidence({ evidence, monthlyEvidence, defaultM
               <div className="kpi-table-wrap">
                 <table className="kpi-score-table">
                   <thead>
-                    <tr><th>Month</th><th>Completed</th><th>Rated</th><th>Coverage</th><th>KPI coverage</th></tr>
+                    <tr><th>Month</th><th>Completed</th><th>Fully rated</th><th>Pending rating</th><th>Coverage</th><th>KPI coverage</th></tr>
                   </thead>
                   <tbody>
                     {[...monthlyEvidence].reverse().map((item) => {
                       const monthCoverage = item.evidence.tasksReviewed
-                        ? Math.round((item.evidence.ratedTasks / item.evidence.tasksReviewed) * 100)
+                        ? Math.round((item.evidence.fullyRatedTasks / item.evidence.tasksReviewed) * 100)
                         : undefined;
                       const observedKpis = item.evidence.kpis.filter((kpi) => kpi.average !== undefined).length;
                       return (
                         <tr key={item.monthKey}>
                           <td><strong>{monthLabel(item.monthKey, item.monthKey === '2026-09')}</strong></td>
                           <td>{item.evidence.tasksReviewed}</td>
-                          <td>{item.evidence.ratedTasks}</td>
+                          <td>{item.evidence.fullyRatedTasks}</td>
+                          <td>{item.evidence.partiallyRatedTasks + item.evidence.unratedTasks}</td>
                           <td>{monthCoverage === undefined ? '—' : `${monthCoverage}%`}</td>
                           <td><strong>{observedKpis}/8</strong></td>
                         </tr>
@@ -207,29 +233,66 @@ export function ClickUpPerformanceEvidence({ evidence, monthlyEvidence, defaultM
           )}
 
           <div className="profile-card" style={{ marginTop: 18 }}>
-            <span className="card-kicker">{isAll ? 'Recent completed ClickUp tasks across evidence history' : 'Recent completed ClickUp tasks in evidence window'}</span>
-            {isAll ? (
-              allSummary.recentTasks.length ? (
-                <ul className="assessment-list">
-                  {allSummary.recentTasks.map((task) => (
-                    <li key={`${task.monthKey}-${task.id}`}>
-                      <a className="card-link" href={task.url} target="_blank" rel="noreferrer">{task.name}</a>
-                      <> · {monthLabel(task.monthKey, task.monthKey === '2026-09')}</>
-                    </li>
-                  ))}
-                </ul>
-              ) : <p>No completed ClickUp tasks were found in the selected evidence period.</p>
-            ) : (
-              active.recentTasks.length ? (
-                <ul className="assessment-list">
-                  {active.recentTasks.map((task) => (
-                    <li key={task.id}>
-                      <a className="card-link" href={task.url} target="_blank" rel="noreferrer">{task.name}</a> · {task.status}
-                    </li>
-                  ))}
-                </ul>
-              ) : <p>No completed ClickUp tasks were found in the selected evidence period.</p>
-            )}
+            <div className="task-evidence-list-head">
+              <div>
+                <span className="card-kicker">Completed task rating status</span>
+                <h3>{pendingRatingTasks} task{pendingRatingTasks === 1 ? '' : 's'} still need rating attention</h3>
+                <p>Use this list to see exactly which completed tasks are fully rated, partially rated, or still unrated.</p>
+              </div>
+              <div className="task-rating-filters" aria-label="Filter completed tasks by rating status">
+                {[
+                  ['needs-rating', `Needs rating (${pendingRatingTasks})`],
+                  ['all', `All (${tasksReviewed})`],
+                  ['fully-rated', `Fully rated (${fullyRatedTasks})`],
+                  ['partially-rated', `Partial (${partiallyRatedTasks})`],
+                  ['unrated', `Unrated (${unratedTasks})`],
+                ].map(([value, label]) => (
+                  <button
+                    type="button"
+                    key={value}
+                    className={`task-rating-filter ${taskFilter === value ? 'task-rating-filter-active' : ''}`}
+                    onClick={() => setTaskFilter(value as typeof taskFilter)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="task-evidence-table-wrap">
+              <table className="task-evidence-table">
+                <thead>
+                  <tr><th>Task</th><th>Completed</th><th>Rating coverage</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                  {filteredTasks.length ? filteredTasks.map((task) => {
+                    const ratingLabel = task.ratingState === 'fully-rated' || task.ratingState === 'verified'
+                      ? 'Fully rated'
+                      : task.ratingState === 'partially-rated'
+                        ? 'Partially rated'
+                        : 'Unrated';
+                    const tone = task.ratingState === 'fully-rated' || task.ratingState === 'verified'
+                      ? 'status-good'
+                      : task.ratingState === 'partially-rated'
+                        ? 'status-warn'
+                        : 'status-risk';
+                    const completedLabel = task.completedAt
+                      ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'Asia/Dhaka' }).format(new Date(task.completedAt))
+                      : ('monthKey' in task ? monthLabel(task.monthKey, task.monthKey === '2026-09') : '—');
+                    return (
+                      <tr key={`${task.monthKey}-${task.id}`}>
+                        <td><a className="card-link" href={task.url} target="_blank" rel="noreferrer">{task.name}</a></td>
+                        <td>{completedLabel}</td>
+                        <td><strong>{task.ratedFields}/{task.totalFields}</strong> fields</td>
+                        <td><span className={`tracker-status ${tone}`}>{ratingLabel}</span></td>
+                      </tr>
+                    );
+                  }) : (
+                    <tr><td colSpan={4}>No completed tasks match this rating filter.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </>
       )}

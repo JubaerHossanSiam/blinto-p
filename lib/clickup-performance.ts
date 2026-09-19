@@ -40,16 +40,30 @@ export type LiveClickUpKpi = {
   ratedTasks: number;
 };
 
+export type LiveClickUpTaskEvidence = {
+  id: string;
+  name: string;
+  url: string;
+  status: string;
+  completedAt?: string;
+  ratedFields: number;
+  totalFields: number;
+  ratingState: 'fully-rated' | 'partially-rated' | 'unrated' | 'verified';
+};
+
 export type LiveClickUpEvidence = {
   connected: boolean;
   periodLabel: string;
   tasksReviewed: number;
   ratedTasks: number;
+  fullyRatedTasks: number;
+  partiallyRatedTasks: number;
+  unratedTasks: number;
   score?: number;
   evidenceComplete: boolean;
   missingKpis: string[];
   kpis: LiveClickUpKpi[];
-  recentTasks: Array<{ id: string; name: string; url: string; status: string }>;
+  recentTasks: LiveClickUpTaskEvidence[];
   message?: string;
 };
 
@@ -158,7 +172,7 @@ export async function getLiveClickUpEvidence(person: PersonProfile, monthKey?: s
   const { start, end, label } = evidenceWindow(monthKey);
 
   if (!person.clickupUserId) {
-    return { connected: false, periodLabel: label, tasksReviewed: 0, ratedTasks: 0, evidenceComplete: false, missingKpis: [], kpis: [], recentTasks: [], message: 'No ClickUp user mapping for this employee.' };
+    return { connected: false, periodLabel: label, tasksReviewed: 0, ratedTasks: 0, fullyRatedTasks: 0, partiallyRatedTasks: 0, unratedTasks: 0, evidenceComplete: false, missingKpis: [], kpis: [], recentTasks: [], message: 'No ClickUp user mapping for this employee.' };
   }
 
   const definitions = [
@@ -189,8 +203,13 @@ export async function getLiveClickUpEvidence(person: PersonProfile, monthKey?: s
         const score = evidenceComplete ? Math.round(liveAverages.reduce((sum, value) => sum + value, 0) * 10) / 10 : undefined;
         const ratedTasks = new Set(verified.tasks.map((task) => task.task_id)).size;
         return {
-          connected: true, periodLabel: label, tasksReviewed: ratedTasks, ratedTasks, score, evidenceComplete, missingKpis, kpis,
-          recentTasks: verified.tasks.map((task) => ({ id: task.task_id, name: task.task_name, url: task.task_url, status: 'Verified' })),
+          connected: true, periodLabel: label, tasksReviewed: ratedTasks, ratedTasks,
+          fullyRatedTasks: ratedTasks, partiallyRatedTasks: 0, unratedTasks: 0,
+          score, evidenceComplete, missingKpis, kpis,
+          recentTasks: verified.tasks.map((task) => ({
+            id: task.task_id, name: task.task_name, url: task.task_url, status: 'Verified',
+            ratedFields: 8, totalFields: 8, ratingState: 'verified' as const,
+          })),
           message: !ratedTasks ? 'No verified task-rating evidence has been recorded for this official month yet.' : !evidenceComplete ? `Insufficient evidence: ${missingKpis.length} of 8 KPI areas still have no verified observation.` : undefined,
         };
       }
@@ -200,6 +219,9 @@ export async function getLiveClickUpEvidence(person: PersonProfile, monthKey?: s
         periodLabel: label,
         tasksReviewed: 0,
         ratedTasks: 0,
+        fullyRatedTasks: 0,
+        partiallyRatedTasks: 0,
+        unratedTasks: 0,
         evidenceComplete: false,
         missingKpis: definitions.map(([kpiLabel]) => kpiLabel),
         kpis: definitions.map(([kpiLabel]) => ({ label: kpiLabel, ratedTasks: 0 })),
@@ -208,14 +230,14 @@ export async function getLiveClickUpEvidence(person: PersonProfile, monthKey?: s
       };
     } catch (error) {
       return {
-        connected: false, periodLabel: label, tasksReviewed: 0, ratedTasks: 0, evidenceComplete: false, missingKpis: [], kpis: [], recentTasks: [],
+        connected: false, periodLabel: label, tasksReviewed: 0, ratedTasks: 0, fullyRatedTasks: 0, partiallyRatedTasks: 0, unratedTasks: 0, evidenceComplete: false, missingKpis: [], kpis: [], recentTasks: [],
         message: error instanceof Error ? error.message : 'Unable to load verified rating evidence.',
       };
     }
   }
 
   if (!process.env.CLICKUP_API_TOKEN) {
-    return { connected: false, periodLabel: label, tasksReviewed: 0, ratedTasks: 0, evidenceComplete: false, missingKpis: [], kpis: [], recentTasks: [], message: 'ClickUp integration is configured in code and waiting for the server API token.' };
+    return { connected: false, periodLabel: label, tasksReviewed: 0, ratedTasks: 0, fullyRatedTasks: 0, partiallyRatedTasks: 0, unratedTasks: 0, evidenceComplete: false, missingKpis: [], kpis: [], recentTasks: [], message: 'ClickUp integration is configured in code and waiting for the server API token.' };
   }
 
   try {
@@ -232,26 +254,41 @@ export async function getLiveClickUpEvidence(person: PersonProfile, monthKey?: s
       ? Math.round(liveAverages.reduce((sum, value) => sum + value, 0) * 10) / 10
       : undefined;
 
-    const ratedTaskIds = new Set<string>();
-    for (const task of tasks) {
-      if (definitions.some(([, fieldId]) => scoreField(task, fieldId) !== undefined)) ratedTaskIds.add(task.id);
-    }
+    const taskEvidence = tasks.map((task) => {
+      const ratedFields = definitions.filter(([, fieldId]) => scoreField(task, fieldId) !== undefined).length;
+      const ratingState = ratedFields === definitions.length
+        ? 'fully-rated' as const
+        : ratedFields > 0
+          ? 'partially-rated' as const
+          : 'unrated' as const;
+      return {
+        id: task.id,
+        name: task.name,
+        url: task.url,
+        status: task.status?.status ?? 'Unknown',
+        completedAt: task.date_closed ? new Date(Number(task.date_closed)).toISOString() : undefined,
+        ratedFields,
+        totalFields: definitions.length,
+        ratingState,
+      };
+    });
+    const fullyRatedTasks = taskEvidence.filter((task) => task.ratingState === 'fully-rated').length;
+    const partiallyRatedTasks = taskEvidence.filter((task) => task.ratingState === 'partially-rated').length;
+    const unratedTasks = taskEvidence.filter((task) => task.ratingState === 'unrated').length;
 
     return {
       connected: true,
       periodLabel: label,
       tasksReviewed: tasks.length,
-      ratedTasks: ratedTaskIds.size,
+      ratedTasks: fullyRatedTasks,
+      fullyRatedTasks,
+      partiallyRatedTasks,
+      unratedTasks,
       score,
       evidenceComplete: liveAverages.length === definitions.length,
       missingKpis: kpis.filter((kpi) => kpi.average === undefined).map((kpi) => kpi.label),
       kpis,
-      recentTasks: tasks.slice(0, 8).map((task) => ({
-        id: task.id,
-        name: task.name,
-        url: task.url,
-        status: task.status?.status ?? 'Unknown',
-      })),
+      recentTasks: taskEvidence,
     };
   } catch (error) {
     return {
@@ -259,6 +296,9 @@ export async function getLiveClickUpEvidence(person: PersonProfile, monthKey?: s
       periodLabel: label,
       tasksReviewed: 0,
       ratedTasks: 0,
+      fullyRatedTasks: 0,
+      partiallyRatedTasks: 0,
+      unratedTasks: 0,
       evidenceComplete: false,
       missingKpis: [],
       kpis: [],
