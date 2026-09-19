@@ -30,7 +30,7 @@ export function SeptemberTrialReview({ employeeName, employeeSlug, clickUpEviden
   return (
     <div className="shell review-lab">
       <header className="review-lab-header">
-        <p className="eyebrow">September 18–30 live trial · test data</p>
+        <p className="eyebrow">September 18–30 live trial · real data</p>
         <h1 className="page-title">{employeeName} · September 2026</h1>
         <p className="page-subtitle">This review uses live completed + rated ClickUp evidence from September 18–30 to test the performance workflow before official scoring begins on October 1. September remains excluded from career, promotion, and salary-review calculations.</p>
         <div className="hero-actions">
@@ -45,7 +45,7 @@ export function SeptemberTrialReview({ employeeName, employeeSlug, clickUpEviden
           <section className="panel">
             <span className="tracker-status status-warn">TRIAL · NOT COUNTED</span>
             <h2 style={{ marginTop: 14 }}>September validation review</h2>
-            <p>Live ClickUp trial evidence is used for task-based KPIs. September remains test-only and does not count toward career or compensation decisions.</p>
+            <p>Live ClickUp trial evidence is used for task-based KPIs. September uses the real workflow and real evidence, but does not count toward career or compensation decisions.</p>
             <div className="info-box">
               <strong>Assessment eligibility: No</strong>
               <p>Official counted evidence starts October 1, 2026 and closes December 10, 2026.</p>
@@ -57,7 +57,7 @@ export function SeptemberTrialReview({ employeeName, employeeSlug, clickUpEviden
             <p>Task-based KPI values below come from completed tasks with ClickUp ratings in the September 18–30 trial window. Growth & Development and Role Excellence remain pending until manager review data is connected.</p>
             <div className="kpi-table-wrap">
               <table className="kpi-score-table">
-                <thead><tr><th>#</th><th>KPI</th><th>Test score</th><th>State</th></tr></thead>
+                <thead><tr><th>#</th><th>KPI</th><th>Trial score</th><th>State</th></tr></thead>
                 <tbody>
                   {kpis.map((kpi, index) => {
                     const score = liveKpis.get(kpi);
