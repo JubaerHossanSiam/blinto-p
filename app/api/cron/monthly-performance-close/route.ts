@@ -23,7 +23,7 @@ export async function GET(request:Request){
   for(const person of people){
     const [evidence,manager]=await Promise.all([getLiveClickUpEvidence(person,monthKey),getManagerMonthlyReview(person.slug,monthKey)]);
     const managerScore=manager.growthScore!==null&&manager.roleExcellenceScore!==null ? manager.growthScore+manager.roleExcellenceScore : null;
-    const complete=evidence.score!==undefined&&managerScore!==null&&manager.status==='submitted';
+    const complete=evidence.evidenceComplete&&evidence.score!==undefined&&managerScore!==null&&manager.status==='submitted';
     const finalScore=complete ? Math.round((evidence.score!+managerScore!)*10)/10 : null;
     await db.query(`insert into monthly_performance_results(employee_slug,month_key,clickup_score,manager_score,final_score,status,generated_at)
       values($1,$2,$3,$4,$5,$6,now())

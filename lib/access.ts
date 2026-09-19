@@ -117,7 +117,7 @@ export async function requirePortalUser() {
   return current;
 }
 
-async function isDirectManager(managerSlug: string, employeeSlug: string) {
+export async function isDirectManager(managerSlug: string, employeeSlug: string) {
   const result = await db.query(
     `select 1
        from employees

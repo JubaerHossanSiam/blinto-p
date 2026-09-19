@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 
 import { ManagerReviewForm } from '@/components/manager-review-form';
 import { SeptemberTrialReview } from '@/components/september-trial-review';
-import { requireEmployeeProfileAccess } from '@/lib/access';
+import { isDirectManager, requireEmployeeProfileAccess } from '@/lib/access';
 import { getLiveClickUpEvidence } from '@/lib/clickup-performance';
 import { getManagerMonthlyReview } from '@/lib/manager-monthly-review';
 import { getPerson, people } from '@/lib/people';
@@ -42,7 +42,7 @@ export default async function EmployeeMonthlyReviewPage({ params }: PageProps) {
   const access = await requireEmployeeProfileAccess(slug);
   const managerReview = await getManagerMonthlyReview(slug, month);
   const canEditManagerReview = (access.actualPortalUser.role === 'admin' && !access.viewingAs)
-    || (access.portalUser.role === 'manager' && access.portalUser.employeeSlug !== slug);
+    || (access.portalUser.role === 'manager' && Boolean(access.portalUser.employeeSlug) && await isDirectManager(access.portalUser.employeeSlug!, slug));
 
   if (month === '2026-09') {
     const clickUpEvidence = await getLiveClickUpEvidence(person, month);
@@ -61,7 +61,7 @@ export default async function EmployeeMonthlyReviewPage({ params }: PageProps) {
 
       <section className="panel">
         <h2>Verified task KPI evidence</h2>
-        <div className="info-box"><strong>{clickUpEvidence.score === undefined ? 'Pending' : `${clickUpEvidence.score.toFixed(1)} / 80`}</strong><p>{clickUpEvidence.ratedTasks} verified completed task{clickUpEvidence.ratedTasks === 1 ? '' : 's'} recorded for {monthLabel}.</p></div>
+        <div className="info-box"><strong>{clickUpEvidence.score === undefined ? 'Insufficient Evidence' : `${clickUpEvidence.score.toFixed(1)} / 80`}</strong><p>{clickUpEvidence.ratedTasks} verified completed task{clickUpEvidence.ratedTasks === 1 ? '' : 's'} recorded for {monthLabel}.</p></div>
         <div className="kpi-table-wrap">
           <table className="kpi-score-table">
             <thead><tr><th>KPI</th><th>Verified average</th><th>Rated tasks</th></tr></thead>

@@ -46,6 +46,8 @@ export type LiveClickUpEvidence = {
   tasksReviewed: number;
   ratedTasks: number;
   score?: number;
+  evidenceComplete: boolean;
+  missingKpis: string[];
   kpis: LiveClickUpKpi[];
   recentTasks: Array<{ id: string; name: string; url: string; status: string }>;
   message?: string;
@@ -156,7 +158,7 @@ export async function getLiveClickUpEvidence(person: PersonProfile, monthKey?: s
   const { start, end, label } = evidenceWindow(monthKey);
 
   if (!person.clickupUserId) {
-    return { connected: false, periodLabel: label, tasksReviewed: 0, ratedTasks: 0, kpis: [], recentTasks: [], message: 'No ClickUp user mapping for this employee.' };
+    return { connected: false, periodLabel: label, tasksReviewed: 0, ratedTasks: 0, evidenceComplete: false, missingKpis: [], kpis: [], recentTasks: [], message: 'No ClickUp user mapping for this employee.' };
   }
 
   const definitions = [
@@ -182,24 +184,26 @@ export async function getLiveClickUpEvidence(person: PersonProfile, monthKey?: s
           ratedTasks: verified.byField.get(fieldId)?.ratedTasks ?? 0,
         }));
         const liveAverages = kpis.map((kpi) => kpi.average).filter((value): value is number => value !== undefined);
-        const score = liveAverages.length ? Math.round(liveAverages.reduce((sum, value) => sum + value, 0) * 10) / 10 : undefined;
+        const missingKpis = kpis.filter((kpi) => kpi.average === undefined).map((kpi) => kpi.label);
+        const evidenceComplete = missingKpis.length === 0;
+        const score = evidenceComplete ? Math.round(liveAverages.reduce((sum, value) => sum + value, 0) * 10) / 10 : undefined;
         const ratedTasks = new Set(verified.tasks.map((task) => task.task_id)).size;
         return {
-          connected: true, periodLabel: label, tasksReviewed: ratedTasks, ratedTasks, score, kpis,
+          connected: true, periodLabel: label, tasksReviewed: ratedTasks, ratedTasks, score, evidenceComplete, missingKpis, kpis,
           recentTasks: verified.tasks.map((task) => ({ id: task.task_id, name: task.task_name, url: task.task_url, status: 'Verified' })),
-          message: ratedTasks ? undefined : 'No verified task-rating evidence has been recorded for this official month yet.',
+          message: !ratedTasks ? 'No verified task-rating evidence has been recorded for this official month yet.' : !evidenceComplete ? `Insufficient evidence: ${missingKpis.length} of 8 KPI areas still have no verified observation.` : undefined,
         };
       }
     } catch (error) {
       return {
-        connected: false, periodLabel: label, tasksReviewed: 0, ratedTasks: 0, kpis: [], recentTasks: [],
+        connected: false, periodLabel: label, tasksReviewed: 0, ratedTasks: 0, evidenceComplete: false, missingKpis: [], kpis: [], recentTasks: [],
         message: error instanceof Error ? error.message : 'Unable to load verified rating evidence.',
       };
     }
   }
 
   if (!process.env.CLICKUP_API_TOKEN) {
-    return { connected: false, periodLabel: label, tasksReviewed: 0, ratedTasks: 0, kpis: [], recentTasks: [], message: 'ClickUp integration is configured in code and waiting for the server API token.' };
+    return { connected: false, periodLabel: label, tasksReviewed: 0, ratedTasks: 0, evidenceComplete: false, missingKpis: [], kpis: [], recentTasks: [], message: 'ClickUp integration is configured in code and waiting for the server API token.' };
   }
 
   try {
@@ -227,6 +231,8 @@ export async function getLiveClickUpEvidence(person: PersonProfile, monthKey?: s
       tasksReviewed: tasks.length,
       ratedTasks: ratedTaskIds.size,
       score,
+      evidenceComplete: liveAverages.length === definitions.length,
+      missingKpis: kpis.filter((kpi) => kpi.average === undefined).map((kpi) => kpi.label),
       kpis,
       recentTasks: tasks.slice(0, 8).map((task) => ({
         id: task.id,
@@ -241,6 +247,8 @@ export async function getLiveClickUpEvidence(person: PersonProfile, monthKey?: s
       periodLabel: label,
       tasksReviewed: 0,
       ratedTasks: 0,
+      evidenceComplete: false,
+      missingKpis: [],
       kpis: [],
       recentTasks: [],
       message: error instanceof Error ? error.message : 'Unable to load ClickUp evidence.',
