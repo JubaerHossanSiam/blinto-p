@@ -142,11 +142,11 @@ export async function POST(request: Request) {
            verified_actor_clickup_id, verified_actor_name, verification_status, validation_reason,
            completed_at, changed_at, updated_at)
          values ($1,$2,$3,$4,$5,$6,$7,$8,$9,
-           case when $10='verified' then $6 else null end,
-           case when $10='verified' then $7 else null end,
-           case when $10='verified' then $8 else null end,
-           case when $10='verified' then $9 else null end,
-           $10,$11,$12,$13,now())
+           case when $10::text='verified' then $6::numeric else null::numeric end,
+           case when $10::text='verified' then $7::text else null::text end,
+           case when $10::text='verified' then $8::text else null::text end,
+           case when $10::text='verified' then $9::text else null::text end,
+           $10::text,$11::text,$12::timestamptz,$13::timestamptz,now())
          on conflict (task_id, field_id, employee_slug) do update set
            task_name=excluded.task_name, task_url=excluded.task_url,
            current_score=excluded.current_score, current_label=excluded.current_label,
