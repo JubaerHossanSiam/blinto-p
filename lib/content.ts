@@ -13,6 +13,7 @@ const allowedFiles = new Set([
   'kpi-framework.md',
   'scoring-methodology.md',
   'task-rating-guide.md',
+  'performance-rules.md',
   'monthly-kpi-review.md',
   'final-assessment.md',
   'role-success-plan-ifrat.md',
