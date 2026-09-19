@@ -1,50 +1,35 @@
 # ClickUp KPI Review Task
 
-## Custom task type
+## Status
 
-Create a custom ClickUp task type:
+**Legacy / no longer used for KPI 9–10 scoring.**
 
-**KPI Review**
+Blinto previously planned to collect the two monthly manager ratings through a custom ClickUp **KPI Review** task. That is no longer the scoring architecture.
 
-## Monthly structure
+## Current source of truth
 
-Parent:
+- **KPI 1–8:** calculated from eligible ClickUp **Task** work evidence (plus HRMS / People Ops inputs where KPI 1 requires them).
+- **KPI 9 — Growth & Development:** rated monthly by the Review Manager directly in the **Blinto performance system**.
+- **KPI 10 — Role Excellence:** rated monthly by the Review Manager directly in the **Blinto performance system** against the employee's Role Success Plan.
 
-`Monthly Performance Review — [Month]`
+The Blinto manager review is the single source of truth for KPI 9 and KPI 10. These two ratings must **not** be read from a ClickUp KPI Review task, ordinary ClickUp Task, or Feature.
 
-Subtasks:
+## Existing ClickUp KPI Review tasks
 
-`[Employee] — [Month] KPI Review`
+Existing KPI Review tasks may be retained temporarily for historical/reference purposes, but their Growth & Development or Role Excellence values must not enter the monthly score. Do not create new KPI Review tasks for the purpose of scoring KPI 9 or KPI 10.
 
-## Monthly-only KPI fields
+ClickUp may still provide supporting work evidence that a manager considers during the monthly review. Supporting evidence does not change where the official rating is recorded.
 
-The KPI Review task should contain:
+## Monthly manager review in Blinto
 
-### Growth & Development
+The Review Manager records:
 
-- Exceptional — 5
-- Strong — 4
-- Effective — 3
-- Needs Improvement — 2
-- Significant Improvement Needed — 1
+- Growth & Development — /10
+- Role Excellence — /10
+- Key achievements / what went well
+- Improvement areas
+- Next-month priorities
+- Support needed
+- Manager summary
 
-### Role Excellence
-
-- Exceptional — 5
-- Strong — 4
-- Effective — 3
-- Needs Improvement — 2
-- Significant Improvement Needed — 1
-
-## Other sections
-
-- Key Achievements
-- Challenges / Blockers
-- Manager Feedback
-- Employee Reflection
-- Action Items
-- Next Month Priorities
-
-## Automation direction
-
-The long-term goal is for the monthly review to pull task-level KPI evidence automatically from ClickUp while keeping manager feedback and employee reflection as manual inputs.
+When KPI 1–8 evidence is available, Blinto combines the ClickUp-based score **/80** with the two manager-owned ratings **/20** to produce the monthly score **/100**.
