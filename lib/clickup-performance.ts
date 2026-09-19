@@ -113,11 +113,12 @@ function evidenceWindow(monthKey?: string) {
     const [year, month] = monthKey.split('-').map(Number);
     const nextYear = month === 12 ? year + 1 : year;
     const nextMonth = month === 12 ? 1 : month + 1;
-    const start = Date.parse(`${year}-${String(month).padStart(2, '0')}-01T00:00:00+06:00`);
+    const startDay = monthKey === '2026-09' ? 18 : 1;
+    const start = Date.parse(`${year}-${String(month).padStart(2, '0')}-${String(startDay).padStart(2, '0')}T00:00:00+06:00`);
     const end = Date.parse(`${nextYear}-${String(nextMonth).padStart(2, '0')}-01T00:00:00+06:00`);
     const date = new Date(start);
     const label = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric', timeZone: 'Asia/Dhaka' }).format(date);
-    return { start, end, label: monthKey === '2026-09' ? `${label} trial` : label };
+    return { start, end, label: monthKey === '2026-09' ? `${label} trial · Sep 18–30` : label };
   }
 
   const now = new Date();
