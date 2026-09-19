@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import type { LiveClickUpEvidence } from '@/lib/clickup-performance';
+import type { HrmsMonthlyScores } from '@/lib/hrms-performance';
 import { getPerformanceRecord, type KpiName } from '@/lib/performance-records';
 
 const kpis: KpiName[] = [
@@ -20,9 +21,10 @@ type Props = {
   employeeName: string;
   employeeSlug: string;
   clickUpEvidence: LiveClickUpEvidence;
+  hrmsScores: HrmsMonthlyScores | null;
 };
 
-export function SeptemberTrialReview({ employeeName, employeeSlug, clickUpEvidence }: Props) {
+export function SeptemberTrialReview({ employeeName, employeeSlug, clickUpEvidence, hrmsScores }: Props) {
   const record = getPerformanceRecord(employeeSlug);
   const review = record.reviews.find((item) => item.month === 'September');
   const liveKpis = new Map(clickUpEvidence.kpis.map((kpi) => [kpi.label, kpi.average]));
@@ -50,6 +52,18 @@ export function SeptemberTrialReview({ employeeName, employeeSlug, clickUpEviden
               <strong>Assessment eligibility: No</strong>
               <p>Official counted evidence starts October 1, 2026 and closes December 10, 2026.</p>
             </div>
+          </section>
+
+          <section className="panel">
+            <h2>Live HRMS sync</h2>
+            <p>HRMS scoring went live on September 18. September values are shown for validation only and may contain incomplete deductions from September 1–17.</p>
+            <div className="review-input-grid">
+              <div className="info-box"><strong>Attendance: {hrmsScores?.attendance ? `${hrmsScores.attendance.score}/100 · ${hrmsScores.attendance.scoreOutOf10.toFixed(1)}/10` : 'Pending'}</strong><p>Source: HRMS attendance score</p></div>
+              <div className="info-box"><strong>Leave &amp; Policy: {hrmsScores?.leave ? `${hrmsScores.leave.score}/100 · ${hrmsScores.leave.scoreOutOf10.toFixed(1)}/10` : 'Pending'}</strong><p>Source: HRMS leave score</p></div>
+            </div>
+            <div className="info-box"><strong>Sync status: {hrmsScores?.syncStatus ?? 'pending'}</strong><p>{hrmsScores?.syncedAt ? `Fetched ${new Date(hrmsScores.syncedAt).toLocaleString()}` : 'Waiting for HRMS data.'}{hrmsScores?.error ? ` · ${hrmsScores.error}` : ''}</p></div>
+            {hrmsScores?.attendance ? <p className="career-note">Attendance details: {Object.entries(hrmsScores.attendance.details).map(([key,value]) => `${key}: ${value}`).join(' · ') || 'No deduction details returned.'}</p> : null}
+            {hrmsScores?.leave ? <p className="career-note">Leave details: {Object.entries(hrmsScores.leave.details).map(([key,value]) => `${key}: ${value}`).join(' · ') || 'No deduction details returned.'}</p> : null}
           </section>
 
           <section className="panel">
