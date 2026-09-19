@@ -6,9 +6,13 @@ The following fields collect task-level performance evidence in ClickUp.
 
 Performance evidence follows **Task Type**, not ClickUp hierarchy.
 
-A parent task or a subtask may count when it uses the performance-enabled Task Type on which the KPI custom fields are configured. Supporting work types such as **Feature** do not independently enter KPI calculations.
+Use the standard **Task** type for a meaningful individual deliverable that should create performance evidence. When that deliverable is broken into smaller internal assignments—implementation steps, fixes, checks, coordination, or supporting execution—use the **Feature** type. Feature items remain operationally trackable but do not independently enter rating coverage or KPI calculations.
 
-This allows a project to contain multiple accountable deliverables without forcing reviewers to rate every small feature or execution item.
+**System convention:** **Task = performance evidence. Feature = supporting/internal work breakdown.**
+
+A parent task or a subtask may count when it uses the performance-enabled Task Type on which the KPI custom fields are configured. Eligibility is therefore not determined by whether an item is a parent or subtask.
+
+This allows a project to contain multiple accountable deliverables without forcing reviewers to rate every small feature or execution item, and prevents one deliverable from being overweighted simply because it was decomposed into several ClickUp items.
 
 A task-level rating is countable only when:
 
