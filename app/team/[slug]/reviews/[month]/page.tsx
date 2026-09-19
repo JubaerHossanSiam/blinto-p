@@ -6,6 +6,7 @@ import { SeptemberTrialReview } from '@/components/september-trial-review';
 import { isDirectManager, requireEmployeeProfileAccess } from '@/lib/access';
 import { getLiveClickUpEvidence } from '@/lib/clickup-performance';
 import { getManagerMonthlyReview } from '@/lib/manager-monthly-review';
+import { getMonthlyHrmsScores } from '@/lib/hrms-performance';
 import { getPerson, people } from '@/lib/people';
 
 export const dynamic = 'force-dynamic';
@@ -40,13 +41,16 @@ export default async function EmployeeMonthlyReviewPage({ params }: PageProps) {
   if (!person || !monthLabel) notFound();
 
   const access = await requireEmployeeProfileAccess(slug);
-  const managerReview = await getManagerMonthlyReview(slug, month);
+  const [managerReview, hrmsScores] = await Promise.all([
+    getManagerMonthlyReview(slug, month),
+    person.hrmsEmployeeId ? getMonthlyHrmsScores(person.hrmsEmployeeId, month) : Promise.resolve(null),
+  ]);
   const canEditManagerReview = (access.actualPortalUser.role === 'admin' && !access.viewingAs)
     || (access.portalUser.role === 'manager' && Boolean(access.portalUser.employeeSlug) && await isDirectManager(access.portalUser.employeeSlug!, slug));
 
   if (month === '2026-09') {
     const clickUpEvidence = await getLiveClickUpEvidence(person, month);
-    return <><SeptemberTrialReview employeeName={person.name} employeeSlug={person.slug} clickUpEvidence={clickUpEvidence} /><div className="shell"><ManagerReviewForm employeeSlug={person.slug} monthKey={month} initial={managerReview} canEdit={canEditManagerReview} clickUpScore={clickUpEvidence.score} /></div></>;
+    return <><SeptemberTrialReview employeeName={person.name} employeeSlug={person.slug} clickUpEvidence={clickUpEvidence} hrmsScores={hrmsScores} /><div className="shell"><ManagerReviewForm employeeSlug={person.slug} monthKey={month} initial={managerReview} canEdit={canEditManagerReview} clickUpScore={clickUpEvidence.score} /></div></>;
   }
 
   const clickUpEvidence = await getLiveClickUpEvidence(person, month);
