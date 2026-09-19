@@ -6,6 +6,7 @@ import { RatingIntegrityPanel } from '@/components/rating-integrity-panel';
 import { requirePortalUser, type PortalRole } from '@/lib/access';
 import { db } from '@/lib/db';
 import { getRatingIntegrityIssues, getRatingIntegritySummary } from '@/lib/rating-integrity';
+import { getManagerMonthlyReview } from '@/lib/manager-monthly-review';
 
 type VisibleEmployee = {
   slug: string;
@@ -21,6 +22,14 @@ const roleLabels: Record<PortalRole, string> = {
 };
 
 export const dynamic = 'force-dynamic';
+
+function currentMonthKey() {
+  return new Intl.DateTimeFormat('en-CA', { year:'numeric', month:'2-digit', timeZone:'Asia/Dhaka' }).format(new Date()).slice(0,7);
+}
+
+function currentDhakaDay() {
+  return Number(new Intl.DateTimeFormat('en-US', { day:'numeric', timeZone:'Asia/Dhaka' }).format(new Date()));
+}
 
 async function getVisibleEmployees(role: PortalRole, employeeSlug: string | null) {
   if (role === 'admin' || role === 'people_ops') {
@@ -88,6 +97,14 @@ export default async function PortalPage() {
   const integrityScope = isCeoAccount ? undefined : visibleEmployees.map((employee) => employee.slug);
   const ratingIntegrity = canSeeRatingIntegrity ? await getRatingIntegritySummary('2026-10', integrityScope) : null;
   const ratingIssues = canSeeRatingIntegrity ? await getRatingIntegrityIssues('2026-10', integrityScope) : [];
+  const reviewMonth = currentMonthKey();
+  const reviewRows = await Promise.all(visibleEmployees.map(async employee => ({
+    ...employee,
+    review: await getManagerMonthlyReview(employee.slug, reviewMonth),
+  })));
+  const reviewSubmitted = reviewRows.filter(row => ['submitted','finalized','locked'].includes(row.review.status)).length;
+  const reviewPending = reviewRows.filter(row => !['submitted','finalized','locked'].includes(row.review.status));
+  const showMonthEndAttention = currentDhakaDay() >= 28 && reviewPending.length > 0;
 
   return (
     <main className="shell portal-shell">
@@ -150,6 +167,28 @@ export default async function PortalPage() {
 
       {isCeoAccount ? <ClickUpSyncButton /> : null}
       {canSeeRatingIntegrity && ratingIntegrity ? <RatingIntegrityPanel summary={ratingIntegrity} issues={ratingIssues} canValidate={isCeoAccount} /> : null}
+
+      {reviewRows.length ? (
+        <section className="profile-section portal-team-section">
+          <div className="profile-section-head">
+            <div>
+              <p className="eyebrow">Monthly reviews · {reviewMonth}</p>
+              <h2>{isCeoAccount ? 'Company Review Status' : 'My Team Reviews'}</h2>
+              <p>{reviewSubmitted} of {reviewRows.length} submitted · {reviewPending.length} pending{showMonthEndAttention ? ' · Action required before month-end' : ''}</p>
+            </div>
+          </div>
+          {showMonthEndAttention ? <div className="info-box"><strong>Month-end review reminder</strong><p>Complete all pending manager reviews by the final calendar day so the system can generate official results on the 1st.</p></div> : null}
+          <div className="evidence-grid portal-employee-grid">
+            {reviewRows.map(row => {
+              const done=['submitted','finalized','locked'].includes(row.review.status);
+              return <article className="evidence-card" key={row.slug}>
+                <div className="evidence-card-top"><strong>{row.full_name}</strong><span className={`tracker-status ${done?'status-good':'status-warn'}`}>{done ? row.review.status : 'Pending'}</span></div>
+                <Link className="card-link" href={`/team/${row.slug}/reviews/${reviewMonth}`}>{done ? 'Open review' : 'Review now'} →</Link>
+              </article>;
+            })}
+          </div>
+        </section>
+      ) : null}
 
       {visibleEmployees.length ? (
         <section className="profile-section portal-team-section">
