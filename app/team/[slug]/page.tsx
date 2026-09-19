@@ -6,6 +6,7 @@ import { EmployeePerformanceProfile } from '@/components/employee-performance-pr
 import { requireEmployeeProfileAccess } from '@/lib/access';
 import { getLiveClickUpEvidence } from '@/lib/clickup-performance';
 import { readFrameworkFile } from '@/lib/content';
+import { getMonthlyHrmsScores } from '@/lib/hrms-performance';
 import { getPerson, people } from '@/lib/people';
 import { parseRoleProfile } from '@/lib/performance-profile';
 
@@ -58,10 +59,11 @@ export default async function TeamMemberPage({ params }: PageProps) {
   );
   const clickUpEvidence = monthlyClickUpEvidence.find((item) => item.monthKey === activeMonthKey)?.evidence
     ?? await getLiveClickUpEvidence(person, activeMonthKey);
+  const hrmsScores = person.hrmsEmployeeId ? await getMonthlyHrmsScores(person.hrmsEmployeeId, activeMonthKey) : null;
 
   return (
     <>
-      <EmployeePerformanceProfile person={person} roleProfile={roleProfile} clickUpEvidence={clickUpEvidence} />
+      <EmployeePerformanceProfile person={person} roleProfile={roleProfile} clickUpEvidence={clickUpEvidence} hrmsScores={hrmsScores} />
       <ClickUpPerformanceEvidence evidence={clickUpEvidence} monthlyEvidence={monthlyClickUpEvidence} defaultMonthKey={activeMonthKey} />
 
       <section className="shell profile-sections" aria-label="Career level success benchmark">
