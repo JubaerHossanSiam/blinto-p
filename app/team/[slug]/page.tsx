@@ -7,7 +7,6 @@ import { requireEmployeeProfileAccess } from '@/lib/access';
 import { getLiveClickUpEvidence } from '@/lib/clickup-performance';
 import { readFrameworkFile } from '@/lib/content';
 import { getPerson, people } from '@/lib/people';
-import { getOfficialMonthlyResults } from '@/lib/monthly-performance-results';
 import { parseRoleProfile } from '@/lib/performance-profile';
 
 export const dynamic = 'force-dynamic';
@@ -54,16 +53,15 @@ export default async function TeamMemberPage({ params }: PageProps) {
   const roleProfile = parseRoleProfile(roleContent);
   const activeMonthKey = currentDhakaMonthKey();
   const monthKeys = evidenceMonthKeys(activeMonthKey);
-  const [monthlyClickUpEvidence, officialResults] = await Promise.all([
-    Promise.all(monthKeys.map(async (monthKey) => ({ monthKey, evidence: await getLiveClickUpEvidence(person, monthKey) }))),
-    getOfficialMonthlyResults(person.slug),
-  ]);
+  const monthlyClickUpEvidence = await Promise.all(
+    monthKeys.map(async (monthKey) => ({ monthKey, evidence: await getLiveClickUpEvidence(person, monthKey) })),
+  );
   const clickUpEvidence = monthlyClickUpEvidence.find((item) => item.monthKey === activeMonthKey)?.evidence
     ?? await getLiveClickUpEvidence(person, activeMonthKey);
 
   return (
     <>
-      <EmployeePerformanceProfile person={person} roleProfile={roleProfile} clickUpEvidence={clickUpEvidence} officialResults={officialResults} />
+      <EmployeePerformanceProfile person={person} roleProfile={roleProfile} clickUpEvidence={clickUpEvidence} />
       <ClickUpPerformanceEvidence evidence={clickUpEvidence} monthlyEvidence={monthlyClickUpEvidence} defaultMonthKey={activeMonthKey} />
 
       <section className="shell profile-sections" aria-label="Career level success benchmark">

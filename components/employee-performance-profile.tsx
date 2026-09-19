@@ -4,13 +4,11 @@ import type { LiveClickUpEvidence } from '@/lib/clickup-performance';
 import type { PersonProfile } from '@/lib/people';
 import { careerLevels, getCareerLevel, type RoleProfileData } from '@/lib/performance-profile';
 import { getPerformanceRecord, type KpiName, type ReviewMonth } from '@/lib/performance-records';
-import type { OfficialMonthlyResult } from '@/lib/monthly-performance-results';
 
 type Props = {
   person: PersonProfile;
   roleProfile: RoleProfileData;
   clickUpEvidence: LiveClickUpEvidence;
-  officialResults: OfficialMonthlyResult[];
 };
 
 const kpiDefinitions: { name: KpiName; source: string; note?: string }[] = [
@@ -55,7 +53,7 @@ function performanceBand(score?: number) {
   return 'Significant Improvement Needed';
 }
 
-export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidence, officialResults }: Props) {
+export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidence }: Props) {
   const record = getPerformanceRecord(person.slug);
   const latestCompleteReview = [...record.reviews].reverse().find((review) => review.status === 'Complete');
   const focusReview = record.reviews.find((review) => review.status === 'In review')
@@ -132,7 +130,6 @@ export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidenc
           <a href="#role-success">Role Success</a>
           <a href="#manager-review">Feedback</a>
           <a href="#career">Career</a>
-          <a href="#history">History</a>
         </nav>
       </div>
 
@@ -241,9 +238,9 @@ export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidenc
         <section className="profile-section" id="monthly-kpi">
           <div className="profile-section-head">
             <div>
-              <p className="eyebrow">Monthly KPI</p>
-              <h2>{focusReview?.isTest ? 'September trial · task evidence /80' : '100-point performance score'}</h2>
-              <p>{focusReview?.isTest ? 'September is the live workflow test. ClickUp task evidence is collected now, while HRMS and manager-review inputs remain separate until the monthly /100 review is complete.' : 'Each month has its own review instance. Click a month card to open the detailed review, evidence coverage, calculations, feedback, reflection, and finalization workflow.'}</p>
+              <p className="eyebrow">Monthly Performance</p>
+              <h2>Track performance month by month</h2>
+              <p>Each month has its own review instance. Open a month to review its evidence, KPI coverage, manager assessment, reflection, and finalization status. September is a trial month; official monthly scoring starts in October.</p>
             </div>
             <span className="section-number">04</span>
           </div>
@@ -403,53 +400,6 @@ export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidenc
           </div>
         </section>
 
-        <section className="profile-section" id="history">
-          <div className="profile-section-head">
-            <div><p className="eyebrow">Performance History</p><h2>Monthly record over time</h2><p>This becomes the employee's long-term performance history. The first formal cycle begins in October 2026.</p></div>
-            <span className="section-number">07</span>
-          </div>
-
-          <div className="history-table-wrap">
-            <table className="history-table">
-              <thead><tr><th>Month</th><th>Status</th><th>Final score</th><th>Career use</th></tr></thead>
-              <tbody>
-                {record.reviews.map((review) => {
-                  const monthKey = monthKeys[review.month];
-                  const official = officialResults.find((result) => result.monthKey === monthKey);
-                  const status = review.isTest
-                    ? 'Trial'
-                    : official?.status === 'complete'
-                      ? 'Complete'
-                      : official?.status === 'incomplete'
-                        ? 'Incomplete'
-                        : review.status;
-                  const score = review.isTest
-                    ? (clickUpEvidence.score === undefined ? '— /80 trial' : `${clickUpEvidence.score}/80 trial`)
-                    : official?.finalScore !== null && official?.finalScore !== undefined
-                      ? `${official.finalScore}/100`
-                      : review.score === undefined
-                        ? '—'
-                        : `${review.score}/100`;
-                  const careerUse = review.month === 'September'
-                    ? 'Excluded'
-                    : review.month === 'December'
-                      ? 'Evidence through Dec 10'
-                      : 'Included after finalization';
-                  return (
-                    <tr key={review.month}>
-                      <td><Link href={`/team/${person.slug}/reviews/${monthKey}`}><strong>{review.month} 2026</strong></Link></td>
-                      <td><span className={`tracker-status ${statusClass(status)}`}>{status}</span></td>
-                      <td>{score}</td>
-                      <td>{careerUse}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="card-data-note"><strong>Source-of-truth model</strong><span>ClickUp supplies work and monthly review evidence. HRMS / People Ops supplies attendance and leave-policy evidence. This Performance Card is the permanent summary; each month opens its own reusable detailed review instance.</span></div>
-        </section>
       </section>
     </>
   );
