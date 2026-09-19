@@ -12,6 +12,9 @@ export function ManagerReviewForm({ employeeSlug, monthKey, initial, canEdit, cl
   const set=(key:keyof ManagerMonthlyReview,value:unknown)=>setReview(r=>({...r,[key]:value}));
 
   async function save(status:'draft'|'submitted') {
+    if (status === 'submitted' && (review.growthScore === null || review.roleExcellenceScore === null)) {
+      return setNotice('Add both manager KPI scores before submitting.');
+    }
     setNotice('Saving…');
     const response=await fetch(`/api/reviews/${employeeSlug}/${monthKey}/manager`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({...review,status})});
     const data=await response.json() as {ok?:boolean;message?:string};

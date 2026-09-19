@@ -1,12 +1,10 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import { MonthlyReview } from '@/components/monthly-review';
 import { ManagerReviewForm } from '@/components/manager-review-form';
 import { SeptemberTrialReview } from '@/components/september-trial-review';
 import { requireEmployeeProfileAccess } from '@/lib/access';
 import { getLiveClickUpEvidence } from '@/lib/clickup-performance';
-import { getMonthlyHrmsScore } from '@/lib/hrms-performance';
 import { getManagerMonthlyReview } from '@/lib/manager-monthly-review';
 import { getPerson, people } from '@/lib/people';
 
@@ -51,26 +49,29 @@ export default async function EmployeeMonthlyReviewPage({ params }: PageProps) {
     return <><SeptemberTrialReview employeeName={person.name} employeeSlug={person.slug} clickUpEvidence={clickUpEvidence} /><div className="shell"><ManagerReviewForm employeeSlug={person.slug} monthKey={month} initial={managerReview} canEdit={canEditManagerReview} clickUpScore={clickUpEvidence.score} /></div></>;
   }
 
-  const [hrms, clickUpEvidence] = await Promise.all([
-    getMonthlyHrmsScore(person.slug, month),
-    getLiveClickUpEvidence(person, month),
-  ]);
+  const clickUpEvidence = await getLiveClickUpEvidence(person, month);
 
   return (
-    <>
-    <MonthlyReview
-      employeeName={person.name}
-      employeeSlug={person.slug}
-      monthKey={month}
-      monthLabel={monthLabel}
-      attendanceScore={hrms.attendanceScore}
-      leavePolicyScore={hrms.leavePolicyScore}
-      hrmsStatus={hrms.syncStatus}
-      hrmsSyncedAt={hrms.syncedAt}
-    />
-    <div className="shell">
+    <div className="shell review-lab">
+      <header className="review-lab-header">
+        <p className="eyebrow">Official monthly performance review</p>
+        <h1 className="page-title">{person.name} · {monthLabel} 2026</h1>
+        <p className="page-subtitle">Official score = authority-verified ClickUp task evidence /80 + manager monthly assessment /20. Only verified completed-task evidence counts.</p>
+      </header>
+
+      <section className="panel">
+        <h2>Verified task KPI evidence</h2>
+        <div className="info-box"><strong>{clickUpEvidence.score === undefined ? 'Pending' : `${clickUpEvidence.score.toFixed(1)} / 80`}</strong><p>{clickUpEvidence.ratedTasks} verified completed task{clickUpEvidence.ratedTasks === 1 ? '' : 's'} recorded for {monthLabel}.</p></div>
+        <div className="kpi-table-wrap">
+          <table className="kpi-score-table">
+            <thead><tr><th>KPI</th><th>Verified average</th><th>Rated tasks</th></tr></thead>
+            <tbody>{clickUpEvidence.kpis.map((kpi) => <tr key={kpi.label}><td><strong>{kpi.label}</strong></td><td>{kpi.average === undefined ? '—' : `${kpi.average.toFixed(1)} / 10`}</td><td>{kpi.ratedTasks}</td></tr>)}</tbody>
+          </table>
+        </div>
+        {clickUpEvidence.message ? <p className="career-note">{clickUpEvidence.message}</p> : null}
+      </section>
+
       <ManagerReviewForm employeeSlug={person.slug} monthKey={month} initial={managerReview} canEdit={canEditManagerReview} clickUpScore={clickUpEvidence.score} />
     </div>
-    </>
   );
 }

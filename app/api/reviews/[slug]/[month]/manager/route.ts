@@ -24,6 +24,9 @@ export async function PUT(request: Request, { params }: Params) {
     return NextResponse.json({ ok:false, message:'Manager KPI scores must be between 0 and 10.' }, { status:400 });
   }
   const status = body.status === 'submitted' ? 'submitted' : 'draft';
+  if (status === 'submitted' && (growth === null || role === null)) {
+    return NextResponse.json({ ok:false, message:'Both manager KPI scores are required before submission.' }, { status:400 });
+  }
   await db.query(`insert into manager_monthly_reviews
     (employee_slug,month_key,growth_score,role_excellence_score,went_well,needs_improvement,next_priorities,support_needed,manager_summary,status,reviewed_by_email,updated_at)
     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,now())
