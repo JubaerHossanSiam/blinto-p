@@ -20,8 +20,8 @@ export async function PUT(request: Request, { params }: Params) {
   const body = await request.json();
   const existing = await db.query('select status from manager_monthly_reviews where employee_slug=$1 and month_key=$2 limit 1', [slug, month]);
   const existingStatus = existing.rows[0]?.status as string | undefined;
-  if (existingStatus === 'finalized' || existingStatus === 'locked') {
-    return NextResponse.json({ ok:false, message:'This monthly review is finalized and cannot be edited.' }, { status:409 });
+  if (existingStatus === 'locked') {
+    return NextResponse.json({ ok:false, message:'This monthly review is locked because the next month has started.' }, { status:409 });
   }
   const score = (value: unknown) => value === null || value === '' ? null : Number(value);
   const growth = score(body.growthScore), role = score(body.roleExcellenceScore);

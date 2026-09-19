@@ -26,7 +26,7 @@ export function ManagerReviewForm({ employeeSlug, monthKey, initial, canEdit, cl
   const scoreInput=(label:string,key:'growthScore'|'roleExcellenceScore')=><label className="review-input">{label}<input type="number" min="0" max="10" step="0.5" disabled={!editable} value={review[key]??''} onChange={e=>set(key,e.target.value===''?null:Number(e.target.value))}/><small>/10</small></label>;
   return <section className="panel">
     <h2>Manager review</h2>
-    <p>Manager-owned monthly assessment. ClickUp evidence is read-only. Manager submission is due by the 29th; CEO/Admin finalizes the completed month for the official result on the 1st.</p>
+    <p>Manager-owned monthly assessment. ClickUp evidence is read-only. The manager review stays open through the last calendar day of the month. The system reminds managers at month-end and produces the official previous-month result automatically on the 1st.</p>
     <div className="review-input-grid">{scoreInput('Growth & Development','growthScore')}{scoreInput('Role Excellence','roleExcellenceScore')}</div>
     {clickUpScore!==undefined?<div className="info-box"><strong>Score preview: {clickUpScore}/80 + {managerTotal??'—'}/20 = {finalTotal??'—'}/100</strong></div>:null}
     {([['What went well','wentWell'],['What needs improvement','needsImprovement'],['Next-month priorities','nextPriorities'],['Support needed','supportNeeded'],['Manager summary','managerSummary']] as const).map(([label,key])=><label className="review-input" key={key}>{label}<textarea rows={3} disabled={!editable} value={review[key]} onChange={e=>set(key,e.target.value)}/></label>)}
