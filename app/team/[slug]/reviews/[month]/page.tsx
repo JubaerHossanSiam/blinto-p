@@ -51,9 +51,13 @@ export default async function EmployeeMonthlyReviewPage({ params }: PageProps) {
     return <><SeptemberTrialReview employeeName={person.name} employeeSlug={person.slug} clickUpEvidence={clickUpEvidence} /><div className="shell"><ManagerReviewForm employeeSlug={person.slug} monthKey={month} initial={managerReview} canEdit={canEditManagerReview} clickUpScore={clickUpEvidence.score} /></div></>;
   }
 
-  const hrms = await getMonthlyHrmsScore(person.slug, month);
+  const [hrms, clickUpEvidence] = await Promise.all([
+    getMonthlyHrmsScore(person.slug, month),
+    getLiveClickUpEvidence(person, month),
+  ]);
 
   return (
+    <>
     <MonthlyReview
       employeeName={person.name}
       employeeSlug={person.slug}
@@ -64,5 +68,9 @@ export default async function EmployeeMonthlyReviewPage({ params }: PageProps) {
       hrmsStatus={hrms.syncStatus}
       hrmsSyncedAt={hrms.syncedAt}
     />
+    <div className="shell">
+      <ManagerReviewForm employeeSlug={person.slug} monthKey={month} initial={managerReview} canEdit={canEditManagerReview} clickUpScore={clickUpEvidence.score} />
+    </div>
+    </>
   );
 }
