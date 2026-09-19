@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import type { LiveClickUpEvidence } from '@/lib/clickup-performance';
+import { calculateDeliveryReliabilityKpi, type HrmsMonthlyScores } from '@/lib/hrms-performance';
 import type { PersonProfile } from '@/lib/people';
 import { careerLevels, getCareerLevel, type RoleProfileData } from '@/lib/performance-profile';
 import { getPerformanceRecord, type KpiName, type ReviewMonth } from '@/lib/performance-records';
@@ -9,6 +10,7 @@ type Props = {
   person: PersonProfile;
   roleProfile: RoleProfileData;
   clickUpEvidence: LiveClickUpEvidence;
+  hrmsScores: HrmsMonthlyScores | null;
 };
 
 const kpiDefinitions: { name: KpiName; source: string; note?: string }[] = [
@@ -53,7 +55,7 @@ function performanceBand(score?: number) {
   return 'Significant Improvement Needed';
 }
 
-export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidence }: Props) {
+export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidence, hrmsScores }: Props) {
   const record = getPerformanceRecord(person.slug);
   const latestCompleteReview = [...record.reviews].reverse().find((review) => review.status === 'Complete');
   const focusReview = record.reviews.find((review) => review.status === 'In review')
@@ -64,6 +66,8 @@ export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidenc
   const careerStatus = careerStatusLabel(record.career.status);
   const managerReview = focusReview?.managerReview;
   const deliveryReview = focusReview?.deliveryReview;
+  const clickUpDelivery = clickUpEvidence.kpis.find((item) => item.label === 'Delivery & Reliability')?.average;
+  const combinedDeliveryReliability = clickUpDelivery !== undefined && hrmsScores ? calculateDeliveryReliabilityKpi(clickUpDelivery, hrmsScores) : null;
   const evidenceCoverage = clickUpEvidence.tasksReviewed
     ? Math.round((clickUpEvidence.ratedTasks / clickUpEvidence.tasksReviewed) * 100)
     : undefined;
@@ -266,7 +270,7 @@ export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidenc
                 </strong>
                 {review.isTest ? (
                   <p>
-                    Live ClickUp task evidence · Coverage {evidenceCoverage === undefined ? '—' : `${evidenceCoverage}%`} · HRMS pending · Manager review pending.
+                    Live ClickUp task evidence · Coverage {evidenceCoverage === undefined ? '—' : `${evidenceCoverage}%`} · HRMS {hrmsScores?.syncStatus === 'synced' ? 'synced' : hrmsScores?.syncStatus ?? 'pending'} · Manager review pending.
                   </p>
                 ) : (
                   <p>{review.summary ?? 'Open this month to review ClickUp evidence, KPI coverage, manager assessment, reflection, and 1:1.'}</p>
@@ -291,13 +295,13 @@ export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidenc
                     const officialScore = focusReview?.kpiScores?.[kpi.name];
                     const isManagerKpi = index >= 8;
                     const score = focusReview?.isTest
-                      ? (isManagerKpi ? undefined : liveClickUpKpi?.average)
+                      ? (isManagerKpi ? undefined : kpi.name === 'Delivery & Reliability' ? (combinedDeliveryReliability ?? undefined) : liveClickUpKpi?.average)
                       : officialScore;
                     const status = focusReview?.isTest
                       ? (isManagerKpi
                         ? 'Manager pending'
                         : kpi.name === 'Delivery & Reliability'
-                          ? (score === undefined ? 'ClickUp pending' : 'ClickUp only')
+                          ? (score === undefined ? (hrmsScores?.syncStatus === 'error' ? 'HRMS error' : 'HRMS pending') : 'ClickUp + HRMS')
                           : (score === undefined ? 'No evidence' : 'Live evidence'))
                       : (score === undefined ? 'Pending' : 'Recorded');
                     const statusTone = score === undefined ? 'status-neutral' : (kpi.name === 'Delivery & Reliability' && focusReview?.isTest ? 'status-warn' : 'status-good');
@@ -315,7 +319,7 @@ export function EmployeePerformanceProfile({ person, roleProfile, clickUpEvidenc
               </table>
             </div>
 
-            <div className="kpi-one-rule"><strong>KPI 1 — Delivery & Reliability</strong><span>60% ClickUp Delivery Reliability + 20% Attendance Reliability + 20% Leave & Policy Reliability. Approved leave is neutral.</span></div>
+            <div className="kpi-one-rule"><strong>KPI 1 — Delivery & Reliability</strong><span>60% ClickUp Delivery Reliability + 20% Attendance Reliability + 20% Leave & Policy Reliability. {hrmsScores?.attendance && hrmsScores?.leave ? `Synced: ClickUp ${clickUpDelivery?.toFixed(1) ?? '—'}/10 · Attendance ${hrmsScores.attendance.scoreOutOf10.toFixed(1)}/10 · Leave ${hrmsScores.leave.scoreOutOf10.toFixed(1)}/10.` : `HRMS ${hrmsScores?.syncStatus ?? 'pending'}.`} Approved leave is neutral.</span></div>
           </div>
         </section>
 
