@@ -3,9 +3,6 @@ import { getPerson } from '@/lib/people';
 const CLICKUP_WORKSPACE_ID = process.env.CLICKUP_WORKSPACE_ID ?? '9018782844';
 const CLICKUP_API_URL = 'https://api.clickup.com/api/v2';
 
-// Closed work stays on the board briefly so a person can see what they just
-// finished, without the board filling up with a year of completed tasks.
-const RECENTLY_CLOSED_DAYS = 45;
 const MAX_PAGES = 25;
 
 // Pages are fetched in concurrent windows of this size. ClickUp gives no total
@@ -14,6 +11,9 @@ const MAX_PAGES = 25;
 // in parallel and truncated at the first empty one. Kept modest to stay well
 // inside ClickUp's rate limit.
 const PAGE_CONCURRENCY = 5;
+
+/** Invalidated by the Sync from ClickUp button so the next render refetches. */
+export const TASK_CACHE_TAG = 'clickup-tasks';
 
 /** ClickUp's built-in "Task" task type. */
 const DEFAULT_TASK_TYPE = '0';
@@ -118,11 +118,18 @@ async function fetchTeamTasks(
     // deliverables a person is rated on. ClickUp rejects a scalar here
     // ("custom_items must be an array"), so the bracketed form is required.
     params.append('custom_items[]', DEFAULT_TASK_TYPE);
+    // Filtering the status at ClickUp rather than after the fact is what keeps
+    // this cheap: unfiltered, a page is 100 tasks of which ~4 survive, and the
+    // pager walks pages until one comes back empty. With the filter the first
+    // page is the whole answer and the second is empty, so the walk stops.
+    params.append('statuses[]', REVIEW_STATUS);
     for (const id of assigneeIds) params.append('assignees[]', id);
 
     const response = await fetch(`${CLICKUP_API_URL}/team/${CLICKUP_WORKSPACE_ID}/task?${params.toString()}`, {
       headers: { Authorization: token },
-      ...(forceRefresh ? { cache: 'no-store' as const } : { next: { revalidate: 120 } }),
+      ...(forceRefresh
+        ? { cache: 'no-store' as const }
+        : { next: { revalidate: 120, tags: [TASK_CACHE_TAG] } }),
     });
 
     if (!response.ok) {
@@ -220,22 +227,17 @@ export async function getTaskBoard(visibleSlugs: string[], forceRefresh = false)
   }
 
   const assigneeIds = [...idToSlug.keys()];
-  const closedSince = Date.now() - RECENTLY_CLOSED_DAYS * 24 * 60 * 60 * 1000;
 
   try {
-    const [openTasks, recentTasks] = await Promise.all([
-      // Every still-open task, however old, so nothing active is hidden.
-      fetchTeamTasks(assigneeIds, { include_closed: 'false' }, forceRefresh),
-      // Recent activity, from which only the closed tasks are kept.
-      fetchTeamTasks(assigneeIds, { include_closed: 'true', date_updated_gt: String(closedSince) }, forceRefresh),
-    ]);
+    // One request set, not two. This used to fetch open tasks and recently
+    // closed tasks separately and merge them; with the status filter the
+    // second set could only ever return rows the filter then threw away, so
+    // it was pure latency. include_closed covers a review status that a space
+    // has configured as a done-type status.
+    const reviewTasks = await fetchTeamTasks(assigneeIds, { include_closed: 'true' }, forceRefresh);
 
     const byId = new Map<string, ClickUpTaskRecord>();
-    for (const task of openTasks ?? []) byId.set(task.id, task);
-    for (const task of recentTasks ?? []) {
-      const closedAt = Number(task.date_closed ?? 0);
-      if (closedAt >= closedSince) byId.set(task.id, task);
-    }
+    for (const task of reviewTasks ?? []) byId.set(task.id, task);
 
     const groupBySlug = new Map(groups.map((group) => [group.slug, group]));
     const now = Date.now();

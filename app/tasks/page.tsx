@@ -1,4 +1,5 @@
 import { TaskBoard } from '@/components/task-board';
+import { TaskSyncButton } from '@/components/task-sync-button';
 import { getTaskVisibleEmployeeSlugs, requirePortalUser } from '@/lib/access';
 import { getTaskBoard } from '@/lib/clickup-tasks';
 import { getTaskRatings } from '@/lib/task-ratings';
@@ -23,8 +24,11 @@ export default async function TasksPage() {
   return (
     <main className="shell task-shell">
       <header className="task-header">
-        <p className="eyebrow">ClickUp</p>
-        <h1 className="page-title">Assigned Tasks</h1>
+        <div>
+          <p className="eyebrow">ClickUp</p>
+          <h1 className="page-title">Assigned Tasks</h1>
+        </div>
+        <TaskSyncButton />
       </header>
 
       {board.message ? (

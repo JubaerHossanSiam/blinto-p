@@ -1,6 +1,9 @@
 .task-shell { padding: 44px 0 80px; }
 
-.task-header { margin-bottom: 22px; }
+.task-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 20px; flex-wrap: wrap; margin-bottom: 22px;
+}
 .task-header .page-title { margin: 6px 0 0; }
 .task-header .page-subtitle { margin: 10px 0 0; max-width: 680px; }
 
@@ -54,20 +57,16 @@
 }
 .task-divider-muted { margin: 4px 0 0; text-transform: none; letter-spacing: 0; font-weight: 600; opacity: .8; }
 
-.task-sync-note {
-  margin: -8px 0 16px; color: var(--muted); font-size: 12px; font-weight: 600;
-}
-.task-sync-error { color: var(--red); }
-
-.person-tab-spinner {
-  display: inline-block; width: 11px; height: 11px; vertical-align: -1px;
+.task-sync-button { flex: 0 0 auto; }
+.task-sync-icon {
+  width: 14px; height: 14px; flex: 0 0 auto;
   border: 2px solid currentColor; border-right-color: transparent;
-  border-radius: 50%; opacity: .65;
-  animation: person-tab-spin .6s linear infinite;
+  border-radius: 50%; opacity: .75;
 }
-@keyframes person-tab-spin { to { transform: rotate(360deg); } }
+.task-sync-icon-spin { animation: task-sync-spin .7s linear infinite; }
+@keyframes task-sync-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
-  .person-tab-spinner { animation: none; }
+  .task-sync-icon-spin { animation: none; }
 }
 
 .task-controls { display: flex; align-items: center; gap: 14px; margin-bottom: 26px; }
