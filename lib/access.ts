@@ -98,7 +98,28 @@ export async function getViewAsOptions(): Promise<ViewAsOption[]> {
 export async function getTaskVisibleEmployeeSlugs(current: PortalUser): Promise<string[]> {
   if (!current.active || !databaseConfigured) return [];
 
-  if (current.role === 'admin' || current.role === 'people_ops') {
+  if (current.role === 'admin') {
+    // The CEO rates the leadership layer, not every individual contributor —
+    // those are their own managers' and the delivery reviewer's to rate.
+    // Keyed on the portal role rather than a name list so it follows
+    // promotions, and on EXISTS because a person can hold more than one login.
+    const result = await db.query<{ slug: string }>(
+      `select e.slug
+         from employees e
+        where e.is_active = true
+          and exists (
+            select 1
+              from approved_users au
+             where au.employee_slug = e.slug
+               and au.is_active = true
+               and au.role in ('manager', 'delivery_reviewer', 'people_ops')
+          )
+        order by e.full_name`,
+    );
+    return result.rows.map((row) => row.slug);
+  }
+
+  if (current.role === 'people_ops') {
     const result = await db.query<{ slug: string }>(
       `select slug from employees where is_active = true order by full_name`,
     );
