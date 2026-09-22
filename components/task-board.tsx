@@ -2,6 +2,9 @@
 
 import { useMemo, useState } from 'react';
 
+import {
+  DateRangePicker, dayKey, monthRange, rangeLabel, todayKey, type DateRange,
+} from '@/components/date-range-picker';
 import { TaskRatingModal } from '@/components/task-rating-modal';
 import type { PersonTaskGroup, TaskDetail } from '@/lib/clickup-tasks';
 import { KPI_DEFINITIONS, scoreForLabel } from '@/lib/kpi-fields';
@@ -138,17 +141,34 @@ type PersonTasksProps = {
   connected: boolean;
   ratings: TaskRatingMap;
   query: string;
+  /** null means every completed task, whenever it closed. */
+  range: DateRange | null;
+  onRangeChange: (next: DateRange | null) => void;
+  /** Days holding completed work, dotted in the calendar. */
+  completedDays: Set<string>;
   onRate: (task: TaskDetail) => void;
   rateBlockedReason?: string;
 };
 
-function PersonTasks({ group, connected, ratings, query, onRate, rateBlockedReason }: PersonTasksProps) {
+function PersonTasks({
+  group, connected, ratings, query, range, onRangeChange, completedDays, onRate, rateBlockedReason,
+}: PersonTasksProps) {
   const matching = group.tasks.filter((task) => matchesQuery(task, query));
   // Split on the ClickUp status, not on how far the rating got: a task moves
   // to Completed when the team finishes the work, whether or not it has been
   // rated — an unrated completed task is exactly what a reviewer needs to see.
   const pending = sortTasks(matching.filter((task) => !isCompleted(task)));
-  const completed = sortTasks(matching.filter(isCompleted));
+  // The range only narrows completed work; a task still in review has no
+  // completion date to sit on the calendar.
+  const completed = sortTasks(
+    matching.filter((task) => {
+      if (!isCompleted(task)) return false;
+      if (!range) return true;
+      if (!task.closedAt) return false;
+      const day = dayKey(task.closedAt);
+      return day >= range.from && day <= range.to;
+    }),
+  );
   const shownCompleted = completed.slice(0, COMPLETED_SHOWN);
 
   return (
@@ -160,7 +180,17 @@ function PersonTasks({ group, connected, ratings, query, onRate, rateBlockedReas
         </div>
       </div>
 
-      {pending.length || completed.length ? (
+      {/* Only a broken connection or an unmapped person hides the whole list.
+          An empty review queue must not take the Completed section with it —
+          that is where the date picker lives, and with it gone there was no
+          way to look at what the person had already finished. */}
+      {!connected || !group.mapped ? (
+        <p className="task-empty">
+          {!connected
+            ? 'Tasks will appear here once the ClickUp connection is live.'
+            : 'No ClickUp user is mapped to this employee, so their tasks cannot be matched.'}
+        </p>
+      ) : (
         <div className="task-list">
           {pending.map((task) => (
             <TaskRow
@@ -172,13 +202,25 @@ function PersonTasks({ group, connected, ratings, query, onRate, rateBlockedReas
             />
           ))}
 
-          {!pending.length && completed.length ? (
-            <p className="task-empty task-empty-inline">Nothing is waiting in review.</p>
+          {!pending.length ? (
+            <p className="task-empty task-empty-inline">
+              {query
+                ? `No tasks in review match “${query}”.`
+                : 'No tasks are in review for this person right now.'}
+            </p>
           ) : null}
 
-          {completed.length ? (
+          <div className="task-completed-head">
             <p className="task-divider task-divider-done">
               Completed<span className="task-divider-count">{completed.length}</span>
+            </p>
+            <DateRangePicker value={range} onChange={onRangeChange} markers={completedDays} />
+          </div>
+          {!completed.length ? (
+            <p className="task-empty task-empty-inline">
+              {query
+                ? `No completed tasks match “${query}” in ${rangeLabel(range)}.`
+                : `Nothing was completed in ${rangeLabel(range)}.`}
             </p>
           ) : null}
           {shownCompleted.map((task) => (
@@ -197,16 +239,6 @@ function PersonTasks({ group, connected, ratings, query, onRate, rateBlockedReas
             </p>
           ) : null}
         </div>
-      ) : (
-        <p className="task-empty">
-          {!connected
-            ? 'Tasks will appear here once the ClickUp connection is live.'
-            : !group.mapped
-              ? 'No ClickUp user is mapped to this employee, so their tasks cannot be matched.'
-              : query
-                ? `No tasks match “${query}”.`
-                : 'No tasks are in review for this person right now.'}
-        </p>
       )}
     </section>
   );
@@ -229,8 +261,21 @@ export function TaskBoard({ groups, connected, ratings, viewerSlug, canRate }: T
   // Groups arrive ordered by name; the board opens on the first of them.
   const [selected, setSelected] = useState<string>(groups[0]?.slug ?? '');
   const [search, setSearch] = useState('');
+  const [range, setRange] = useState<DateRange | null>(() => monthRange(todayKey()));
 
   const query = useMemo(() => search.trim().toLowerCase(), [search]);
+
+  // Built from every group, not just the open tab, so the calendar's dots do
+  // not shift around as you switch between people.
+  const completedDays = useMemo(() => {
+    const days = new Set<string>();
+    for (const group of groups) {
+      for (const task of group.tasks) {
+        if (isCompleted(task) && task.closedAt) days.add(dayKey(task.closedAt));
+      }
+    }
+    return days;
+  }, [groups]);
 
   // A stale selection (someone leaves the team between renders) falls back to
   // the first person rather than an empty board.
@@ -283,6 +328,9 @@ export function TaskBoard({ groups, connected, ratings, viewerSlug, canRate }: T
           connected={connected}
           ratings={ratings}
           query={query}
+          range={range}
+          onRangeChange={setRange}
+          completedDays={completedDays}
           onRate={(task) => setRating({ task, group })}
           // The button is always present; these are the cases where pressing it
           // could only ever be rejected by the server.

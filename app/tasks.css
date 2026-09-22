@@ -69,6 +69,97 @@
   font-variant-numeric: tabular-nums;
 }
 
+.task-completed-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 14px; flex-wrap: wrap; margin: 22px 0 6px;
+}
+.task-completed-head .task-divider { margin: 0; }
+
+.range-picker { position: relative; }
+.range-trigger {
+  display: inline-flex; align-items: center; gap: 9px;
+  min-height: 36px; padding: 0 13px; cursor: pointer;
+  border: 1px solid var(--line-strong); border-radius: 999px;
+  background: var(--surface); color: var(--text);
+  font: inherit; font-size: 12.5px; font-weight: 650; white-space: nowrap;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.range-trigger:hover { border-color: #aeb6bd; }
+.range-trigger-open { border-color: var(--blue); box-shadow: var(--ring); }
+.range-trigger:focus-visible { outline: 0; border-color: var(--blue); box-shadow: var(--ring); }
+.range-trigger-icon {
+  width: 13px; height: 13px; flex: 0 0 auto; opacity: .6;
+  border: 1.5px solid currentColor; border-top-width: 4px; border-radius: 3px;
+}
+.range-trigger-caret {
+  width: 6px; height: 6px; margin: -3px 0 0 1px; flex: 0 0 auto;
+  border-right: 1.5px solid #6b7279; border-bottom: 1.5px solid #6b7279;
+  transform: rotate(45deg);
+}
+
+.range-panel {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 30;
+  width: 272px; padding: 14px;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--r-md); box-shadow: var(--shadow-lg);
+}
+.range-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px; font-size: 13px;
+}
+.range-step {
+  width: 26px; height: 26px; display: grid; place-items: center;
+  border: 0; border-radius: 7px; cursor: pointer;
+  background: none; color: var(--text); font-size: 16px; line-height: 1;
+}
+.range-step:hover { background: var(--surface-2); }
+
+.range-weekdays, .range-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+.range-weekdays {
+  margin-bottom: 4px; text-align: center;
+  color: var(--muted); font-size: 10px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.range-grid { gap: 1px 0; }
+
+.range-day {
+  position: relative; height: 32px; border: 0; cursor: pointer;
+  background: none; color: var(--text);
+  font: inherit; font-size: 12px; font-weight: 600;
+  border-radius: 8px;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.range-day:hover { background: var(--surface-2); }
+.range-day-outside { color: var(--muted); opacity: .45; }
+
+/* The span is a flat tint; only the two ends carry the solid fill, which is
+   what makes a range legible at a glance rather than a block of colour. */
+.range-day-in { background: var(--blue-soft); color: var(--blue); border-radius: 0; }
+.range-day-in:hover { background: #dfe8ff; }
+.range-day-edge {
+  background: var(--blue); color: #fff; border-radius: 8px;
+}
+.range-day-edge:hover { background: var(--blue); }
+
+.range-day-today::after {
+  content: ""; position: absolute; left: 50%; bottom: 4px;
+  width: 3px; height: 3px; margin-left: -1.5px;
+  border-radius: 50%; background: currentColor; opacity: .8;
+}
+.range-day-marked:not(.range-day-edge) { font-weight: 800; }
+.range-day-marked.range-day-outside { opacity: .6; }
+
+.range-foot {
+  display: flex; gap: 6px; margin-top: 12px;
+  padding-top: 10px; border-top: 1px solid var(--line);
+}
+.range-action {
+  flex: 1; padding: 8px 0; border: 0; border-radius: 8px; cursor: pointer;
+  background: var(--surface-2); color: var(--text);
+  font: inherit; font-size: 12px; font-weight: 700;
+}
+.range-action:hover { background: var(--surface-3); }
+
 .task-sync-button { flex: 0 0 auto; }
 .task-sync-icon {
   width: 14px; height: 14px; flex: 0 0 auto;
@@ -81,7 +172,10 @@
   .task-sync-icon-spin { animation: none; }
 }
 
-.task-controls { display: flex; align-items: center; gap: 14px; margin-bottom: 26px; }
+.task-controls {
+  display: flex; align-items: center; gap: 14px;
+  flex-wrap: wrap; margin-bottom: 26px;
+}
 
 .task-search { position: relative; display: flex; align-items: center; flex: 1 1 340px; max-width: 420px; }
 .task-search-icon {
