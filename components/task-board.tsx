@@ -206,7 +206,7 @@ type RatingTarget = { task: TaskDetail; group: PersonTaskGroup };
 
 export function TaskBoard({ groups, connected, ratings, viewerSlug, canRate }: TaskBoardProps) {
   const [rating, setRating] = useState<RatingTarget | null>(null);
-  // The viewer's own group is first, so the board opens on their own tasks.
+  // Groups arrive ordered by name; the board opens on the first of them.
   const [selected, setSelected] = useState<string>(groups[0]?.slug ?? '');
   const [search, setSearch] = useState('');
 

@@ -108,6 +108,8 @@ export async function getTaskVisibleEmployeeSlugs(current: PortalUser): Promise<
   if (!current.employeeSlug) return [];
 
   if (current.role === 'manager') {
+    // Direct reports only. A manager may never rate themselves, so their own
+    // tasks were a tab that could only ever be looked at, never acted on.
     const result = await db.query<{ slug: string }>(
       `select slug
          from employees
@@ -117,7 +119,7 @@ export async function getTaskVisibleEmployeeSlugs(current: PortalUser): Promise<
         order by full_name`,
       [current.employeeSlug],
     );
-    return [current.employeeSlug, ...result.rows.map((row) => row.slug)];
+    return result.rows.map((row) => row.slug);
   }
 
   return [current.employeeSlug];

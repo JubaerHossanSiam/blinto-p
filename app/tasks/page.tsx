@@ -42,7 +42,13 @@ export default async function TasksPage() {
           canRate={canRate}
         />
       ) : (
-        <p className="task-empty">This account is not linked to an employee record, so no tasks can be shown.</p>
+        <p className="task-empty">
+          {portalUser.role === 'manager'
+            // The board is now direct reports only, so a manager with none has
+            // nobody to show rather than a broken account.
+            ? 'No direct reports are assigned to you, so there are no tasks to rate.'
+            : 'This account is not linked to an employee record, so no tasks can be shown.'}
+        </p>
       )}
     </main>
   );
