@@ -19,6 +19,19 @@ export const auth = betterAuth({
   database: db,
   baseURL: process.env.BETTER_AUTH_URL,
   secret: process.env.BETTER_AUTH_SECRET,
+  // NOTE: session.cookieCache is deliberately NOT enabled here.
+  //
+  // It looks like an easy win — it would serve the session from a signed
+  // cookie instead of a ~250ms round trip to Neon. But turning it on makes
+  // getSession() run setCookieCache(), which writes a cookie, and that path
+  // threw "Failed to get session" (better-auth wraps any error inside
+  // getSession in APIError FAILED_TO_GET_SESSION). getSession() is called from
+  // the root layout and every page, i.e. during render, so if you revisit this
+  // idea it needs to be driven from proxy.ts or a route handler — somewhere a
+  // cookie write is legal — with the render side reading via getCookieCache().
+  //
+  // The per-request duplication this was meant to solve is handled instead by
+  // the React cache() wrappers in lib/access.ts.
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID ?? '',

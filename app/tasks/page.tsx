@@ -1,0 +1,58 @@
+import { TaskBoard } from '@/components/task-board';
+import { getTaskVisibleEmployeeSlugs, requirePortalUser } from '@/lib/access';
+import { getTaskBoard } from '@/lib/clickup-tasks';
+import { getTaskRatings } from '@/lib/task-ratings';
+
+export const dynamic = 'force-dynamic';
+
+const scopeCopy: Record<string, string> = {
+  employee: 'Your assigned ClickUp tasks.',
+  delivery_reviewer: 'Your assigned ClickUp tasks.',
+  manager: 'Your own tasks and those of your direct reports.',
+  people_ops: 'Assigned tasks across the team, grouped by person.',
+  admin: 'Assigned tasks across the team, grouped by person.',
+};
+
+export default async function TasksPage() {
+  const { portalUser } = await requirePortalUser();
+  const visibleSlugs = await getTaskVisibleEmployeeSlugs(portalUser);
+  const [board, ratings] = await Promise.all([
+    getTaskBoard(visibleSlugs),
+    getTaskRatings(visibleSlugs),
+  ]);
+
+  // Rating authority is decided server-side on save; this only controls whether
+  // the button is worth offering.
+  const canRate = portalUser.role === 'manager'
+    || portalUser.role === 'people_ops'
+    || portalUser.role === 'admin';
+
+  return (
+    <main className="shell task-shell">
+      <header className="task-header">
+        <p className="eyebrow">ClickUp</p>
+        <h1 className="page-title">Assigned Tasks</h1>
+        <p className="page-subtitle">{scopeCopy[portalUser.role] ?? scopeCopy.employee}</p>
+      </header>
+
+      {board.message ? (
+        <div className="info-box task-notice">
+          <strong>ClickUp tasks are not loading</strong>
+          <p>{board.message}</p>
+        </div>
+      ) : null}
+
+      {board.groups.length ? (
+        <TaskBoard
+          groups={board.groups}
+          connected={board.connected}
+          ratings={ratings}
+          viewerSlug={portalUser.employeeSlug}
+          canRate={canRate}
+        />
+      ) : (
+        <p className="task-empty">This account is not linked to an employee record, so no tasks can be shown.</p>
+      )}
+    </main>
+  );
+}

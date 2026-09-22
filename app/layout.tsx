@@ -10,6 +10,7 @@ import './performance-profile.css';
 import './responsive.css';
 import './mobile-nav.css';
 import './role-preview.css';
+import './tasks.css';
 
 export const metadata: Metadata = {
   title: {

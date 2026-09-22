@@ -5,3 +5,7 @@ out
 .env
 .env.local
 .vercel
+*.tsbuildinfo
+
+# stray key material accidentally created in the repo root
+ssh-keygen*

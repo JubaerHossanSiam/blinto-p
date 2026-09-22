@@ -1,3 +1,5 @@
+import { cache } from 'react';
+
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
@@ -22,7 +24,15 @@ export type ViewAsOption = {
 
 const VIEW_AS_COOKIE = 'blinto_view_as';
 
-export async function getPortalUser(email: string): Promise<PortalUser | null> {
+/**
+ * Memoized per request: the root layout, the page, and any nested helper all
+ * ask for the same account, and every call is a ~250ms round trip to Neon.
+ * `cache()` is request-scoped, so a signed-in user's row is read once per
+ * navigation instead of once per caller.
+ */
+export const getPortalUser = cache(async function getPortalUser(
+  email: string,
+): Promise<PortalUser | null> {
   if (!databaseConfigured) return null;
 
   const result = await db.query<{
@@ -47,7 +57,7 @@ export async function getPortalUser(email: string): Promise<PortalUser | null> {
     role: row.role,
     active: row.is_active,
   };
-}
+});
 
 export async function getViewAsOptions(): Promise<ViewAsOption[]> {
   if (!databaseConfigured) return [];
@@ -77,13 +87,54 @@ export async function getViewAsOptions(): Promise<ViewAsOption[]> {
   }));
 }
 
+/**
+ * The employees whose ClickUp tasks this account may see, as slugs.
+ *
+ * Employees see only themselves. Managers additionally see their direct
+ * reports, and People Ops / Admin see everyone. Delivery reviewers are
+ * deliberately limited to themselves: their review assignments grant access to
+ * performance profiles, not to day-to-day task lists.
+ */
+export async function getTaskVisibleEmployeeSlugs(current: PortalUser): Promise<string[]> {
+  if (!current.active || !databaseConfigured) return [];
+
+  if (current.role === 'admin' || current.role === 'people_ops') {
+    const result = await db.query<{ slug: string }>(
+      `select slug from employees where is_active = true order by full_name`,
+    );
+    return result.rows.map((row) => row.slug);
+  }
+
+  if (!current.employeeSlug) return [];
+
+  if (current.role === 'manager') {
+    const result = await db.query<{ slug: string }>(
+      `select slug
+         from employees
+        where manager_slug = $1
+          and is_active = true
+          and slug <> $1
+        order by full_name`,
+      [current.employeeSlug],
+    );
+    return [current.employeeSlug, ...result.rows.map((row) => row.slug)];
+  }
+
+  return [current.employeeSlug];
+}
+
 export async function isApprovedEmail(email?: string | null) {
   if (!email || !databaseConfigured) return false;
   const user = await getPortalUser(email);
   return Boolean(user?.active);
 }
 
-export async function getCurrentPortalUser() {
+/**
+ * Memoized per request for the same reason as `getPortalUser`: the root layout
+ * (app/layout.tsx) and the page below it both need the current account, and
+ * without this the whole session + approved_users chain ran once for each.
+ */
+export const getCurrentPortalUser = cache(async function getCurrentPortalUser() {
   if (!databaseConfigured) return null;
 
   const session = await auth.api.getSession({ headers: await headers() });
@@ -109,7 +160,7 @@ export async function getCurrentPortalUser() {
   }
 
   return { session, portalUser, actualPortalUser, viewingAs };
-}
+});
 
 export async function requirePortalUser() {
   const current = await getCurrentPortalUser();

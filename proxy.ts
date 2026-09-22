@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getSessionCookie } from 'better-auth/cookies';
 
 import { getPortalUser } from '@/lib/access';
 import { auth } from '@/lib/auth';
@@ -19,16 +20,35 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Signed-out traffic is settled from the cookie alone. This runs on every
+  // request the matcher accepts — including every RSC navigation and prefetch —
+  // so it must not reach the database unless it actually has to.
+  const hasSessionCookie = Boolean(getSessionCookie(request));
+
+  if (!hasSessionCookie) {
+    // /unauthorized is reachable signed-out; /sign-in only redirects away when
+    // the visitor turns out to be approved, which they cannot be without a session.
+    return PUBLIC_PATHS.includes(pathname)
+      ? NextResponse.next()
+      : NextResponse.redirect(new URL('/sign-in', request.url));
+  }
+
+  // These pages render the same signed-in or not, so skip the lookup entirely.
+  if (pathname === '/unauthorized') {
+    return NextResponse.next();
+  }
+
+  // Only signed-in traffic reaches here. getPortalUser stays a live read so a
+  // deactivated account loses access immediately rather than at cache expiry.
   const session = await auth.api.getSession({ headers: request.headers });
   const email = session?.user?.email;
   const portalUser = email ? await getPortalUser(email) : null;
   const approved = Boolean(portalUser?.active);
 
-  if (PUBLIC_PATHS.includes(pathname)) {
-    if (approved && pathname === '/sign-in') {
-      return NextResponse.redirect(new URL('/portal', request.url));
-    }
-    return NextResponse.next();
+  if (pathname === '/sign-in') {
+    return approved
+      ? NextResponse.redirect(new URL('/portal', request.url))
+      : NextResponse.next();
   }
 
   if (!session || !email) {

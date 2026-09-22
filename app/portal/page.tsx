@@ -6,7 +6,7 @@ import { RatingIntegrityPanel } from '@/components/rating-integrity-panel';
 import { requirePortalUser, type PortalRole } from '@/lib/access';
 import { db } from '@/lib/db';
 import { getRatingIntegrityIssues, getRatingIntegritySummary } from '@/lib/rating-integrity';
-import { getManagerMonthlyReview } from '@/lib/manager-monthly-review';
+import { emptyManagerMonthlyReview, getManagerMonthlyReviews } from '@/lib/manager-monthly-review';
 
 type VisibleEmployee = {
   slug: string;
@@ -95,13 +95,21 @@ export default async function PortalPage() {
   const showPersonalPerformance = Boolean(portalUser.employeeSlug);
   const canSeeRatingIntegrity = isCeoAccount || portalUser.role === 'manager' || portalUser.role === 'delivery_reviewer';
   const integrityScope = isCeoAccount ? undefined : visibleEmployees.map((employee) => employee.slug);
-  const ratingIntegrity = canSeeRatingIntegrity ? await getRatingIntegritySummary('2026-10', integrityScope) : null;
-  const ratingIssues = canSeeRatingIntegrity ? await getRatingIntegrityIssues('2026-10', integrityScope) : [];
   const reviewMonth = currentMonthKey();
-  const reviewRows = await Promise.all(visibleEmployees.map(async employee => ({
+
+  // These three are independent, and each is a round trip to a remote database.
+  // Run them together rather than one after another. The review lookup is a
+  // single batched query instead of one per employee.
+  const [ratingIntegrity, ratingIssues, reviewsBySlug] = await Promise.all([
+    canSeeRatingIntegrity ? getRatingIntegritySummary('2026-10', integrityScope) : null,
+    canSeeRatingIntegrity ? getRatingIntegrityIssues('2026-10', integrityScope) : [],
+    getManagerMonthlyReviews(visibleEmployees.map((employee) => employee.slug), reviewMonth),
+  ]);
+
+  const reviewRows = visibleEmployees.map((employee) => ({
     ...employee,
-    review: await getManagerMonthlyReview(employee.slug, reviewMonth),
-  })));
+    review: reviewsBySlug.get(employee.slug) ?? emptyManagerMonthlyReview,
+  }));
   const reviewSubmitted = reviewRows.filter(row => ['submitted','finalized','locked'].includes(row.review.status)).length;
   const reviewPending = reviewRows.filter(row => !['submitted','finalized','locked'].includes(row.review.status));
   const showMonthEndAttention = currentDhakaDay() >= 28 && reviewPending.length > 0;

@@ -5,6 +5,7 @@ import { ProfileMenu } from '@/components/profile-menu';
 import type { PortalRole, ViewAsOption } from '@/lib/access';
 
 const nav = [
+  ['Tasks', '/tasks'],
   ['Framework', '/framework'],
   ['Rating Guide', '/task-rating-guide'],
   ['Rules', '/rules'],

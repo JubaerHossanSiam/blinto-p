@@ -38,7 +38,8 @@ export async function getRatingIntegritySummary(monthKey = '2026-10', employeeSl
        count(distinct task_id) filter (where verification_status='needs_validation')::text as needs_validation,
        count(distinct task_id) filter (where verification_status='invalid')::text as invalid
        from task_rating_integrity
-      where completed_at >= $1::timestamptz and completed_at < $2::timestamptz ${scoped}`,
+      where coalesce(completed_at, changed_at) >= $1::timestamptz
+        and coalesce(completed_at, changed_at) < $2::timestamptz ${scoped}`,
     params,
   );
   const row = result.rows[0];
@@ -61,7 +62,8 @@ export async function getRatingIntegrityIssues(monthKey = '2026-10', employeeSlu
             tri.verification_status, tri.validation_reason, tri.changed_at
        from task_rating_integrity tri
        join employees e on e.slug = tri.employee_slug
-      where tri.completed_at >= $1::timestamptz and tri.completed_at < $2::timestamptz
+      where coalesce(tri.completed_at, tri.changed_at) >= $1::timestamptz
+        and coalesce(tri.completed_at, tri.changed_at) < $2::timestamptz
         and tri.verification_status in ('needs_validation','invalid') ${scoped}
       order by tri.changed_at desc
       limit 100`,
@@ -81,27 +83,33 @@ export async function getVerifiedTaskKpiEvidence(employeeSlug: string, monthKey:
   const start = `${monthKey}-01T00:00:00+06:00`;
   const [year, month] = monthKey.split('-').map(Number);
   const next = month === 12 ? `${year + 1}-01-01T00:00:00+06:00` : `${year}-${String(month + 1).padStart(2, '0')}-01T00:00:00+06:00`;
-  const result = await db.query<{
-    field_id: string; average: string; rated_tasks: string;
-  }>(
-    `select field_id, avg(verified_score)::text as average, count(distinct task_id)::text as rated_tasks
-       from task_rating_integrity
-      where employee_slug=$1
-        and completed_at >= $2::timestamptz and completed_at < $3::timestamptz
-        and verification_status='verified' and verified_score is not null
-      group by field_id`,
-    [employeeSlug, start, next],
-  );
-  const tasks = await db.query<{ task_id: string; task_name: string; task_url: string }>(
-    `select distinct on (task_id) task_id, task_name, task_url
-       from task_rating_integrity
-      where employee_slug=$1
-        and completed_at >= $2::timestamptz and completed_at < $3::timestamptz
-        and verification_status='verified'
-      order by task_id, changed_at desc
-      limit 8`,
-    [employeeSlug, start, next],
-  );
+  // Independent queries over the same window — issued together so the page
+  // pays one round trip instead of two.
+  const [result, tasks] = await Promise.all([
+    db.query<{
+      field_id: string; average: string; rated_tasks: string;
+    }>(
+      `select field_id, avg(verified_score)::text as average, count(distinct task_id)::text as rated_tasks
+         from task_rating_integrity
+        where employee_slug=$1
+          and coalesce(completed_at, changed_at) >= $2::timestamptz
+          and coalesce(completed_at, changed_at) < $3::timestamptz
+          and verification_status='verified' and verified_score is not null
+        group by field_id`,
+      [employeeSlug, start, next],
+    ),
+    db.query<{ task_id: string; task_name: string; task_url: string }>(
+      `select distinct on (task_id) task_id, task_name, task_url
+         from task_rating_integrity
+        where employee_slug=$1
+          and coalesce(completed_at, changed_at) >= $2::timestamptz
+          and coalesce(completed_at, changed_at) < $3::timestamptz
+          and verification_status='verified'
+        order by task_id, changed_at desc
+        limit 8`,
+      [employeeSlug, start, next],
+    ),
+  ]);
   return {
     byField: new Map(result.rows.map((row) => [row.field_id, {
       average: Math.round(Number(row.average) * 10) / 10,

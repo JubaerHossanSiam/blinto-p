@@ -33,10 +33,24 @@ const allowedFiles = new Set([
   'role-success-plan-abbrar.md',
 ]);
 
+// These markdown files ship with the deployment and never change at runtime,
+// but they were re-read from disk on every render — a blocking readFileSync on
+// the request path of nine routes. Reading each one once and keeping it is
+// enough; the allowlist check still runs on every call.
+// Not cached in development, so editing a markdown file still shows up on
+// reload without restarting the dev server.
+const cacheContents = process.env.NODE_ENV === 'production';
+const fileCache = new Map<string, string>();
+
 export function readFrameworkFile(fileName: string): string {
   if (!allowedFiles.has(fileName)) {
     throw new Error(`Unknown framework file: ${fileName}`);
   }
 
-  return fs.readFileSync(path.join(ROOT, fileName), 'utf8');
+  const cached = fileCache.get(fileName);
+  if (cached !== undefined) return cached;
+
+  const contents = fs.readFileSync(path.join(ROOT, fileName), 'utf8');
+  if (cacheContents) fileCache.set(fileName, contents);
+  return contents;
 }
