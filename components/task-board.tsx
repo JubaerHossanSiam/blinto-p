@@ -7,9 +7,14 @@ import type { PersonTaskGroup, TaskDetail } from '@/lib/clickup-tasks';
 import { KPI_DEFINITIONS, scoreForLabel } from '@/lib/kpi-fields';
 import { ratingKey, type TaskRatingMap, type TaskRatingSummary } from '@/lib/task-rating-types';
 
-// Active work is the point of this board; a busy person can close well over a
-// hundred tasks in the recent-window, which would bury it.
-const CLOSED_SHOWN = 12;
+// Work still needing a rating is the point of this board, so finished ratings
+// are collapsed past this many rather than pushing the queue off the screen.
+const COMPLETED_SHOWN = 12;
+
+/** ClickUp's own completion, not ours: `complete` resolves to a closed state. */
+function isCompleted(task: TaskDetail) {
+  return task.state === 'closed';
+}
 
 /** The date the row is ordered by: due date for live work, close date once done. */
 function taskDate(task: TaskDetail) {
@@ -92,13 +97,15 @@ type TaskRowProps = {
   onRate: () => void;
   /** When set, the button is shown but disabled, and this explains why. */
   rateBlockedReason?: string;
+  /** Rendered under the Completed heading, so it reads as settled. */
+  completed?: boolean;
 };
 
-function TaskRow({ task, rating, onRate, rateBlockedReason }: TaskRowProps) {
+function TaskRow({ task, rating, onRate, rateBlockedReason, completed }: TaskRowProps) {
   const badge = ratingBadge(rating);
 
   return (
-    <article className="task-row">
+    <article className={`task-row${completed ? ' task-row-done' : ''}`}>
       <div className="task-row-main">
         <h3 className="task-name-head">
           <a className="task-name" href={task.url} target="_blank" rel="noreferrer">{task.name}</a>
@@ -137,9 +144,12 @@ type PersonTasksProps = {
 
 function PersonTasks({ group, connected, ratings, query, onRate, rateBlockedReason }: PersonTasksProps) {
   const matching = group.tasks.filter((task) => matchesQuery(task, query));
-  const active = sortTasks(matching.filter((task) => task.state !== 'closed'));
-  const closed = sortTasks(matching.filter((task) => task.state === 'closed'));
-  const shownClosed = closed.slice(0, CLOSED_SHOWN);
+  // Split on the ClickUp status, not on how far the rating got: a task moves
+  // to Completed when the team finishes the work, whether or not it has been
+  // rated — an unrated completed task is exactly what a reviewer needs to see.
+  const pending = sortTasks(matching.filter((task) => !isCompleted(task)));
+  const completed = sortTasks(matching.filter(isCompleted));
+  const shownCompleted = completed.slice(0, COMPLETED_SHOWN);
 
   return (
     <section className="task-group" aria-labelledby={`tasks-${group.slug}`}>
@@ -150,9 +160,9 @@ function PersonTasks({ group, connected, ratings, query, onRate, rateBlockedReas
         </div>
       </div>
 
-      {active.length || shownClosed.length ? (
+      {pending.length || completed.length ? (
         <div className="task-list">
-          {active.map((task) => (
+          {pending.map((task) => (
             <TaskRow
               key={task.id}
               task={task}
@@ -161,19 +171,29 @@ function PersonTasks({ group, connected, ratings, query, onRate, rateBlockedReas
               rateBlockedReason={rateBlockedReason}
             />
           ))}
-          {shownClosed.length ? <p className="task-divider">Recently closed</p> : null}
-          {shownClosed.map((task) => (
+
+          {!pending.length && completed.length ? (
+            <p className="task-empty task-empty-inline">Nothing is waiting in review.</p>
+          ) : null}
+
+          {completed.length ? (
+            <p className="task-divider task-divider-done">
+              Completed<span className="task-divider-count">{completed.length}</span>
+            </p>
+          ) : null}
+          {shownCompleted.map((task) => (
             <TaskRow
               key={task.id}
               task={task}
               rating={ratings[ratingKey(task.id, group.slug)]}
               onRate={() => onRate(task)}
               rateBlockedReason={rateBlockedReason}
+              completed
             />
           ))}
-          {closed.length > shownClosed.length ? (
+          {completed.length > shownCompleted.length ? (
             <p className="task-divider task-divider-muted">
-              + {closed.length - shownClosed.length} more closed in the last 45 days
+              + {completed.length - shownCompleted.length} more completed
             </p>
           ) : null}
         </div>
@@ -185,7 +205,7 @@ function PersonTasks({ group, connected, ratings, query, onRate, rateBlockedReas
               ? 'No ClickUp user is mapped to this employee, so their tasks cannot be matched.'
               : query
                 ? `No tasks match “${query}”.`
-                : 'No active or recently closed tasks assigned in ClickUp.'}
+                : 'No tasks are in review for this person right now.'}
         </p>
       )}
     </section>

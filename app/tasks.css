@@ -51,11 +51,23 @@
   .task-row-meta { width: 112px; }
 }
 
+.task-row-done { background: rgba(255, 255, 255, .55); border-color: #e8ebed; }
+.task-row-done .task-name { color: var(--text-2); }
+
+.task-empty-inline { padding: 16px 18px; text-align: left; }
+
 .task-divider {
   margin: 20px 0 4px; font-size: 11px; font-weight: 800;
   text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
 }
 .task-divider-muted { margin: 4px 0 0; text-transform: none; letter-spacing: 0; font-weight: 600; opacity: .8; }
+.task-divider-done { display: flex; align-items: center; gap: 8px; color: var(--green); }
+.task-divider-count {
+  padding: 2px 7px; border-radius: 6px; line-height: 1;
+  background: var(--green-soft); color: var(--green);
+  font-size: 11px; font-weight: 800; letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
 
 .task-sync-button { flex: 0 0 auto; }
 .task-sync-icon {

@@ -18,11 +18,17 @@ export const TASK_CACHE_TAG = 'clickup-tasks';
 /** ClickUp's built-in "Task" task type. */
 const DEFAULT_TASK_TYPE = '0';
 
-// The board is a review queue, so only work actually sitting in review belongs
-// on it. Matched on the status name because ClickUp reports every mid-workflow
-// status as type "custom", which cannot distinguish review from in-progress.
-// Note the workspace also uses "review" and "ceo review"; neither is this.
+// The board holds two things: work waiting to be rated, and work the team has
+// finished. Both are matched on the status name — ClickUp reports every
+// mid-workflow status as type "custom", which cannot tell review from
+// in-progress. The workspace also uses "review" and "ceo review"; neither is
+// the review status, and "Closed" is not the completed one.
 const REVIEW_STATUS = 'in review';
+const COMPLETED_STATUS = 'complete';
+
+// Completed work is bounded: the workspace holds hundreds of finished tasks
+// and the board only needs the recent ones as a record of what was rated.
+const COMPLETED_WINDOW_DAYS = 45;
 
 type ClickUpAssignee = { id?: number | string; username?: string };
 
@@ -100,6 +106,7 @@ function taskState(task: ClickUpTaskRecord): TaskState {
 
 async function fetchTeamTasks(
   assigneeIds: string[],
+  statuses: string[],
   extraParams: Record<string, string>,
   forceRefresh: boolean,
 ) {
@@ -119,10 +126,10 @@ async function fetchTeamTasks(
     // ("custom_items must be an array"), so the bracketed form is required.
     params.append('custom_items[]', DEFAULT_TASK_TYPE);
     // Filtering the status at ClickUp rather than after the fact is what keeps
-    // this cheap: unfiltered, a page is 100 tasks of which ~4 survive, and the
-    // pager walks pages until one comes back empty. With the filter the first
-    // page is the whole answer and the second is empty, so the walk stops.
-    params.append('statuses[]', REVIEW_STATUS);
+    // this cheap: unfiltered, a page is 100 tasks of which a handful survive,
+    // and the pager walks pages until one comes back empty. Filtered, the walk
+    // stops almost immediately.
+    for (const status of statuses) params.append('statuses[]', status);
     for (const id of assigneeIds) params.append('assignees[]', id);
 
     const response = await fetch(`${CLICKUP_API_URL}/team/${CLICKUP_WORKSPACE_ID}/task?${params.toString()}`, {
@@ -229,15 +236,23 @@ export async function getTaskBoard(visibleSlugs: string[], forceRefresh = false)
   const assigneeIds = [...idToSlug.keys()];
 
   try {
-    // One request set, not two. This used to fetch open tasks and recently
-    // closed tasks separately and merge them; with the status filter the
-    // second set could only ever return rows the filter then threw away, so
-    // it was pure latency. include_closed covers a review status that a space
-    // has configured as a done-type status.
-    const reviewTasks = await fetchTeamTasks(assigneeIds, { include_closed: 'true' }, forceRefresh);
+    // Two sets, because they need different bounds: everything still in
+    // review however long it has sat there, but only recently completed work.
+    // Bounding both by date would hide a task stuck in review for months.
+    const completedSince = Date.now() - COMPLETED_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+    const [reviewTasks, completedTasks] = await Promise.all([
+      fetchTeamTasks(assigneeIds, [REVIEW_STATUS], { include_closed: 'false' }, forceRefresh),
+      fetchTeamTasks(
+        assigneeIds,
+        [COMPLETED_STATUS],
+        { include_closed: 'true', date_updated_gt: String(completedSince) },
+        forceRefresh,
+      ),
+    ]);
 
     const byId = new Map<string, ClickUpTaskRecord>();
     for (const task of reviewTasks ?? []) byId.set(task.id, task);
+    for (const task of completedTasks ?? []) byId.set(task.id, task);
 
     const groupBySlug = new Map(groups.map((group) => [group.slug, group]));
     const now = Date.now();
@@ -247,7 +262,8 @@ export async function getTaskBoard(visibleSlugs: string[], forceRefresh = false)
       // dropped parameter from refilling the board with other task types.
       if (task.custom_item_id != null && String(task.custom_item_id) !== DEFAULT_TASK_TYPE) continue;
 
-      if ((task.status?.status ?? '').trim().toLowerCase() !== REVIEW_STATUS) continue;
+      const statusName = (task.status?.status ?? '').trim().toLowerCase();
+      if (statusName !== REVIEW_STATUS && statusName !== COMPLETED_STATUS) continue;
 
       const state = taskState(task);
       const dueTimestamp = Number(task.due_date ?? 0);
