@@ -14,9 +14,27 @@ import { ratingKey, type TaskRatingMap, type TaskRatingSummary } from '@/lib/tas
 // are collapsed past this many rather than pushing the queue off the screen.
 const COMPLETED_SHOWN = 12;
 
-/** ClickUp's own completion, not ours: `complete` resolves to a closed state. */
+/** ClickUp's own completion: the `complete` status resolves to a closed state. */
 function isCompleted(task: TaskDetail) {
   return task.state === 'closed';
+}
+
+/**
+ * Every KPI scored, and not rejected. A partly scored task still needs the
+ * rater, and a rejected one has to be redone, so neither is finished.
+ */
+function isFullyRated(rating: TaskRatingSummary | undefined) {
+  if (!rating || rating.status === 'invalid') return false;
+  return Object.keys(rating.fields).length === KPI_DEFINITIONS.length;
+}
+
+/**
+ * A task is done with when it has been rated AND the work itself is complete.
+ * The rating is checked first: an unrated task belongs in the queue however
+ * finished the work is, because the rating is the thing still outstanding.
+ */
+function isSettled(task: TaskDetail, rating: TaskRatingSummary | undefined) {
+  return isFullyRated(rating) && isCompleted(task);
 }
 
 /** The date the row is ordered by: due date for live work, close date once done. */
@@ -157,12 +175,16 @@ function PersonTasks({
   // Split on the ClickUp status, not on how far the rating got: a task moves
   // to Completed when the team finishes the work, whether or not it has been
   // rated — an unrated completed task is exactly what a reviewer needs to see.
+  // The queue is the work sitting in review; Completed is rated work that has
+  // since closed. A task that closed without ever being rated therefore falls
+  // between the two and is not listed — the rating window is while it is in
+  // review.
   const pending = sortTasks(matching.filter((task) => !isCompleted(task)));
   // The range only narrows completed work; a task still in review has no
   // completion date to sit on the calendar.
   const completed = sortTasks(
     matching.filter((task) => {
-      if (!isCompleted(task)) return false;
+      if (!isSettled(task, ratings[ratingKey(task.id, group.slug)])) return false;
       if (!range) return true;
       if (!task.closedAt) return false;
       const day = dayKey(task.closedAt);
@@ -271,11 +293,12 @@ export function TaskBoard({ groups, connected, ratings, viewerSlug, canRate }: T
     const days = new Set<string>();
     for (const group of groups) {
       for (const task of group.tasks) {
-        if (isCompleted(task) && task.closedAt) days.add(dayKey(task.closedAt));
+        const rating = ratings[ratingKey(task.id, group.slug)];
+        if (isSettled(task, rating) && task.closedAt) days.add(dayKey(task.closedAt));
       }
     }
     return days;
-  }, [groups]);
+  }, [groups, ratings]);
 
   // A stale selection (someone leaves the team between renders) falls back to
   // the first person rather than an empty board.

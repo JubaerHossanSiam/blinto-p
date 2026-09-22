@@ -18,12 +18,13 @@ export const TASK_CACHE_TAG = 'clickup-tasks';
 /** ClickUp's built-in "Task" task type. */
 const DEFAULT_TASK_TYPE = '0';
 
-// The board holds two things: work waiting to be rated, and work the team has
-// finished. Both are matched on the status name — ClickUp reports every
-// mid-workflow status as type "custom", which cannot tell review from
-// in-progress. The workspace also uses "review" and "ceo review"; neither is
-// the review status, and "Closed" is not the completed one.
-const REVIEW_STATUS = 'in review';
+// The board holds two things: work sitting in review, which is what gets
+// rated, and work the team has finished. Both are matched on the status name —
+// ClickUp reports every mid-workflow status as type "custom", so the type
+// cannot tell them apart. The workspace also uses "review" and "ceo review",
+// which are different statuses and so not matched here; "Closed" is likewise
+// not the completed status.
+const ACTIVE_STATUS = 'in review';
 const COMPLETED_STATUS = 'complete';
 
 // Completed work is bounded: the workspace holds hundreds of finished tasks
@@ -241,7 +242,7 @@ export async function getTaskBoard(visibleSlugs: string[], forceRefresh = false)
     // Bounding both by date would hide a task stuck in review for months.
     const completedSince = Date.now() - COMPLETED_WINDOW_DAYS * 24 * 60 * 60 * 1000;
     const [reviewTasks, completedTasks] = await Promise.all([
-      fetchTeamTasks(assigneeIds, [REVIEW_STATUS], { include_closed: 'false' }, forceRefresh),
+      fetchTeamTasks(assigneeIds, [ACTIVE_STATUS], { include_closed: 'false' }, forceRefresh),
       fetchTeamTasks(
         assigneeIds,
         [COMPLETED_STATUS],
@@ -263,7 +264,7 @@ export async function getTaskBoard(visibleSlugs: string[], forceRefresh = false)
       if (task.custom_item_id != null && String(task.custom_item_id) !== DEFAULT_TASK_TYPE) continue;
 
       const statusName = (task.status?.status ?? '').trim().toLowerCase();
-      if (statusName !== REVIEW_STATUS && statusName !== COMPLETED_STATUS) continue;
+      if (statusName !== ACTIVE_STATUS && statusName !== COMPLETED_STATUS) continue;
 
       const state = taskState(task);
       const dueTimestamp = Number(task.due_date ?? 0);
