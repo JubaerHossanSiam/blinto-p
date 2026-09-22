@@ -15,11 +15,22 @@ const MAX_PAGES = 25;
 // inside ClickUp's rate limit.
 const PAGE_CONCURRENCY = 5;
 
+/** ClickUp's built-in "Task" task type. */
+const DEFAULT_TASK_TYPE = '0';
+
+// The board is a review queue, so only work actually sitting in review belongs
+// on it. Matched on the status name because ClickUp reports every mid-workflow
+// status as type "custom", which cannot distinguish review from in-progress.
+// Note the workspace also uses "review" and "ceo review"; neither is this.
+const REVIEW_STATUS = 'in review';
+
 type ClickUpAssignee = { id?: number | string; username?: string };
 
 type ClickUpTaskRecord = {
   id: string;
   name: string;
+  /** 0 is ClickUp's built-in "Task"; anything else is a custom task type. */
+  custom_item_id?: number | null;
   url: string;
   status?: { status?: string; type?: string };
   date_updated?: string | null;
@@ -102,6 +113,11 @@ async function fetchTeamTasks(
       order_by: 'updated',
       ...extraParams,
     });
+    // Only the built-in "Task" type. The workspace also uses Milestone, Bug,
+    // Feature, KPI Review, Meeting Note and others, and none of those are
+    // deliverables a person is rated on. ClickUp rejects a scalar here
+    // ("custom_items must be an array"), so the bracketed form is required.
+    params.append('custom_items[]', DEFAULT_TASK_TYPE);
     for (const id of assigneeIds) params.append('assignees[]', id);
 
     const response = await fetch(`${CLICKUP_API_URL}/team/${CLICKUP_WORKSPACE_ID}/task?${params.toString()}`, {
@@ -225,6 +241,12 @@ export async function getTaskBoard(visibleSlugs: string[], forceRefresh = false)
     const now = Date.now();
 
     for (const task of byId.values()) {
+      // The API is already filtered to DEFAULT_TASK_TYPE; this keeps a silently
+      // dropped parameter from refilling the board with other task types.
+      if (task.custom_item_id != null && String(task.custom_item_id) !== DEFAULT_TASK_TYPE) continue;
+
+      if ((task.status?.status ?? '').trim().toLowerCase() !== REVIEW_STATUS) continue;
+
       const state = taskState(task);
       const dueTimestamp = Number(task.due_date ?? 0);
       const overdue = state !== 'closed' && dueTimestamp > 0 && dueTimestamp < now;

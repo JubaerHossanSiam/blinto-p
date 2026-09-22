@@ -54,6 +54,22 @@
 }
 .task-divider-muted { margin: 4px 0 0; text-transform: none; letter-spacing: 0; font-weight: 600; opacity: .8; }
 
+.task-sync-note {
+  margin: -8px 0 16px; color: var(--muted); font-size: 12px; font-weight: 600;
+}
+.task-sync-error { color: var(--red); }
+
+.person-tab-spinner {
+  display: inline-block; width: 11px; height: 11px; vertical-align: -1px;
+  border: 2px solid currentColor; border-right-color: transparent;
+  border-radius: 50%; opacity: .65;
+  animation: person-tab-spin .6s linear infinite;
+}
+@keyframes person-tab-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .person-tab-spinner { animation: none; }
+}
+
 .task-controls { display: flex; align-items: center; gap: 14px; margin-bottom: 26px; }
 
 .task-search { position: relative; display: flex; align-items: center; flex: 1 1 340px; max-width: 420px; }

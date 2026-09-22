@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { TaskRatingModal } from '@/components/task-rating-modal';
 import type { PersonTaskGroup, TaskDetail } from '@/lib/clickup-tasks';
@@ -209,13 +209,54 @@ export function TaskBoard({ groups, connected, ratings, viewerSlug, canRate }: T
   // Groups arrive ordered by name; the board opens on the first of them.
   const [selected, setSelected] = useState<string>(groups[0]?.slug ?? '');
   const [search, setSearch] = useState('');
+  // Whatever a per-person sync has replaced, keyed by slug. Anything absent
+  // falls back to what the server rendered.
+  const [synced, setSynced] = useState<Record<string, PersonTaskGroup>>({});
+  const [liveRatings, setLiveRatings] = useState<TaskRatingMap>(ratings);
+  const [syncing, setSyncing] = useState<string | null>(null);
+  const [syncError, setSyncError] = useState<string | null>(null);
 
   const query = useMemo(() => search.trim().toLowerCase(), [search]);
+
+  // Clicking a name is the refresh gesture, so re-clicking the open tab syncs
+  // it again rather than doing nothing.
+  const openPerson = useCallback(async (slug: string) => {
+    setSelected(slug);
+    setSyncError(null);
+    setSyncing(slug);
+    try {
+      const response = await fetch('/api/tasks/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug }),
+      });
+      const payload = await response.json().catch(() => null) as
+        | { ok?: boolean; group?: PersonTaskGroup; ratings?: TaskRatingMap; message?: string }
+        | null;
+
+      if (!response.ok || !payload?.ok || !payload.group) {
+        setSyncError(payload?.message ?? 'Could not refresh from ClickUp.');
+        return;
+      }
+
+      const group = payload.group;
+      setSynced((current) => ({ ...current, [slug]: group }));
+      setLiveRatings((current) => ({ ...current, ...(payload.ratings ?? {}) }));
+    } catch {
+      setSyncError('Could not reach the server.');
+    } finally {
+      // Only clear if this is still the request in flight, so a fast second
+      // click does not switch the spinner off under the newer one.
+      setSyncing((current) => (current === slug ? null : current));
+    }
+  }, []);
 
   // A stale selection (someone leaves the team between renders) falls back to
   // the first person rather than an empty board.
   const active = groups.some((group) => group.slug === selected) ? selected : groups[0]?.slug;
-  const shown = groups.filter((group) => group.slug === active);
+  const shown = groups
+    .filter((group) => group.slug === active)
+    .map((group) => synced[group.slug] ?? group);
 
   return (
     <>
@@ -229,10 +270,14 @@ export function TaskBoard({ groups, connected, ratings, viewerSlug, canRate }: T
                   type="button"
                   className={`person-tab${current ? ' person-tab-active' : ''}`}
                   aria-current={current ? 'true' : undefined}
-                  onClick={() => setSelected(group.slug)}
+                  onClick={() => openPerson(group.slug)}
                 >
                   <span className="person-tab-name">{group.name}</span>
-                  <span className="person-tab-count">{group.openCount}</span>
+                  <span className="person-tab-count">
+                    {syncing === group.slug
+                      ? <span className="person-tab-spinner" aria-label="Syncing" />
+                      : (synced[group.slug] ?? group).openCount}
+                  </span>
                 </button>
               </li>
             );
@@ -257,11 +302,17 @@ export function TaskBoard({ groups, connected, ratings, viewerSlug, canRate }: T
         </div>
       </div>
 
+      {syncing ? (
+        <p className="task-sync-note" role="status">Syncing the latest from ClickUp…</p>
+      ) : syncError ? (
+        <p className="task-sync-note task-sync-error" role="status">{syncError}</p>
+      ) : null}
+
       {shown.map((group) => (
         <PersonTasks
           group={group}
           connected={connected}
-          ratings={ratings}
+          ratings={liveRatings}
           query={query}
           onRate={(task) => setRating({ task, group })}
           // The button is always present; these are the cases where pressing it
@@ -283,7 +334,7 @@ export function TaskBoard({ groups, connected, ratings, viewerSlug, canRate }: T
           taskName={rating.task.name}
           employeeSlug={rating.group.slug}
           employeeName={rating.group.name}
-          existing={ratings[ratingKey(rating.task.id, rating.group.slug)]}
+          existing={liveRatings[ratingKey(rating.task.id, rating.group.slug)]}
           onClose={() => setRating(null)}
         />
       ) : null}
