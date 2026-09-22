@@ -5,14 +5,6 @@ import { getTaskRatings } from '@/lib/task-ratings';
 
 export const dynamic = 'force-dynamic';
 
-const scopeCopy: Record<string, string> = {
-  employee: 'Your assigned ClickUp tasks.',
-  delivery_reviewer: 'Your assigned ClickUp tasks.',
-  manager: 'Your own tasks and those of your direct reports.',
-  people_ops: 'Assigned tasks across the team, grouped by person.',
-  admin: 'Assigned tasks across the team, grouped by person.',
-};
-
 export default async function TasksPage() {
   const { portalUser } = await requirePortalUser();
   const visibleSlugs = await getTaskVisibleEmployeeSlugs(portalUser);
@@ -32,7 +24,6 @@ export default async function TasksPage() {
       <header className="task-header">
         <p className="eyebrow">ClickUp</p>
         <h1 className="page-title">Assigned Tasks</h1>
-        <p className="page-subtitle">{scopeCopy[portalUser.role] ?? scopeCopy.employee}</p>
       </header>
 
       {board.message ? (

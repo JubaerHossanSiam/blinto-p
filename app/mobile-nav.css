@@ -16,8 +16,8 @@
   display: grid;
   place-items: center;
   border: 1px solid var(--line);
-  border-radius: 11px;
-  background: #fff;
+  border-radius: var(--r-md);
+  background: var(--surface);
   color: var(--text);
   cursor: pointer;
 }
@@ -52,7 +52,7 @@
   width: min(340px, calc(100vw - 36px));
   height: 100dvh;
   padding: 18px;
-  background: #fff;
+  background: var(--surface);
   box-shadow: -24px 0 60px rgba(17, 19, 21, .16);
   overflow-y: auto;
 }
@@ -80,7 +80,7 @@
   display: grid;
   place-items: center;
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   background: var(--surface-2);
   color: var(--text);
   font-size: 24px;
@@ -101,7 +101,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 0 12px;
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   font-size: 14px;
   font-weight: 700;
 }

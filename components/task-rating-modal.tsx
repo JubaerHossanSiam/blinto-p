@@ -4,13 +4,27 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import {
-  allowedValues,
   hasNumericScale,
   KPI_DEFINITIONS,
   labelForValue,
   valueForLabel,
+  type KpiDefinition,
 } from '@/lib/kpi-fields';
 import type { TaskRatingSummary } from '@/lib/task-rating-types';
+
+/**
+ * What the field's dropdown offers. Numeric fields keep the guide's 1-5 scale
+ * visible in the option text, so picking "4 — Strong" still teaches the scale
+ * the way a bare number box never did.
+ */
+function fieldOptions(definition: KpiDefinition) {
+  if (!hasNumericScale(definition.fieldId)) {
+    return definition.options.map((option) => ({ value: option.label, text: option.label }));
+  }
+  return definition.options
+    .filter((option) => option.value !== undefined)
+    .map((option) => ({ value: String(option.value), text: `${option.value} — ${option.label}` }));
+}
 
 type TaskRatingModalProps = {
   taskId: string;
@@ -140,8 +154,9 @@ export function TaskRatingModal({
         ) : null}
 
         <div className="rating-grid">
-          {resolved.map(({ definition, raw, numeric, label, invalid }) => {
-            const scale = allowedValues(definition.fieldId);
+          {resolved.map(({ definition, raw, numeric, invalid }) => {
+            const fieldId = `kpi-${definition.fieldId}`;
+            const hintId = `kpi-hint-${definition.fieldId}`;
 
             function set(next: string) {
               setValues((current) => {
@@ -153,50 +168,34 @@ export function TaskRatingModal({
             }
 
             return (
-              <div className="rating-row" key={definition.fieldId}>
-                <label htmlFor={numeric ? `kpi-${definition.fieldId}` : undefined}>
+              <div className="rating-field" key={definition.fieldId}>
+                <label className="rating-field-label" htmlFor={fieldId}>
                   {definition.label}
+                  {numeric ? <span className="rating-field-scale">Scale 1–5</span> : null}
                 </label>
 
-                {numeric ? (
-                  <div className="rating-input-line">
-                    <input
-                      id={`kpi-${definition.fieldId}`}
-                      className={`rating-score-input${invalid ? ' rating-score-invalid' : ''}`}
-                      type="number"
-                      inputMode="numeric"
-                      min={Math.min(...scale)}
-                      max={Math.max(...scale)}
-                      step={1}
-                      placeholder="—"
-                      value={raw}
-                      aria-invalid={invalid}
-                      aria-describedby={`kpi-hint-${definition.fieldId}`}
-                      onChange={(event) => set(event.target.value)}
-                    />
-                    <span className="rating-out-of">/ 5</span>
-                    <span
-                      id={`kpi-hint-${definition.fieldId}`}
-                      className={`rating-resolved${invalid ? ' rating-resolved-invalid' : ''}`}
-                    >
-                      {label ?? (invalid ? 'Enter a value from 1 to 5' : 'Not rated')}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="rating-choice" role="group" aria-label={definition.label}>
-                    {definition.options.map((option) => (
-                      <button
-                        type="button"
-                        key={option.label}
-                        className={`rating-choice-chip${raw === option.label ? ' rating-choice-chip-active' : ''}`}
-                        aria-pressed={raw === option.label}
-                        onClick={() => set(raw === option.label ? '' : option.label)}
-                      >
-                        {option.label}
-                      </button>
+                <div className="rating-field-control">
+                  <select
+                    id={fieldId}
+                    className={`rating-select${invalid ? ' rating-select-invalid' : ''}`}
+                    value={invalid ? '' : raw}
+                    aria-invalid={invalid}
+                    aria-describedby={invalid ? hintId : undefined}
+                    onChange={(event) => set(event.target.value)}
+                  >
+                    <option value="">Not Relevent</option>
+                    {fieldOptions(definition).map((option) => (
+                      <option value={option.value} key={option.value}>{option.text}</option>
                     ))}
-                  </div>
-                )}
+                  </select>
+                  {/* Only reachable when a saved rating uses a label the field no
+                      longer offers — the dropdown itself cannot produce one. */}
+                  {invalid ? (
+                    <span className="rating-field-note" id={hintId}>
+                      Saved value “{raw}” is no longer a valid option — pick a new one.
+                    </span>
+                  ) : null}
+                </div>
               </div>
             );
           })}

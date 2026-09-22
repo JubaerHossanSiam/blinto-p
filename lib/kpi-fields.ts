@@ -31,13 +31,16 @@ const standardOptions: KpiOption[] = [
   { label: 'Significant Improvement Needed', value: 1, score: 2 },
 ];
 
-// Delivery Status is deliberately label-only: the guide records that no
-// numeric delivery-rating conversion has been agreed yet, and the 10/7/4
-// scores below are the existing internal values, not a documented scale.
+// Delivery now runs on the same 1-5 scale as the standard KPIs, scored as
+// value * 2. Note the scale is ordered early -> late, so the highest value
+// (5, Major Delay) carries the highest score, unlike every other field where
+// 5 is the best outcome.
 const deliveryOptions: KpiOption[] = [
-  { label: 'On Time', score: 10 },
-  { label: 'Minor Delay', score: 7 },
-  { label: 'Late', score: 4 },
+  { label: 'Major Delay', value: 5, score: 10 },
+  { label: 'Minor Delay', value: 4, score: 8 },
+  { label: 'On time', value: 3, score: 6 },
+  { label: 'Minor Early', value: 2, score: 4 },
+  { label: 'Major Early', value: 1, score: 2 },
 ];
 
 const impactOptions: KpiOption[] = [

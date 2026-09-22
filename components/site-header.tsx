@@ -5,7 +5,6 @@ import { ProfileMenu } from '@/components/profile-menu';
 import type { PortalRole, ViewAsOption } from '@/lib/access';
 
 const nav = [
-  ['Tasks', '/tasks'],
   ['Framework', '/framework'],
   ['Rating Guide', '/task-rating-guide'],
   ['Rules', '/rules'],
@@ -25,6 +24,9 @@ type SiteHeaderProps = {
 
 export function SiteHeader({ userName, userEmail, actualRole, effectiveRole, viewingAsEmail, viewAsOptions }: SiteHeaderProps) {
   const canViewTeam = effectiveRole === 'admin' || effectiveRole === 'people_ops';
+  // The board only ever shows a plain employee their own tasks, which they
+  // already see in ClickUp, so it is not offered to them.
+  const canViewTasks = effectiveRole !== 'employee';
 
   return (
     <header className="site-header">
@@ -38,6 +40,7 @@ export function SiteHeader({ userName, userEmail, actualRole, effectiveRole, vie
         </Link>
 
         <nav className="nav-links" aria-label="Primary navigation">
+          {canViewTasks ? <Link href="/tasks">Tasks</Link> : null}
           {nav.map(([label, href]) => (
             <Link href={href} key={href}>{label}</Link>
           ))}

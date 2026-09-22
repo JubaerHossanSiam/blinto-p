@@ -7,7 +7,6 @@ import type { PortalRole } from '@/lib/access';
 
 const nav = [
   ['Dashboard', '/portal'],
-  ['Tasks', '/tasks'],
   ['Framework', '/framework'],
   ['Rating Guide', '/task-rating-guide'],
   ['Rules', '/rules'],
@@ -23,6 +22,8 @@ type MobileNavProps = {
 export function MobileNav({ role }: MobileNavProps) {
   const [open, setOpen] = useState(false);
   const canViewTeam = role === 'admin' || role === 'people_ops';
+  // Mirrors the desktop header: plain employees are not offered the board.
+  const canViewTasks = role !== 'employee';
 
   return (
     <div className="mobile-nav">
@@ -53,6 +54,9 @@ export function MobileNav({ role }: MobileNavProps) {
               {nav.map(([label, href]) => (
                 <Link href={href} key={href} onClick={() => setOpen(false)}>{label}<span aria-hidden="true">→</span></Link>
               ))}
+              {canViewTasks ? (
+                <Link href="/tasks" onClick={() => setOpen(false)}>Tasks<span aria-hidden="true">→</span></Link>
+              ) : null}
               {canViewTeam ? (
                 <Link href="/team" onClick={() => setOpen(false)}>Team<span aria-hidden="true">→</span></Link>
               ) : null}

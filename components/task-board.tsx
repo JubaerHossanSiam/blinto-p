@@ -1,38 +1,89 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { TaskRatingModal } from '@/components/task-rating-modal';
 import type { PersonTaskGroup, TaskDetail } from '@/lib/clickup-tasks';
-import { KPI_DEFINITIONS } from '@/lib/kpi-fields';
+import { KPI_DEFINITIONS, scoreForLabel } from '@/lib/kpi-fields';
 import { ratingKey, type TaskRatingMap, type TaskRatingSummary } from '@/lib/task-rating-types';
 
 // Active work is the point of this board; a busy person can close well over a
 // hundred tasks in the recent-window, which would bury it.
 const CLOSED_SHOWN = 12;
 
-function formatDate(value?: string) {
-  if (!value) return null;
-  return new Intl.DateTimeFormat('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    timeZone: 'Asia/Dhaka',
-  }).format(new Date(value));
+/** The date the row is ordered by: due date for live work, close date once done. */
+function taskDate(task: TaskDetail) {
+  return task.dueDate ?? task.closedAt ?? task.updatedAt;
 }
 
-function stateLabel(task: TaskDetail) {
-  if (task.state === 'closed') return 'status-good';
-  if (task.overdue) return 'status-risk';
-  return task.state === 'open' ? 'status-neutral' : 'status-warn';
+/** Newest first, always — the board no longer offers a choice. */
+function sortTasks(tasks: TaskDetail[]) {
+  return [...tasks].sort((a, b) => {
+    const left = taskDate(a);
+    const right = taskDate(b);
+    // Undated work sinks to the bottom rather than floating above everything.
+    if (!left && !right) return 0;
+    if (!left) return 1;
+    if (!right) return -1;
+    return right.localeCompare(left);
+  });
 }
 
+function matchesQuery(task: TaskDetail, query: string) {
+  if (!query) return true;
+  const haystack = [task.name, task.spaceName, task.folderName, task.listName, ...task.tags]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+  // Every word has to appear somewhere, so "nifty layout" narrows rather than widens.
+  return query.split(/\s+/).every((word) => haystack.includes(word));
+}
+
+/**
+ * The mean score of the fields rated so far, out of 10. Fields are stored as
+ * the label the rater picked, so each one has to be converted back through its
+ * own option list; a label the field no longer offers scores nothing and is
+ * left out rather than counted as zero.
+ */
+function averageScore(rating: TaskRatingSummary) {
+  const scores = Object.entries(rating.fields)
+    .map(([fieldId, label]) => scoreForLabel(fieldId, label))
+    .filter((score): score is number => typeof score === 'number');
+  if (!scores.length) return null;
+  return scores.reduce((sum, score) => sum + score, 0) / scores.length;
+}
+
+// The bands follow the guide's 1-5 scale doubled: 5 and 4 are green, 3 reads as
+// solid, 2 warns, 1 is a problem.
+function scoreBand(average: number) {
+  if (average >= 8) return 'task-rated-good';
+  if (average >= 6) return 'task-rated-solid';
+  if (average >= 4) return 'task-rated-warn';
+  return 'task-rated-risk';
+}
+
+/**
+ * Always rendered, so an unrated task reads as 0/8 rather than as a row with
+ * nothing on it — the count is the only status the row carries now. The colour
+ * comes from the scores behind that count, not from the count itself.
+ */
 function ratingBadge(rating: TaskRatingSummary | undefined) {
-  if (!rating) return null;
+  const total = KPI_DEFINITIONS.length;
+  if (!rating) return { className: 'task-rated-empty', label: `0/${total} rated`, title: undefined };
+  if (rating.status === 'invalid') {
+    return { className: 'task-rated-risk', label: 'Rejected', title: rating.reason || undefined };
+  }
+
   const rated = Object.keys(rating.fields).length;
-  const label = `${rated}/${KPI_DEFINITIONS.length} rated`;
-  if (rating.status === 'verified') return { className: 'status-good', label };
-  if (rating.status === 'invalid') return { className: 'status-risk', label: 'Rejected' };
-  return { className: 'status-warn', label: `${label} · needs validation` };
+  const label = `${rated}/${total} rated`;
+  const average = averageScore(rating);
+  if (average === null) return { className: 'task-rated-empty', label, title: undefined };
+
+  return {
+    className: scoreBand(average),
+    label,
+    title: `Average ${average.toFixed(1)}/10 across ${rated} rated ${rated === 1 ? 'KPI' : 'KPIs'}`,
+  };
 }
 
 type TaskRowProps = {
@@ -44,19 +95,14 @@ type TaskRowProps = {
 };
 
 function TaskRow({ task, rating, onRate, rateBlockedReason }: TaskRowProps) {
-  const due = formatDate(task.dueDate);
-  const closed = formatDate(task.closedAt);
-  const location = [task.spaceName, task.folderName, task.listName].filter(Boolean).join(' / ');
   const badge = ratingBadge(rating);
 
   return (
-    <article className={`task-row${task.overdue ? ' task-row-overdue' : ''}`}>
+    <article className="task-row">
       <div className="task-row-main">
-        <a className="task-name" href={task.url} target="_blank" rel="noreferrer">{task.name}</a>
-        {location ? <p className="task-location">{location}</p> : null}
-        {task.coAssignees.length ? (
-          <p className="task-location">Shared with {task.coAssignees.join(', ')}</p>
-        ) : null}
+        <h3 className="task-name-head">
+          <a className="task-name" href={task.url} target="_blank" rel="noreferrer">{task.name}</a>
+        </h3>
         {task.tags.length ? (
           <div className="task-tags">
             {task.tags.map((tag) => <span className="tag" key={tag}>{tag}</span>)}
@@ -65,18 +111,7 @@ function TaskRow({ task, rating, onRate, rateBlockedReason }: TaskRowProps) {
       </div>
 
       <div className="task-row-meta">
-        <span className={`tracker-status ${stateLabel(task)}`}>{task.status}</span>
-        {task.priority ? <span className="task-meta-item">Priority: {task.priority}</span> : null}
-        {task.state === 'closed' && closed ? (
-          <span className="task-meta-item">Closed {closed}</span>
-        ) : due ? (
-          <span className={`task-meta-item${task.overdue ? ' task-meta-overdue' : ''}`}>
-            {task.overdue ? 'Overdue — due ' : 'Due '}{due}
-          </span>
-        ) : (
-          <span className="task-meta-item task-meta-muted">No due date</span>
-        )}
-        {badge ? <span className={`tracker-status ${badge.className}`}>{badge.label}</span> : null}
+        <span className={`task-rated ${badge.className}`} title={badge.title}>{badge.label}</span>
         <button
           className="button button-small task-rate-button"
           type="button"
@@ -95,13 +130,15 @@ type PersonTasksProps = {
   group: PersonTaskGroup;
   connected: boolean;
   ratings: TaskRatingMap;
+  query: string;
   onRate: (task: TaskDetail) => void;
   rateBlockedReason?: string;
 };
 
-function PersonTasks({ group, connected, ratings, onRate, rateBlockedReason }: PersonTasksProps) {
-  const active = group.tasks.filter((task) => task.state !== 'closed');
-  const closed = group.tasks.filter((task) => task.state === 'closed');
+function PersonTasks({ group, connected, ratings, query, onRate, rateBlockedReason }: PersonTasksProps) {
+  const matching = group.tasks.filter((task) => matchesQuery(task, query));
+  const active = sortTasks(matching.filter((task) => task.state !== 'closed'));
+  const closed = sortTasks(matching.filter((task) => task.state === 'closed'));
   const shownClosed = closed.slice(0, CLOSED_SHOWN);
 
   return (
@@ -111,16 +148,9 @@ function PersonTasks({ group, connected, ratings, onRate, rateBlockedReason }: P
           <h2 id={`tasks-${group.slug}`}>{group.name}</h2>
           <p>{group.role}</p>
         </div>
-        <div className="task-group-counts">
-          <span className="task-count"><strong>{group.openCount}</strong> active</span>
-          {group.overdueCount ? (
-            <span className="task-count task-count-risk"><strong>{group.overdueCount}</strong> overdue</span>
-          ) : null}
-          <span className="task-count"><strong>{group.closedCount}</strong> recently closed</span>
-        </div>
       </div>
 
-      {group.tasks.length ? (
+      {active.length || shownClosed.length ? (
         <div className="task-list">
           {active.map((task) => (
             <TaskRow
@@ -153,7 +183,9 @@ function PersonTasks({ group, connected, ratings, onRate, rateBlockedReason }: P
             ? 'Tasks will appear here once the ClickUp connection is live.'
             : !group.mapped
               ? 'No ClickUp user is mapped to this employee, so their tasks cannot be matched.'
-              : 'No active or recently closed tasks assigned in ClickUp.'}
+              : query
+                ? `No tasks match “${query}”.`
+                : 'No active or recently closed tasks assigned in ClickUp.'}
         </p>
       )}
     </section>
@@ -176,50 +208,64 @@ export function TaskBoard({ groups, connected, ratings, viewerSlug, canRate }: T
   const [rating, setRating] = useState<RatingTarget | null>(null);
   // The viewer's own group is first, so the board opens on their own tasks.
   const [selected, setSelected] = useState<string>(groups[0]?.slug ?? '');
+  const [search, setSearch] = useState('');
+
+  const query = useMemo(() => search.trim().toLowerCase(), [search]);
 
   // A stale selection (someone leaves the team between renders) falls back to
   // the first person rather than an empty board.
   const active = groups.some((group) => group.slug === selected) ? selected : groups[0]?.slug;
   const shown = groups.filter((group) => group.slug === active);
 
-  const totalActive = shown.reduce((sum, group) => sum + group.openCount, 0);
-  const totalOverdue = shown.reduce((sum, group) => sum + group.overdueCount, 0);
-
   return (
     <>
       {groups.length > 1 ? (
-        <div className="task-filter" role="group" aria-label="Filter tasks by person">
-          {groups.map((group) => (
-            <button
-              type="button"
-              key={group.slug}
-              className={`task-filter-chip${active === group.slug ? ' task-filter-chip-active' : ''}`}
-              aria-pressed={active === group.slug}
-              onClick={() => setSelected(group.slug)}
-            >
-              {group.name}
-              <span className={`task-filter-count${group.overdueCount ? ' task-filter-count-risk' : ''}`}>
-                {group.openCount}
-              </span>
-            </button>
-          ))}
-        </div>
+        <ul className="person-tabs" aria-label="Filter tasks by person">
+          {groups.map((group) => {
+            const current = active === group.slug;
+            return (
+              <li key={group.slug}>
+                <button
+                  type="button"
+                  className={`person-tab${current ? ' person-tab-active' : ''}`}
+                  aria-current={current ? 'true' : undefined}
+                  onClick={() => setSelected(group.slug)}
+                >
+                  <span className="person-tab-name">{group.name}</span>
+                  <span className="person-tab-count">{group.openCount}</span>
+                  {group.overdueCount ? (
+                    <span className="person-tab-dot" title={`${group.overdueCount} overdue`} />
+                  ) : null}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
       ) : null}
 
-      {connected ? (
-        <div className="task-summary">
-          <span className="task-count"><strong>{totalActive}</strong> active</span>
-          {totalOverdue ? (
-            <span className="task-count task-count-risk"><strong>{totalOverdue}</strong> overdue</span>
-          ) : null}
+      <div className="task-controls">
+        <div className="task-search">
+          <svg className="task-search-icon" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+            <line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
+          <input
+            className="task-search-input"
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search tasks, lists or tags"
+            aria-label="Search tasks"
+          />
         </div>
-      ) : null}
+      </div>
 
       {shown.map((group) => (
         <PersonTasks
           group={group}
           connected={connected}
           ratings={ratings}
+          query={query}
           onRate={(task) => setRating({ task, group })}
           // The button is always present; these are the cases where pressing it
           // could only ever be rejected by the server.
