@@ -9,6 +9,9 @@ export const dynamic = 'force-dynamic';
 
 const CLICKUP_API_URL = 'https://api.clickup.com/api/v2';
 
+/** Long enough for real reasoning, short enough not to bloat eight rows. */
+const NOTE_MAX = 2000;
+
 type ClickUpTask = {
   id: string;
   name: string;
@@ -38,11 +41,16 @@ export async function POST(request: Request) {
     taskId?: string;
     employeeSlug?: string;
     ratings?: Record<string, string>;
+    note?: string;
   } | null;
 
   const taskId = body?.taskId?.trim();
   const employeeSlug = body?.employeeSlug?.trim();
   const ratings = body?.ratings;
+  // Trimmed and capped here rather than trusted: this text is read back into
+  // the review UI, and an unbounded field is an easy way to bloat every row of
+  // a rating.
+  const note = (body?.note ?? '').trim().slice(0, NOTE_MAX);
 
   if (!taskId || !employeeSlug || !ratings || typeof ratings !== 'object') {
     return NextResponse.json({ ok: false, message: 'Task, employee and ratings are required.' }, { status: 400 });
@@ -104,7 +112,9 @@ export async function POST(request: Request) {
     completedAt: task.date_closed ? new Date(Number(task.date_closed)).toISOString() : null,
     employeeSlug,
     ratings,
+    note,
     actorClickUpId,
+    actorRole: rater.role,
     actorName: raterPerson?.name ?? rater.email,
   });
 

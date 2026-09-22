@@ -6,6 +6,8 @@ export type TaskRatingSummary = {
   fields: Record<string, string>;
   status: 'verified' | 'needs_validation' | 'invalid';
   reason: string;
+  /** Why the rater scored it this way. Empty when they left it blank. */
+  note: string;
   actorName: string | null;
   ratedAt: string | null;
 };

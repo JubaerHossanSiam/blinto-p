@@ -75,17 +75,24 @@
 .task-search-input::-webkit-search-cancel-button { cursor: pointer; }
 
 .person-tabs {
-  display: flex; flex-wrap: wrap; gap: 6px;
-  margin: 0 0 22px; padding: 5px; list-style: none;
-  background: var(--surface-2); border-radius: 999px; width: fit-content; max-width: 100%;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  margin: 0 0 22px; padding: 14px; list-style: none;
+  background: var(--surface-2); border-radius: 22px; width: fit-content; max-width: 100%;
 }
 .person-tabs li { display: flex; }
 .person-tab {
-  position: relative; display: inline-flex; align-items: center; gap: 8px;
-  padding: 8px 15px; border: 0; border-radius: 999px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 9px;
+  /* Optically, not numerically, equal: the left gap sits against a letterform
+     and the right against the solid count badge, and a filled shape makes the
+     same measurement read wider. 13px on the right balances 16px on the left. */
+  padding: 11px 13px 11px 16px; border: 0; border-radius: 8px; cursor: pointer;
   background: transparent; color: #5f666c;
   font-family: inherit; font-size: 13px; font-weight: 600;
-  transition: background .15s, color .15s, box-shadow .15s;
+  /* The inherited 1.55 line-height made the text box taller than the glyphs,
+     so the measured vertical padding no longer matched what the eye saw
+     against the horizontal padding. Pinning it makes both sides literal. */
+  line-height: 1;
+  transition: background var(--t-fast), color var(--t-fast), box-shadow var(--t-fast);
 }
 .person-tab:hover { background: rgba(255,255,255,.75); color: var(--text); }
 .person-tab:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
@@ -96,19 +103,11 @@
 .person-tab-active:hover { background: var(--dark); color: #fff; }
 
 .person-tab-count {
-  min-width: 22px; padding: 2px 7px; border-radius: 999px;
+  min-width: 24px; padding: 4px 7px; border-radius: 6px; line-height: 1;
   background: rgba(17,19,21,.07); color: #5f666c;
   font-size: 11px; font-weight: 700; text-align: center; font-variant-numeric: tabular-nums;
 }
 .person-tab-active .person-tab-count { background: rgba(255,255,255,.2); color: #fff; }
-
-/* Overdue work is the one thing worth flagging on the tab itself, and a dot
-   says it without turning every count red. */
-.person-tab-dot {
-  position: absolute; top: 7px; right: 9px;
-  width: 6px; height: 6px; border-radius: 50%; background: #d92d20;
-}
-.person-tab-active .person-tab-dot { box-shadow: 0 0 0 2px var(--dark); }
 
 .task-rated {
   /* Sized to its own text rather than stretched across the column, and centred
@@ -197,6 +196,31 @@
 .rating-select-invalid { border-color: #d92d20; background-color: var(--red-soft); }
 
 .rating-field-note { color: var(--red); font-size: 11px; font-weight: 600; }
+
+.rating-note { display: grid; gap: 7px; margin-top: 20px; }
+.rating-note label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 650; letter-spacing: -.005em;
+}
+.rating-note-optional {
+  padding: 2px 7px; border-radius: 6px; background: var(--surface-2);
+  color: var(--muted); font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .05em;
+}
+.rating-note-input {
+  width: 100%; padding: 11px 13px; resize: vertical; min-height: 78px;
+  border: 1px solid var(--line-strong); border-radius: var(--r-sm);
+  background: var(--surface); color: var(--text);
+  font: inherit; font-size: 13px; line-height: 1.5;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.rating-note-input::placeholder { color: var(--muted); }
+.rating-note-input:hover { border-color: #aeb6bd; }
+.rating-note-input:focus-visible { outline: 0; border-color: var(--blue); box-shadow: var(--ring); }
+.rating-note-count {
+  justify-self: end; color: var(--muted); font-size: 11px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
 
 .rating-error { margin: 18px 0 0; }
 

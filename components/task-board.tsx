@@ -233,9 +233,6 @@ export function TaskBoard({ groups, connected, ratings, viewerSlug, canRate }: T
                 >
                   <span className="person-tab-name">{group.name}</span>
                   <span className="person-tab-count">{group.openCount}</span>
-                  {group.overdueCount ? (
-                    <span className="person-tab-dot" title={`${group.overdueCount} overdue`} />
-                  ) : null}
                 </button>
               </li>
             );
@@ -271,7 +268,7 @@ export function TaskBoard({ groups, connected, ratings, viewerSlug, canRate }: T
           // could only ever be rejected by the server.
           rateBlockedReason={
             !canRate
-              ? 'Only managers, People Ops and Admin can rate tasks.'
+              ? 'Only managers, the delivery reviewer, People Ops and Admin can rate tasks.'
               : group.slug === viewerSlug
                 ? 'Self-rating is not valid performance evidence.'
                 : undefined

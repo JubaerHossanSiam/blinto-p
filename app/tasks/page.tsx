@@ -16,6 +16,7 @@ export default async function TasksPage() {
   // Rating authority is decided server-side on save; this only controls whether
   // the button is worth offering.
   const canRate = portalUser.role === 'manager'
+    || portalUser.role === 'delivery_reviewer'
     || portalUser.role === 'people_ops'
     || portalUser.role === 'admin';
 

@@ -1,3 +1,4 @@
+import type { PortalRole } from '@/lib/access';
 import { getPerson, people } from '@/lib/people';
 
 export type RatingAuthorityDecision = {
@@ -23,7 +24,18 @@ function managerProfile(employeeSlug: string) {
   return people.find((person) => person.name.toLowerCase() === employee.manager.toLowerCase());
 }
 
-export function decideRatingAuthority(employeeSlug: string, actorClickUpId: string): RatingAuthorityDecision {
+/**
+ * `actorRole` is the rater's assigned portal role. Reviewer authority follows
+ * that role rather than one hardcoded ClickUp identity, so a reviewer account
+ * mapped to an ordinary employee slug still rates with full authority — and
+ * its ratings stay attributed to that slug, which keeps the audit trail honest
+ * about which account did the rating.
+ */
+export function decideRatingAuthority(
+  employeeSlug: string,
+  actorClickUpId: string,
+  actorRole?: PortalRole,
+): RatingAuthorityDecision {
   const employee = getPerson(employeeSlug);
   if (!employee) return { status: 'needs_validation', reason: 'Employee is not mapped in the performance framework.' };
 
@@ -41,8 +53,12 @@ export function decideRatingAuthority(employeeSlug: string, actorClickUpId: stri
     return { status: 'needs_validation', reason: 'Only Fazle can finalize ratings for this line manager.' };
   }
 
-  if (['siam', 'rakibul', 'sayem'].includes(employeeSlug) && ifrat?.clickupUserId === actorClickUpId) {
-    return { status: 'verified', reason: 'Ifrat is an authorized task rater for this line manager.' };
+  // The delivery reviewer rates the whole delivery org, employees and line
+  // managers alike. This sits after the ifrat/rafsan check above, so the two
+  // people only Fazle may finalize are already handled and are not reachable
+  // here — including the reviewer rating themselves.
+  if (actorRole === 'delivery_reviewer' || ifrat?.clickupUserId === actorClickUpId) {
+    return { status: 'verified', reason: 'Delivery reviewer rating authority.' };
   }
 
   const manager = managerProfile(employeeSlug);

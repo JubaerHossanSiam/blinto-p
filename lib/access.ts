@@ -107,6 +107,45 @@ export async function getTaskVisibleEmployeeSlugs(current: PortalUser): Promise<
 
   if (!current.employeeSlug) return [];
 
+  if (current.role === 'delivery_reviewer') {
+    // Every employee and line manager, which is everyone the reviewer rates.
+    // Framed as "not an elevated role" rather than a name list so it keeps up
+    // with the roster; People Ops, Admin and the reviewer themselves drop out,
+    // and an employee with no portal account yet still appears.
+    // Deliberately no `slug <> current` here: a reviewer reviews the whole
+    // delivery org, and reviewers are already filtered out by the role test
+    // below. Excluding self would instead punch a hole in the list whenever a
+    // reviewer account is mapped to an ordinary employee slug, which is how
+    // reviewer access is granted to someone who also appears on the roster.
+    // Rating your own tasks is still refused server-side.
+    // Keyed on holding an ordinary account rather than on NOT holding an
+    // elevated one. A person can have more than one login, so testing for an
+    // elevated role hid anyone who shared a slug with a reviewer account —
+    // which silently dropped Siam the moment reviewer access was granted to a
+    // second login mapped to his slug. Someone with no portal account at all
+    // is still on the roster and still rateable, so they stay in.
+    const result = await db.query<{ slug: string }>(
+      `select e.slug
+         from employees e
+        where e.is_active = true
+          and (
+            exists (
+              select 1 from approved_users au
+               where au.employee_slug = e.slug
+                 and au.is_active = true
+                 and au.role in ('employee', 'manager')
+            )
+            or not exists (
+              select 1 from approved_users au
+               where au.employee_slug = e.slug
+                 and au.is_active = true
+            )
+          )
+        order by e.full_name`,
+    );
+    return result.rows.map((row) => row.slug);
+  }
+
   if (current.role === 'manager') {
     // Direct reports only. A manager may never rate themselves, so their own
     // tasks were a tab that could only ever be looked at, never acted on.

@@ -26,6 +26,9 @@ function fieldOptions(definition: KpiDefinition) {
     .map((option) => ({ value: String(option.value), text: `${option.value} — ${option.label}` }));
 }
 
+/** Mirrors the server-side cap in app/api/task-ratings/route.ts. */
+const NOTE_MAX = 2000;
+
 type TaskRatingModalProps = {
   taskId: string;
   taskName: string;
@@ -54,6 +57,7 @@ export function TaskRatingModal({
     }
     return initial;
   });
+  const [note, setNote] = useState(existing?.note ?? '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -102,6 +106,7 @@ export function TaskRatingModal({
               .filter((entry) => entry.label)
               .map((entry) => [entry.definition.fieldId, entry.label as string]),
           ),
+          note,
         }),
       });
       const payload = await response.json().catch(() => null) as
@@ -199,6 +204,23 @@ export function TaskRatingModal({
               </div>
             );
           })}
+        </div>
+
+        <div className="rating-note">
+          <label htmlFor="rating-note-input">
+            Why this rating?
+            <span className="rating-note-optional">Optional</span>
+          </label>
+          <textarea
+            id="rating-note-input"
+            className="rating-note-input"
+            rows={3}
+            maxLength={NOTE_MAX}
+            placeholder="What happened on this task that justifies these scores?"
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+          />
+          <span className="rating-note-count">{note.length}/{NOTE_MAX}</span>
         </div>
 
         {error ? <p className="form-error rating-error">{error}</p> : null}
